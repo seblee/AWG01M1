@@ -1,0 +1,6 @@
+load STM32G070RBTx 
+project name STCubeGenerated 
+project toolchain "MDK-ARM V5" 
+project path "D:\MyCloud\TQWorking\AWG01M1\AWG01M1\USER\RTE\Device\STM32G070RBTx\" 
+set tpl_path "C:\Keil_v5\ARM\PACK\Keil\STM32G0xx_DFP\1.4.0\MDK\CubeMX" 
+set dest_path "STM32G070RBTx" 
