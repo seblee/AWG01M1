@@ -112,50 +112,15 @@ int main(void)
   /* USER CODE END 2 */
 
   /* Infinite loop */
-  /* USER CODE BEGIN WHILE */
-      osDelay(BKG_OSDELAY); //上电延时
-//    led_init();
-//    AM_Init(); // TH
-//    drv_adc_dma_init();
-//    TDS_Usart_Init(); // TDS
-//    IWDG_Configuration();
+  /* USER CODE BEGIN WHILE */ 
+  BackGround_proc();
   while (1)
   {   
     HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);      // suspend thread
     HAL_IWDG_Refresh(&hiwdg);
     /* USER CODE END WHILE */
 
-    /* USER CODE BEGIN 3 */
-       LEDCtrlStatus(); // LED运行状态
-//        if (++num[0] >= 11)
-//        {
-//            num[0] = 0;
-//            sys_running_mode_update();
-//            daq_gvar_update();
-//        }
-//        if (++num[1] >= 13)
-//        {
-//            num[1] = 0;
-//            AM_Sensor_update(); //温湿度更新
-//        }
-//        //			if(++num[2] >= 19)
-//        //			{
-//        //				num[2]=0;
-//        //				TDS_Send();
-//        //			}
-//        //			if(++num[3] >= 5)
-//        //			{
-//        //				num[3]=0;
-//        //				Comm_Service();
-//        //			}
-//        if (++num[4] >= 10)
-//        {
-//            num[4] = 0;
-//            sys_comp_cooldown();
-//            run_time_process();
-//        }
-        /* 从新导入IWDG计数器 */ 
-        osDelay(BKG_PROC_DLY);
+    /* USER CODE BEGIN 3 */ 
   }
   /* USER CODE END 3 */
 }

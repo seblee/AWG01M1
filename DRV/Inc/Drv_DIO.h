@@ -97,7 +97,7 @@ extern void Sync_Di_timeout(void);
 extern void DI_reg_update(void);
 extern uint8_t GetSEL(void);
 
-extern uint16_t do_set(int16_t pin_id, BitAction value);
+extern uint16_t do_set(int16_t pin_id, GPIO_PinState value);
 extern void HC595_GPIO_Config(void);
 extern void HC595_Send_Multi_Byte(u8* data, u8 len);
 

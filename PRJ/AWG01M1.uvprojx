@@ -338,7 +338,7 @@
               <MiscControls></MiscControls>
               <Define></Define>
               <Undefine></Undefine>
-              <IncludePath>.\;..\DRV\Inc;..\APP\Inc;..\USER\Inc</IncludePath>
+              <IncludePath>.\;..\DRV\Inc;..\APP\Inc;..\USER\Inc;..\SYS\Inc;..\LIB\Kits\Inc;..\LIB\freemodbus-v1.5.0\demo\BARE;..\LIB\freemodbus-v1.5.0\demo\BARE\port;..\LIB\freemodbus-v1.5.0\modbus\rtu;..\LIB\freemodbus-v1.5.0\modbus\functions;..\LIB\freemodbus-v1.5.0\modbus\include</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -380,29 +380,6 @@
       </TargetOption>
       <Groups>
         <Group>
-          <GroupName>app</GroupName>
-        </Group>
-        <Group>
-          <GroupName>user</GroupName>
-          <Files>
-            <File>
-              <FileName>Thread.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\Thread.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>drv</GroupName>
-          <Files>
-            <File>
-              <FileName>Drv_Led.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\DRV\Src\Drv_Led.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
           <GroupName>:STM32CubeMX:Common Sources</GroupName>
           <Files>
             <File>
@@ -419,6 +396,164 @@
               <FileName>stm32g0xx_it.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\RTE\Device\STM32G070RBTx\STCubeGenerated\Src\stm32g0xx_it.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>app</GroupName>
+          <Files>
+            <File>
+              <FileName>App_Core.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\APP\Src\App_Core.c</FilePath>
+            </File>
+            <File>
+              <FileName>App_BackGround.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\APP\Src\App_BackGround.c</FilePath>
+            </File>
+            <File>
+              <FileName>App_Communiction.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\APP\Src\App_Communiction.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>user</GroupName>
+          <Files>
+            <File>
+              <FileName>Thread.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Thread.c</FilePath>
+            </File>
+            <File>
+              <FileName>global.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\USER\Src\global.c</FilePath>
+            </File>
+            <File>
+              <FileName>req_execution.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\USER\Src\req_execution.c</FilePath>
+            </File>
+            <File>
+              <FileName>alarm_calc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\USER\Src\alarm_calc.c</FilePath>
+            </File>
+            <File>
+              <FileName>daq.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\USER\Src\daq.c</FilePath>
+            </File>
+            <File>
+              <FileName>sys_status.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\USER\Src\sys_status.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>drv</GroupName>
+          <Files>
+            <File>
+              <FileName>Drv_Led.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\DRV\Src\Drv_Led.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>lib</GroupName>
+        </Group>
+        <Group>
+          <GroupName>kit</GroupName>
+          <Files>
+            <File>
+              <FileName>calc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\LIB\Kits\Src\calc.c</FilePath>
+            </File>
+            <File>
+              <FileName>fifo.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\LIB\Kits\Src\fifo.c</FilePath>
+            </File>
+            <File>
+              <FileName>Lib_Check.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\LIB\Kits\Src\Lib_Check.c</FilePath>
+            </File>
+            <File>
+              <FileName>Lib_CRC.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\LIB\Kits\Src\Lib_CRC.c</FilePath>
+            </File>
+            <File>
+              <FileName>Lib_Delay.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\LIB\Kits\Src\Lib_Delay.c</FilePath>
+            </File>
+            <File>
+              <FileName>Lib_Memory.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\LIB\Kits\Src\Lib_Memory.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>modbus</GroupName>
+          <Files>
+            <File>
+              <FileName>mb.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\LIB\freemodbus-v1.5.0\modbus\mb.c</FilePath>
+            </File>
+            <File>
+              <FileName>mbcrc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\LIB\freemodbus-v1.5.0\modbus\rtu\mbcrc.c</FilePath>
+            </File>
+            <File>
+              <FileName>mbrtu.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\LIB\freemodbus-v1.5.0\modbus\rtu\mbrtu.c</FilePath>
+            </File>
+            <File>
+              <FileName>mbfuncdisc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\LIB\freemodbus-v1.5.0\modbus\functions\mbfuncdisc.c</FilePath>
+            </File>
+            <File>
+              <FileName>mbfuncholding.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\LIB\freemodbus-v1.5.0\modbus\functions\mbfuncholding.c</FilePath>
+            </File>
+            <File>
+              <FileName>mbutils.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\LIB\freemodbus-v1.5.0\modbus\functions\mbutils.c</FilePath>
+            </File>
+            <File>
+              <FileName>portevent.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\LIB\freemodbus-v1.5.0\demo\BARE\port\portevent.c</FilePath>
+            </File>
+            <File>
+              <FileName>portserial.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\LIB\freemodbus-v1.5.0\demo\BARE\port\portserial.c</FilePath>
+            </File>
+            <File>
+              <FileName>porttimer.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\LIB\freemodbus-v1.5.0\demo\BARE\port\porttimer.c</FilePath>
+            </File>
+            <File>
+              <FileName>mb_cb.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\LIB\freemodbus-v1.5.0\demo\BARE\mb_cb.c</FilePath>
             </File>
           </Files>
         </Group>

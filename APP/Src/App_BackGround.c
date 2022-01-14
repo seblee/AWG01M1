@@ -1,10 +1,13 @@
 #include "cmsis_os.h"
-#include "threads.h"
 #include "sys_def.h"
 #include "Drv_Led.h"
 #include "global.h"
 #include "sys_status.h"
 #include "daq.h"
+#define osObjectsPublic  // define objects in main module
+#include "osObjects.h"   // RTOS object definitions
+
+extern IWDG_HandleTypeDef hiwdg;
 
 static void sys_comp_cooldown(void)
 {
@@ -185,16 +188,16 @@ uint8_t reset_runtime(uint16_t param)
   * @param  None
   * @retval None
 *********************************************************/
-void BackGround_proc(void const *argument)
+void BackGround_proc(void)
 {
     static uint8_t num[5] = {0};
 
     osDelay(BKG_OSDELAY);  //上电延时
-    led_init();
-    AM_Init();  // TH
-    drv_adc_dma_init();
-    TDS_Usart_Init();  // TDS
-    IWDG_Configuration();
+//    led_init();
+//    AM_Init();  // TH
+//    drv_adc_dma_init();
+//    TDS_Usart_Init();  // TDS
+//    IWDG_Configuration();
     while (1)
     {
         LEDCtrlStatus();  // LED运行状态
@@ -226,7 +229,7 @@ void BackGround_proc(void const *argument)
             run_time_process();
         }
         /* 从新导入IWDG计数器 */
-        IWDG_ReloadCounter();
+        HAL_IWDG_Refresh(&hiwdg);
         osDelay(BKG_PROC_DLY);
     }
 }

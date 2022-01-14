@@ -18,15 +18,14 @@
 
 #include "cmsis_os.h"  // CMSIS RTOS header file
 
+#define COM_OSDELAY 200
+#define CORE_OSDELAY 100
+#define DI_OSDELAY 300
+#define BKG_OSDELAY 500
 
-#define		COM_OSDELAY         200
-#define		CORE_OSDELAY				100	
-#define		DI_OSDELAY					300
-#define		BKG_OSDELAY					500	
-
-#define CORE_PROC_DLY		500u
-#define COM_PROC_DLY    10u 
-#define BKG_PROC_DLY		100u
+#define CORE_PROC_DLY 500u
+#define COM_PROC_DLY 10u
+#define BKG_PROC_DLY 100u
 // global 'thread' functions ---------------------------------------------------
 /*
 Example:
@@ -38,7 +37,7 @@ osThreadDef (sample_name, osPriorityNormal, 1, 0);      // thread object
 int Init_Thread(void);
 
 extern void Communiction_proc(void const *argument);
-extern void BackGround_proc(void const *argument);
+extern void BackGround_proc(void);
 extern void Core_Proc(void const *argument);
 
 // global 'semaphores' ----------------------------------------------------------
