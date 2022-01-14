@@ -36,17 +36,15 @@
 
 #define II_WP_GPIO GPIOB
 
-#define II_SCL_Pin GPIO_PIN_8
+#define II_SCL_Pin GPIO_PIN_14
 
-#define II_SDA_Pin GPIO_PIN_9
+#define II_SDA_Pin GPIO_PIN_13
 
-#define II_WP_Pin GPIO_PIN_5
+#define II_WP_Pin GPIO_PIN_15
 
-#define READ_SDA() GPIO_ReadInputDataBit(II_SDA_GPIO, II_SDA_Pin)
-
-#define WP_Enable() GPIO_ResetBits(II_WP_GPIO, II_WP_Pin)
-
-#define WP_Diable() GPIO_SetBits(II_WP_GPIO, II_WP_Pin)
+#define READ_SDA() HAL_GPIO_ReadPin(II_SDA_GPIO, II_SDA_Pin)
+#define WP_Enable() HAL_GPIO_WritePin(II_WP_GPIO, II_WP_Pin, GPIO_PIN_RESET)
+#define WP_Diable() HAL_GPIO_WritePin(II_WP_GPIO, II_WP_Pin, GPIO_PIN_SET);
 
 // IIC?¨´¨®D2¨´¡Á¡Âo¡¥¨ºy
 

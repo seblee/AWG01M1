@@ -39,7 +39,9 @@ typedef enum
 #define EE_FLAG_LOAD_DEBUT 0xff
 
 const conf_reg_map_st conf_reg_map_inst[REG_MAP_NUM] = {
-    // id			 						mapped registers									                min			max					default				       permission	   r/w
+    // id			 						mapped registers									                min			max					default
+    // permission
+    // r/w
     // chk_ptr
     {0, &g_sVariable.gPara.Num, 0, 0xFFFF, REG_HOLDING_NREGS, 0, NULL},
     {1, &g_sVariable.gPara.Software, 0, 0xFFFF, MB_SOFTWARE_VER, 0, NULL},
@@ -110,8 +112,10 @@ const conf_reg_map_st conf_reg_map_inst[REG_MAP_NUM] = {
     {66, &g_sVariable.gPara.Water.u16FILTER_ELEMENT_Type, 0, 1, 0, 1, NULL},
     {67, NULL, 0, 0xFFFF, 0, 0, NULL},
     {68, &g_sVariable.gPara.Water.u16TDS_Cail, 0, 0xFFFF, 0, 1, NULL},
-    //		{	69,			 					&g_sVariable.gPara.Water.u16TDS_Cail[1],					0,			0xFFFF,			0,
-    //1,      NULL},
+    //		{	69,			 					&g_sVariable.gPara.Water.u16TDS_Cail[1],					0,
+    //0xFFFF,
+    // 0,
+    // 1,      NULL},
     {69, NULL, 0, 0xFFFF, 0, 0, NULL},
     {70, &g_sVariable.gPara.alarm[ACL_FILLTER].alarm_param, 1, 65535, 4320, 1, NULL},
     {71, &g_sVariable.gPara.alarm[ACL_FILLTER_ELEMENT_0].alarm_param, 1, 65535, 4320, 1, NULL},
@@ -600,8 +604,8 @@ int16_t eeprom_compare_read(uint16_t reg_offset_addr, uint16_t *rd_data)
     uint16_t rd_buf1;
     uint16_t rd_buf2;
     int16_t ret;
-    uint16_t Tempbuf[3];
-
+    uint16_t Tempbuf[3] = {0};
+    Tempbuf[0]          = Tempbuf[1];
     Tempbuf[0] =
         I2C_EE_BufRead((uint8_t *)&rd_buf0, CONF_REG_EE1_ADDR + (reg_offset_addr << 1), 2);  //从用户区的三处读数据
     Tempbuf[1] = I2C_EE_BufRead((uint8_t *)&rd_buf1, CONF_REG_EE2_ADDR + (reg_offset_addr << 1), 2);
@@ -738,14 +742,15 @@ uint16_t reg_map_write(uint16_t reg_addr, uint16_t *wr_data, uint8_t wr_cnt)
     for (i = 0; i < wr_cnt; i++)  // data write
     {
         //				ee_rd_data = *(conf_reg_map_inst[reg_addr+i].reg_ptr);				//buffer legacy reg data
-        //				ee_wr_data = *(wr_data+i);															//buffer current write
-        //data
+        //				ee_wr_data = *(wr_data+i);															//buffer
+        //current write data
 
         *(conf_reg_map_inst[reg_addr + i].reg_ptr) = *(wr_data + i);  // write data to designated register
         if (conf_reg_map_inst[reg_addr + i].rw == 1)                  //写EEPROM
         {
-            g_sVariable.u8ReturnCall[reg_addr] = TRUE;  //回调标志
-                                                        //			    eeprom_tripple_write(reg_addr+i,ee_wr_data,ee_rd_data);
+            g_sVariable.u8ReturnCall[reg_addr] =
+                TRUE;  //回调标志
+                       //			    eeprom_tripple_write(reg_addr+i,ee_wr_data,ee_rd_data);
         }
     }
     return err_code;

@@ -22,9 +22,9 @@
 #ifndef _PORT_H
 #define _PORT_H
 
-//#include <assert.h>
+#include <assert.h>
 #include <inttypes.h>
-#include "stm32g0xx_hal.h"
+//#include "stm32g0xx_hal.h"
 
 #define	INLINE                      inline
 #define PR_BEGIN_EXTERN_C           extern "C" {

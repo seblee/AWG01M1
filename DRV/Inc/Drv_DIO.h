@@ -37,7 +37,7 @@ typedef struct
 
 #define RST_PIN GPIO_PIN_13
 #define RST_GPIO GPIOC
-#define RST_READ GPIO_ReadInputDataBit(RST_GPIO, RST_PIN)
+#define RST_READ HAL_GPIO_ReadPin(RST_GPIO, RST_PIN)
 
 #define OE_GPIO_PORT GPIOC
 #define OE_GPIO_CLK RCC_AHBPeriph_GPIOC  // G
@@ -54,15 +54,6 @@ typedef struct
 #define DS_GPIO_PORT GPIOF
 #define DS_GPIO_CLK RCC_AHBPeriph_GPIOF  // SI
 #define DS_GPIO_PIN GPIO_PIN_1
-
-#define HC595_OE_Low() GPIO_ResetBits(OE_GPIO_PORT, OE_GPIO_PIN)
-#define HC595_OE_High() GPIO_SetBits(OE_GPIO_PORT, OE_GPIO_PIN)
-#define HC595_SHCP_Low() GPIO_ResetBits(SHCP_GPIO_PORT, SHCP_GPIO_PIN)
-#define HC595_SHCP_High() GPIO_SetBits(SHCP_GPIO_PORT, SHCP_GPIO_PIN)
-#define HC595_STCP_Low() GPIO_ResetBits(STCP_GPIO_PORT, STCP_GPIO_PIN)
-#define HC595_STCP_High() GPIO_SetBits(STCP_GPIO_PORT, STCP_GPIO_PIN)
-#define HC595_Data_Low() GPIO_ResetBits(DS_GPIO_PORT, DS_GPIO_PIN)
-#define HC595_Data_High() GPIO_SetBits(DS_GPIO_PORT, DS_GPIO_PIN)
 
 enum
 {
@@ -98,8 +89,6 @@ extern void DI_reg_update(void);
 extern uint8_t GetSEL(void);
 
 extern uint16_t do_set(int16_t pin_id, GPIO_PinState value);
-extern void HC595_GPIO_Config(void);
-extern void HC595_Send_Multi_Byte(u8* data, u8 len);
 
 extern void oc_update(void);
 #endif

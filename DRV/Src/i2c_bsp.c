@@ -8,38 +8,26 @@
  * @retval : None
  */
 #define I2CSPEED 2
-// I2Cƒ£ƒ‚—” ±
+// I2CÊ®°ÊãüÂª∂Êó∂
 #define I2CPAGEWriteDelay 5
 
 static void I2C_Config(void)
 {
-    GPIO_InitTypeDef GPIO_InitStructure;
-    RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOB, ENABLE);
     // Configure I2C1 pins: SCL
-    GPIO_InitStructure.GPIO_Pin   = II_SCL_Pin | II_SDA_Pin;
-    GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_OUT;
-    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-    GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_NOPULL;
-    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_Level_2;
-    GPIO_Init(II_SCL_GPIO, &GPIO_InitStructure);
-    GPIO_SetBits(II_SCL_GPIO, II_SCL_Pin | II_SDA_Pin);
 
-    GPIO_InitStructure.GPIO_Pin   = II_WP_Pin;
-    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-    GPIO_Init(II_WP_GPIO, &GPIO_InitStructure);
     // writ_disable
-    GPIO_SetBits(II_WP_GPIO, II_WP_Pin);
+    HAL_GPIO_WritePin(II_WP_GPIO, II_WP_Pin, GPIO_PIN_SET);
 }
 
 static void IIC_SCL(uint8_t n)
 {
     if (n == 1)
     {
-        GPIO_SetBits(II_SCL_GPIO, II_SCL_Pin);
+        HAL_GPIO_WritePin(II_SCL_GPIO, II_SCL_Pin, GPIO_PIN_SET);
     }
     else
     {
-        GPIO_ResetBits(II_SCL_GPIO, II_SCL_Pin);
+        HAL_GPIO_WritePin(II_SCL_GPIO, II_SCL_Pin, GPIO_PIN_RESET);
     }
 }
 
@@ -47,11 +35,11 @@ static void IIC_SDA(uint8_t n)
 {
     if (n == 1)
     {
-        GPIO_SetBits(II_SDA_GPIO, II_SDA_Pin);
+        HAL_GPIO_WritePin(II_SDA_GPIO, II_SCL_Pin, GPIO_PIN_SET);
     }
     else
     {
-        GPIO_ResetBits(II_SDA_GPIO, II_SDA_Pin);
+        HAL_GPIO_WritePin(II_SDA_GPIO, II_SCL_Pin, GPIO_PIN_RESET);
     }
 }
 
@@ -63,27 +51,26 @@ void drv_i2c_init(void)
 
 static void SDA_OUT(void)
 {
-    GPIO_InitTypeDef GPIO_InitStructure;
-
-    GPIO_InitStructure.GPIO_Pin   = II_SDA_Pin;
-    GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_OUT;
-    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-    GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_NOPULL;
-    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_Level_2;
-    GPIO_Init(II_SDA_GPIO, &GPIO_InitStructure);
+    GPIO_InitTypeDef GPIO_InitStruct = {0};
+    /*Configure GPIO pins*/
+    GPIO_InitStruct.Pin   = II_SDA_Pin;
+    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull  = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_MEDIUM;
+    HAL_GPIO_Init(II_SDA_GPIO, &GPIO_InitStruct);
 }
 
 static void SDA_IN(void)
 {
-    GPIO_InitTypeDef GPIO_InitStructure;
-
-    GPIO_InitStructure.GPIO_Pin  = II_SDA_Pin;
-    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
-    GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
-    GPIO_Init(II_SDA_GPIO, &GPIO_InitStructure);
+    GPIO_InitTypeDef GPIO_InitStruct = {0};
+    /*Configure GPIO pins*/
+    GPIO_InitStruct.Pin  = II_SDA_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(II_SDA_GPIO, &GPIO_InitStruct);
 }
 
-//—” ±∫Ø ˝”–ø…ƒ‹–Ë“™–ﬁ∏ƒ
+//Âª∂Êó∂ÂáΩÊï∞ÊúâÂèØËÉΩÈúÄË¶Å‰øÆÊîπ
 static void delay_us(uint32_t nus)
 {
     uint8_t i;
@@ -99,7 +86,7 @@ static void delay_us(uint32_t nus)
 }
 
 /*
-void delay_us(uint32_t nus)		//—” ±∫Ø ˝”–ø…ƒ‹–Ë“™–ﬁ∏ƒ
+void delay_us(uint32_t nus)		//Âª∂Êó∂ÂáΩÊï∞ÊúâÂèØËÉΩÈúÄË¶Å‰øÆÊîπ
 {
     uint32_t tick,delayPeriod;
     tick = osKernelSysTick();
@@ -107,7 +94,6 @@ void delay_us(uint32_t nus)		//—” ±∫Ø ˝”–ø…ƒ‹–Ë“™–ﬁ∏ƒ
     while(osKernelSysTick() - tick < delayPeriod);
 }
 */
-// 2®≤®¶®≤IIC?e®∫?D?o?
 static void IIC_Start(void)
 {
     SDA_OUT();
@@ -119,30 +105,22 @@ static void IIC_Start(void)
     // START:when CLK is high,DATA change form high to low
     delay_us(4);
     IIC_SCL(0);
-    //?°•°¡?I2C°¡®π??°Í?°¡?°¿?°§°È?®™?®∞?®Æ®∫?®∫y?Y
 }
-// 2®≤®¶®≤IIC®™°Í?1D?o?
 static void IIC_Stop(void)
 {
     SDA_OUT();
-    // sda??®∫?3?
     IIC_SCL(0);
     IIC_SDA(0);
     // STOP:when CLK is high DATA change form low to high
     delay_us(4);
     IIC_SCL(1);
     IIC_SDA(1);
-    //°§°È?®™I2C°¡®π???®¢®∫?D?o?
     delay_us(4);
 }
-//¶Ã®®°‰y®Æ|°‰eD?o?¶Ã?®§°‰
-//°§¶Ã???¶Ã°Ío1°Í??®Æ®∫?®Æ|°‰e®∫°Ï°„®π
-//        0°Í??®Æ®∫?®Æ|°‰e3®¶1|
 static uint8_t IIC_Wait_Ack(void)
 {
     uint8_t ucerrtime = 0;
     SDA_IN();
-    // SDA®¶®®???a®∫?®®?
     IIC_SDA(1);
     delay_us(1);
     IIC_SCL(1);
@@ -157,10 +135,8 @@ static uint8_t IIC_Wait_Ack(void)
         }
     }
     IIC_SCL(0);
-    //®∫°¿?®Æ®∫?3?0
     return 0;
 }
-// 2®≤®¶®≤ACK®Æ|°‰e
 static void IIC_Ack(void)
 {
     IIC_SCL(0);
@@ -171,7 +147,6 @@ static void IIC_Ack(void)
     delay_us(2);
     IIC_SCL(0);
 }
-// 2?2®≤®¶®≤ACK®Æ|°‰e
 static void IIC_NAck(void)
 {
     IIC_SCL(0);
@@ -182,17 +157,12 @@ static void IIC_NAck(void)
     delay_us(2);
     IIC_SCL(0);
 }
-// IIC°§°È?®™®∞???°¡??®≤
-//°§¶Ã??°‰®Æ?®≤®ÆD?T®Æ|°‰e
-// 1°Í?®ÆD®Æ|°‰e
-// 0°Í??T®Æ|°‰e
 static void IIC_Send_Byte(uint8_t txd)
 {
     uint8_t t;
 
     SDA_OUT();
     IIC_SCL(0);
-    //®§-¶Ã®™®∫°¿?®Æ?a®∫?®∫y?Y°‰?®∫?
     for (t = 0; t < 8; t++)
     {
         if ((txd & 0x80) >> 7)
@@ -201,19 +171,17 @@ static void IIC_Send_Byte(uint8_t txd)
             IIC_SDA(0);
         txd <<= 1;
         delay_us(2);
-        //∂‘TEA5767’‚»˝∏ˆ—” ±∂º «±ÿ–Îµƒ
+        //ÂØπTEA5767Ëøô‰∏â‰∏™Âª∂Êó∂ÈÉΩÊòØÂøÖÈ°ªÁöÑ
         IIC_SCL(1);
         delay_us(2);
         IIC_SCL(0);
         delay_us(2);
     }
 }
-//?®¢1??°¡??®≤°Í?ack=1®∫°¿°Í?°§°È?®™ACK°Í?ack=0°Í?°§°È?®™nACK
 static uint8_t IIC_Read_Byte(uint8_t ack)
 {
     uint8_t i, receive = 0;
     SDA_IN();
-    // SDA®¶®®???a®∫?®®?
     for (i = 0; i < 8; i++)
     {
         IIC_SCL(0);
@@ -228,10 +196,8 @@ static uint8_t IIC_Read_Byte(uint8_t ack)
     }
     if (!ack)
         IIC_NAck();
-    //°§°È?®™nACK
     else
         IIC_Ack();
-    //°§°È?®™ACK
     return receive;
 }
 
@@ -251,24 +217,6 @@ static int8_t I2c_write_byte(uint8_t data)
 int8_t WriteEEROMPage(uint8_t* write_buffer, uint16_t write_addr, uint8_t num_byte_write)
 {
     uint16_t len;
-    uint8_t u8EE_Addr;
-    //    WP_Enable();
-    //    IIC_Start();
-    //	IIC_Send_Byte(SLAVE_ADDR&0xFE);
-    //		IIC_Wait_Ack();
-    //		IIC_Send_Byte(write_addr>>8);
-    //		IIC_Wait_Ack();
-    //		IIC_Send_Byte(write_addr&0x00ff);
-    //		IIC_Wait_Ack();
-    //		for(len=0;len<num_byte_write;len++)
-    //    {
-    //        IIC_Send_Byte(*(write_buffer+len));
-    //		IIC_Wait_Ack();
-    //    }
-    //	IIC_Stop();
-    //    WP_Diable();
-    //	delay_us(3000);
-    //	return(EEPROM_NOERRO);
     WP_Enable();
     IIC_Start();
     __nop();
@@ -330,53 +278,53 @@ int8_t I2C_EE_BufWrite_bsp(uint8_t* write_buffer, uint16_t write_addr, uint16_t 
     uint8_t byte_count;
     uint16_t page_number;
     uint8_t cnt;
-    // º∆À„µ⁄“ª¥Œ–Ë“™–¥»Îµƒ≥§∂»
+    // ËÆ°ÁÆóÁ¨¨‰∏ÄÊ¨°ÈúÄË¶ÅÂÜôÂÖ•ÁöÑÈïøÂ∫¶
     byte_count = I2C2_EE_PageSize - (write_addr % I2C2_EE_PageSize);
 
     if (num_byte_write <= byte_count)
     {
         byte_count = num_byte_write;
     }
-    // œ»–¥»Îµ⁄“ª“≥µƒ ˝æ›
+    // ÂÖàÂÜôÂÖ•Á¨¨‰∏ÄÈ°µÁöÑÊï∞ÊçÆ
     if (WriteEEROMPage(write_buffer, write_addr, byte_count) != EEPROM_NOERRO)
     {
-        // –¥»Î¥ÌŒÛ,∑µªÿ¥ÌŒÛ
+        // ÂÜôÂÖ•ÈîôËØØ,ËøîÂõûÈîôËØØ
         return EEPROM_BUSSERRO;
     }
 
-    // ÷ÿ–¬º∆À„ªπ–Ë“™–¥»Îµƒ◊÷Ω⁄
-    //“≥—” ±
+    // ÈáçÊñ∞ËÆ°ÁÆóËøòÈúÄË¶ÅÂÜôÂÖ•ÁöÑÂ≠óËäÇ
+    //È°µÂª∂Êó∂
 
     num_byte_write -= byte_count;
     if (!num_byte_write)
     {
-        //  ˝æ›“—æ≠–¥»ÎÕÍ±œ
+        // Êï∞ÊçÆÂ∑≤ÁªèÂÜôÂÖ•ÂÆåÊØï
         return EEPROM_NOERRO;
     }
     write_addr += byte_count;
     write_buffer += byte_count;
-    // º∆À„–Ë“™Ω¯––µƒ“≥–¥¥Œ ˝
+    // ËÆ°ÁÆóÈúÄË¶ÅËøõË°åÁöÑÈ°µÂÜôÊ¨°Êï∞
     page_number = num_byte_write / I2C2_EE_PageSize;
-    // —≠ª∑–¥»Î ˝æ›
+    // Âæ™ÁéØÂÜôÂÖ•Êï∞ÊçÆ
     while (page_number--)
     {
         cnt = 10;
         while (cnt)
         {
-            //»Áπ˚–¥≤ª≥…π¶
+            //Â¶ÇÊûúÂÜô‰∏çÊàêÂäü
             if ((WriteEEROMPage(write_buffer, write_addr, I2C2_EE_PageSize)) != EEPROM_NOERRO)
             {
-                // —” ±
+                // Âª∂Êó∂
                 cnt--;
                 delay_us(10);
             }
-            //–¥≥…π¶¡À
+            //ÂÜôÊàêÂäü‰∫Ü
             else
             {
                 break;
             }
         }
-        //ºÏ≤È–¥ ß∞‹
+        //Ê£ÄÊü•ÂÜôÂ§±Ë¥•
         if (cnt == 0)
         {
         }
@@ -389,10 +337,10 @@ int8_t I2C_EE_BufWrite_bsp(uint8_t* write_buffer, uint16_t write_addr, uint16_t 
     {
         return EEPROM_NOERRO;
     }
-    // –¥»Î◊Ó∫Û“ª“≥µƒ ˝æ›
+    // ÂÜôÂÖ•ÊúÄÂêé‰∏ÄÈ°µÁöÑÊï∞ÊçÆ
     if ((WriteEEROMPage(write_buffer, write_addr, num_byte_write)) != EEPROM_NOERRO)
     {
-        // –¥»Î¥ÌŒÛ,∑µªÿ¥ÌŒÛ
+        // ÂÜôÂÖ•ÈîôËØØ,ËøîÂõûÈîôËØØ
         return EEPROM_BUSSERRO;
     }
     delay_us(3000);
@@ -411,38 +359,8 @@ int8_t I2C_EE_BufWrite(uint8_t* write_buffer, uint16_t write_addr, uint16_t num_
 
 int8_t I2C_EE_BufRead_bsp(uint8_t* read_buffer, uint16_t read_addr, uint16_t num_byte_Read)
 {
-    //    uint16_t len ;
-    //    //ªÒ»°ª•≥‚¡ø
-    //    WP_Enable();
-    //    IIC_Start();
-    //    //I2C Slave addr
-    //    IIC_Send_Byte(SLAVE_ADDR&0xFE);
-    //	IIC_Wait_Ack();
-    //	// Data high 8 addr
-    //	IIC_Send_Byte(read_addr>>8);
-    //	IIC_Wait_Ack();
-    //
-    //    // data low 8 addr
-    //	IIC_Send_Byte(read_addr&0x00ff);
-    //	IIC_Wait_Ack();
-    //    IIC_Start();
-    //
-    //	IIC_Send_Byte(SLAVE_ADDR|0x01);
-    //	IIC_Wait_Ack();
-    //    WP_Diable();
-    //    //write protect
-    //    for(len=0;len<num_byte_Read-1;len++)
-    //    {
-    //        *(read_buffer++)=IIC_Read_Byte(1);
-    //    }
-    //    *(read_buffer)=IIC_Read_Byte(0);
-    //    IIC_Stop();
-    //
-    //    delay_us(3000);
-    //    return(EEPROM_NOERRO);
     uint16_t len;
-    uint8_t u8EE_Addr;
-    //ªÒ»°ª•≥‚¡ø
+    //Ëé∑Âèñ‰∫íÊñ•Èáè
     WP_Enable();
     IIC_Start();
     // I2C Slave addr

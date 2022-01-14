@@ -462,6 +462,16 @@
               <FileType>1</FileType>
               <FilePath>..\DRV\Src\Drv_Led.c</FilePath>
             </File>
+            <File>
+              <FileName>Drv_DIO.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\DRV\Src\Drv_DIO.c</FilePath>
+            </File>
+            <File>
+              <FileName>i2c_bsp.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\DRV\Src\i2c_bsp.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

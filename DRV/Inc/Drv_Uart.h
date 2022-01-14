@@ -12,8 +12,8 @@
 #define UART1_DIR_GPIO GPIOA
 #define UART1_DIR_GPIO_PIN GPIO_PIN_12
 
-#define TE485 GPIO_SetBits(UART1_DIR_GPIO, UART1_DIR_GPIO_PIN);
-#define RE485 GPIO_ResetBits(UART1_DIR_GPIO, UART1_DIR_GPIO_PIN);
+#define TE485 HAL_GPIO_WritePin(UART1_DIR_GPIO, UART1_DIR_GPIO_PIN, GPIO_PIN_SET);
+#define RE485 HAL_GPIO_WritePin(UART1_DIR_GPIO, UART1_DIR_GPIO_PIN, GPIO_PIN_RESET);
 
 #define UART_TDS USART2
 #define SEND_NUM 6
@@ -32,23 +32,23 @@ typedef enum
 
 typedef enum
 {
-    RECV_Wait,   //½ÓÊÕµÈ´ı
-    RECV_Going,  //½ÓÊÕ½øĞĞ
-    RECV_Over,   //½ÓÊÕÍê³É
-    SEND_Wait,   //·¢ËÍµÈ´ı
-    SEND_Going,  //·¢ËÍ½øĞĞ
-    SEND_Over,   //·¢ËÍÍê³É
-    INIT_Apply   //³õÊ¼»¯
+    RECV_Wait,   //æ¥æ”¶ç­‰å¾…
+    RECV_Going,  //æ¥æ”¶è¿›è¡Œ
+    RECV_Over,   //æ¥æ”¶å®Œæˆ
+    SEND_Wait,   //å‘é€ç­‰å¾…
+    SEND_Going,  //å‘é€è¿›è¡Œ
+    SEND_Over,   //å‘é€å®Œæˆ
+    INIT_Apply   //åˆå§‹åŒ–
 } PROTOCOL_STATUS;
 
 typedef struct
 {
-    //    uint8_t CommID;       // ´®¿ÚºÅ
-    //    uint8_t Baudrate;     // Í¨µÀÍ¨Ñ¶µÄ²¨ÌØÂÊ
-    uint8_t StatckStatus;  // Ö¸Ê¾µ±Ç°Ğ­ÒéÕ»½âÎö×´Ì¬(¿ÕÏĞ->µØÖ·½âÎö->)
-    uint8_t StatckType;  // µØÖ·ÀàĞÍ(Ë½ÓĞµØÖ·[bit0],È«AA»ò²¿·ÖAAÎª×éµØÖ·[bit1],È«99Îª¹ã²¥µØÖ·[bit2],[bit3...bit6]
-                         // Î´Ê¹ÓÃ,±£ÁôÎª0,Ö¡½ÓÊÕ³É¹¦[bit7])
-    uint8_t DataCount;  // ½ÓÊÕµ½µÄÊı¾İÖ¡³¤¶È()
+    //    uint8_t CommID;       // ä¸²å£å·
+    //    uint8_t Baudrate;     // é€šé“é€šè®¯çš„æ³¢ç‰¹ç‡
+    uint8_t StatckStatus;  // æŒ‡ç¤ºå½“å‰åè®®æ ˆè§£æçŠ¶æ€(ç©ºé—²->åœ°å€è§£æ->)
+    uint8_t StatckType;  // åœ°å€ç±»å‹(ç§æœ‰åœ°å€[bit0],å…¨AAæˆ–éƒ¨åˆ†AAä¸ºç»„åœ°å€[bit1],å…¨99ä¸ºå¹¿æ’­åœ°å€[bit2],[bit3...bit6]
+                         // æœªä½¿ç”¨,ä¿ç•™ä¸º0,å¸§æ¥æ”¶æˆåŠŸ[bit7])
+    uint8_t DataCount;  // æ¥æ”¶åˆ°çš„æ•°æ®å¸§é•¿åº¦()
 } ProtocolLayer;
 
 #define PROTOCOL_FRAME_ByteGap 250

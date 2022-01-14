@@ -46,24 +46,24 @@ void vMBPortSerialEnable(BOOL xRxEnable, BOOL xTxEnable)
     if (xRxEnable)
     {
         /* 485通信时，等待串口移位寄存器中的数据发送完成后，再去使能485的接收、失能485的发送*/
-        while (!USART_GetFlagStatus(USART1, USART_FLAG_TC))
-        {
-        }
+        // while (!USART_GetFlagStatus(USART1, USART_FLAG_TC))
+        // {
+        // }
         RE485;
-        USART_ITConfig(USART1, USART_IT_RXNE, ENABLE);
+        // USART_ITConfig(USART1, USART_IT_RXNE, ENABLE);
     }
     else
     {
         TE485;
-        USART_ITConfig(USART1, USART_IT_RXNE, DISABLE);
+        // USART_ITConfig(USART1, USART_IT_RXNE, DISABLE);
     }
     if (xTxEnable)
     {
-        USART_ITConfig(USART1, USART_IT_TXE, ENABLE);
+        // USART_ITConfig(USART1, USART_IT_TXE, ENABLE);
     }
     else
     {
-        USART_ITConfig(USART1, USART_IT_TXE, DISABLE);
+        // USART_ITConfig(USART1, USART_IT_TXE, DISABLE);
     }
 }
 
@@ -75,13 +75,13 @@ BOOL xMBPortSerialInit(UCHAR ucPORT, ULONG ulBaudRate, UCHAR ucDataBits, eMBPari
 
 BOOL xMBPortSerialPutByte(CHAR ucByte)
 {
-    USART_SendData(USART1, ucByte);
+    // USART_SendData(USART1, ucByte);
     return TRUE;
 }
 
 BOOL xMBPortSerialGetByte(CHAR* pucByte)
 {
-    *pucByte = USART_ReceiveData(USART1);
+    // *pucByte = USART_ReceiveData(USART1);
     return TRUE;
 }
 
@@ -106,20 +106,20 @@ static void prvvUARTRxISR(void)
     pxMBFrameCBByteReceived();
 }
 
-void USART1_IRQHandler(void)
-{
-    //接收中断
-    if (USART_GetITStatus(USART1, USART_IT_RXNE) == SET)
-    {
-        g_sVariable.status.Com_error = 0;
-        USART_ClearITPendingBit(USART1, USART_IT_RXNE);
-        prvvUARTRxISR();
-    }
-    //发送中断
-    if (USART_GetITStatus(USART1, USART_IT_TXE) == SET)
-    {
-        USART_ClearITPendingBit(USART1, USART_IT_TXE);
-        //		USART_ClearFlag(USART1, USART_FLAG_TC);
-        prvvUARTTxReadyISR();
-    }
-}
+// void USART1_IRQHandler(void)
+// {
+//     //接收中断
+//     if (USART_GetITStatus(USART1, USART_IT_RXNE) == SET)
+//     {
+//         g_sVariable.status.Com_error = 0;
+//         USART_ClearITPendingBit(USART1, USART_IT_RXNE);
+//         prvvUARTRxISR();
+//     }
+//     //发送中断
+//     if (USART_GetITStatus(USART1, USART_IT_TXE) == SET)
+//     {
+//         USART_ClearITPendingBit(USART1, USART_IT_TXE);
+//         //		USART_ClearFlag(USART1, USART_FLAG_TC);
+//         prvvUARTTxReadyISR();
+//     }
+// }

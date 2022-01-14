@@ -2,7 +2,7 @@
   Copyright (C), 1988-1999, Sunrise Tech. Co., Ltd.
   FileName: Drv_IIC.c
   Author:        Version :          Date:
-  Description:     //DIOœ‡πÿ«˝∂Ø∫Ø ˝
+  Description:     //DIOÁõ∏ÂÖ≥È©±Âä®ÂáΩÊï∞
   Version:         //V1.0
   Function List:   //DIO_Init
     1. -------
@@ -12,7 +12,6 @@
 ***********************************************************/
 
 #include "stm32g0xx_hal.h"
-#include "stm32f0xx_misc.h"
 #include "macro.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -25,194 +24,70 @@
 static dio_dev_st dio_dev_inst;
 
 #define Pin_Map_In DI_MAX_CNT
-const pin_map_st in_pin_map_inst[Pin_Map_In] =  // ˝◊÷ ‰»ÎPin_Map
-    {
-        {GPIO_PIN_6, GPIOF},   // DI1
-        {GPIO_PIN_13, GPIOA},  // DI2
-        {GPIO_PIN_11, GPIOA},  // DI3
-        {GPIO_PIN_2, GPIOB},   // DI4
+//Êï∞Â≠óËæìÂÖ•Pin_Map
+const pin_map_st in_pin_map_inst[Pin_Map_In] = {
+    {GPIO_PIN_6, GPIOF},   // DI1 PB2
+    {GPIO_PIN_13, GPIOA},  // DI2 PB10
+    {GPIO_PIN_11, GPIOA},  // DI3 PC3
+    {GPIO_PIN_2, GPIOB},   // DI4 PC12
 };
 
-#define Pin_Map_Out 7
-const pin_map_st out_pin_map_inst[Pin_Map_Out] =  // ˝◊÷ ‰≥ˆPin_Map
-    {
-        {GPIO_PIN_10, GPIOA},  // DO1
-        {GPIO_PIN_9, GPIOA},   // DO2
-        {GPIO_PIN_8, GPIOA},   // DO3
-        {GPIO_PIN_15, GPIOB},  // DO4
-        {GPIO_PIN_14, GPIOB},  // DO5
-        {GPIO_PIN_13, GPIOB},  // DO6
-        {GPIO_PIN_12, GPIOB},  // DO7
+#define Pin_Map_Out 24
+//Êï∞Â≠óËæìÂá∫Pin_Map
+const pin_map_st out_pin_map_inst[Pin_Map_Out] = {
+    {GPIO_PIN_12, GPIOA},  // DO1  PA12
+    {GPIO_PIN_9, GPIOD},   // DO2  PD9
+    {GPIO_PIN_8, GPIOD},   // DO3  PD8
+    {GPIO_PIN_9, GPIOA},   // DO4  PA9
+    {GPIO_PIN_8, GPIOA},   // DO5  PA8
+    {GPIO_PIN_12, GPIOB},  // DO6  PB12
+    {GPIO_PIN_11, GPIOB},  // DO7  PB11
+    {GPIO_PIN_9, GPIOB},   // DO8  PB9
+    {GPIO_PIN_5, GPIOB},   // DO9  PB5
+    {GPIO_PIN_4, GPIOB},   // DO10  PB4
+    {GPIO_PIN_3, GPIOB},   // DO11  PB3
+    {GPIO_PIN_4, GPIOD},   // DO12  PD4
+    {GPIO_PIN_3, GPIOD},   // DO13  PD3
+    {GPIO_PIN_2, GPIOD},   // DO14  PD2
+    {GPIO_PIN_1, GPIOD},   // DO15  PD1
+    {GPIO_PIN_0, GPIOD},   // DO16  PD0
+    {GPIO_PIN_15, GPIOA},  // DO17  PA15
+    {GPIO_PIN_6, GPIOC},   // DO18  PC6
+    {GPIO_PIN_7, GPIOC},   // DO19  PC7
+    {GPIO_PIN_8, GPIOC},   // DO20  PC8
+    {GPIO_PIN_9, GPIOC},   // DO21  PC9
+    {GPIO_PIN_2, GPIOC},   // DO22  PC2
+    {GPIO_PIN_1, GPIOC},   // DO23  PC1
+    {GPIO_PIN_0, GPIOC},   // DO24  PC0
 };
-
-// DO÷ÿ”≥…‰±Ì£¨74HC595D ‰≥ˆÀ≥–ÚΩªªª
-const Bit_remap_st DO_remap_table[] = {
-    {0, 4},    //
-    {1, 3},    //
-    {2, 2},    //
-    {3, 1},    //
-    {4, 0},    //
-    {5, 15},   //
-    {6, 14},   //
-    {7, 13},   //
-    {8, 12},   //
-    {9, 11},   //
-    {10, 7},   //
-    {11, 6},   //
-    {12, 5},   //
-    {13, 10},  //
-    {14, 9},   //
-    {15, 8},   //
-};
-
-//÷ÿ”≥…‰∂Àø⁄£¨ºÊ»›M1∞Â
-uint16_t Sts_Remap(uint16_t u16IN_Bit, uint8_t Rep_Type, uint8_t Rep_Dir)
-{
-    uint16_t u16Rep_bit;
-    uint8_t i, u8Length;
-
-    u16Rep_bit = 0x00;
-    switch (Rep_Type)
-    {
-            //			case Rep_DI:
-            //					u8Length=sizeof(DI_remap_table)/2;
-            //					for(i=0;i<u8Length;i++)
-            //					{
-            //						if(Rep_Dir)
-            //						{
-            //							if((u16IN_Bit >> DI_remap_table[i].u8M1_Bit) & 0x0001)
-            //							{
-            //								u16Rep_bit |= (0x0001<<DI_remap_table[i].u8Mx_Bit);
-            //							}
-            //						}
-            //						else
-            //						{
-            //							if((u16IN_Bit >> DI_remap_table[i].u8Mx_Bit) & 0x0001)
-            //							{
-            //								u16Rep_bit |= (0x0001<<DI_remap_table[i].u8M1_Bit);
-            //							}
-            //						}
-            //					}
-            ////			rt_kprintf("u16IN_Bit = %X,u8Length = %X,u16Rep_bit = %X\n",u16IN_Bit,u8Length,u16Rep_bit);
-            //					break;
-        case Rep_DO:
-            u8Length = sizeof(DO_remap_table) / 2;
-            for (i = 0; i < u8Length; i++)
-            {
-                if (Rep_Dir)
-                {
-                    if ((u16IN_Bit >> DO_remap_table[i].u8M1_Bit) & 0x0001)
-                    {
-                        u16Rep_bit |= (0x0001 << DO_remap_table[i].u8Mx_Bit);
-                    }
-                }
-                else
-                {
-                    if ((u16IN_Bit >> DO_remap_table[i].u8Mx_Bit) & 0x0001)
-                    {
-                        u16Rep_bit |= (0x0001 << DO_remap_table[i].u8M1_Bit);
-                    }
-                }
-            }
-            //			rt_kprintf("u16IN_Bit = %X,u8Length = %X,u16Rep_bit = %X\n",u16IN_Bit,u8Length,u16Rep_bit);
-            break;
-            //			case Rep_AI:
-            //					u8Length=sizeof(AI_remap_table)/2;
-            //					for(i=0;i<u8Length;i++)
-            //					{
-            //						if(Rep_Dir)
-            //						{
-            //							if(u16IN_Bit == AI_remap_table[i].u8M1_Bit)
-            //							{
-            //								u16Rep_bit = AI_remap_table[i].u8Mx_Bit;
-            //							}
-            //						}
-            //						else
-            //						{
-            //							if(u16IN_Bit == AI_remap_table[i].u8Mx_Bit)
-            //							{
-            //								u16Rep_bit = AI_remap_table[i].u8M1_Bit;
-            //							}
-            //						}
-            //					}
-            //					break;
-            //			case Rep_AO:
-            //					u8Length=sizeof(AO_remap_table)/2;
-            //					for(i=0;i<u8Length;i++)
-            //					{
-            //						if(Rep_Dir)
-            //						{
-            //							if(u16IN_Bit == AO_remap_table[i].u8M1_Bit)
-            //							{
-            //								u16Rep_bit = AO_remap_table[i].u8Mx_Bit;
-            //							}
-            //						}
-            //						else
-            //						{
-            //							if(u16IN_Bit == AO_remap_table[i].u8Mx_Bit)
-            //							{
-            //								u16Rep_bit = AO_remap_table[i].u8M1_Bit;
-            //							}
-            //						}
-            //					}
-            //					break;
-        default:
-            break;
-    }
-    return u16Rep_bit;
-}
 
 /**
  * @brief  digital IOs GPIO initialization
  * @param  none
  * @retval none
  */
-// ˝◊÷ ‰»Î ‰≥ˆ≥ı ºªØ∫Ø ˝
+//Êï∞Â≠óËæìÂÖ•ËæìÂá∫ÂàùÂßãÂåñÂáΩÊï∞
 void Drv_DIO_Init(void)
 {
-    GPIO_InitTypeDef GPIO_InitStructure;
     uint16_t i;
 
     /* GPIOA clock enable */
-    RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA | RCC_AHBPeriph_GPIOB | RCC_AHBPeriph_GPIOF, ENABLE);
 
-    // ˝◊÷ ‰»ÎPIN≥ı ºªØ
-    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_10MHz;
-    GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_IN;
-    GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;
+    //Êï∞Â≠óËæìÂÖ•PINÂàùÂßãÂåñ
 
-    for (i = 0; i < Pin_Map_In; i++)
-    {
-        GPIO_InitStructure.GPIO_Pin = in_pin_map_inst[i].pin_id;
-        GPIO_Init(in_pin_map_inst[i].pin_base, &GPIO_InitStructure);
-    }
+    //Êï∞Â≠óËæìÂá∫PINÂàùÂßãÂåñ
 
-    // ˝◊÷ ‰≥ˆPIN≥ı ºªØ
-    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_10MHz;
-    GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_OUT;
-    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-    for (i = 0; i < Pin_Map_Out; i++)
-    {
-        GPIO_InitStructure.GPIO_Pin = out_pin_map_inst[i].pin_id;
-        GPIO_Init(out_pin_map_inst[i].pin_base, &GPIO_InitStructure);
-    }
-    //∏¥Œª
+    //Â§ç‰Ωç
     for (i = 1; i <= Pin_Map_Out; i++)
     {
-        do_set(i, Bit_RESET);
+        do_set(i, GPIO_PIN_RESET);
     }
 
-    HC595_GPIO_Config();
 #ifdef RSTORE
-    RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOC, ENABLE);
-    GPIO_InitStructure.GPIO_Pin   = RST_PIN;
-    GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_IN;
-    GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;
-    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_10MHz;  // 10M
-    GPIO_Init(RST_GPIO, &GPIO_InitStructure);
+/**
+ * PC13 init input
+ */
 #endif
-
-    return;
 }
 
 static uint16_t Di_read(void)
@@ -222,8 +97,8 @@ static uint16_t Di_read(void)
     read_bitmap = 0;
     for (i = 0; i < DI_MAX_CNT; i++)
     {
-        read_bitmap |= GPIO_ReadInputDataBit(in_pin_map_inst[DI_MAX_CNT - 1 - i].pin_base,
-                                             in_pin_map_inst[DI_MAX_CNT - 1 - i].pin_id);
+        read_bitmap |=
+            HAL_GPIO_ReadPin(in_pin_map_inst[DI_MAX_CNT - 1 - i].pin_base, in_pin_map_inst[DI_MAX_CNT - 1 - i].pin_id);
         if (i < (DI_MAX_CNT - 1))
         {
             read_bitmap = read_bitmap << 1;
@@ -237,7 +112,7 @@ static uint16_t Di_read(void)
  * @param  none
  * @retval none
  */
-// ˝◊÷ ‰»Î∂® ±∆˜ªÿµ˜∫Ø ˝£¨∂‘ ˝◊÷ ‰»ÎµÁ∆ΩΩ¯––≤…—˘∫Û∑≈»Îª∫≥Â∂”¡–£ª
+//Êï∞Â≠óËæìÂÖ•ÂÆöÊó∂Âô®ÂõûË∞ÉÂáΩÊï∞ÔºåÂØπÊï∞Â≠óËæìÂÖ•ÁîµÂπ≥ËøõË°åÈááÊ†∑ÂêéÊîæÂÖ•ÁºìÂÜ≤ÈòüÂàóÔºõ
 void Sync_Di_timeout(void)
 {
     static uint16_t u16Cnt;
@@ -247,7 +122,7 @@ void Sync_Di_timeout(void)
     {
         u16Cnt = u16Cnt % DI_BUF_DEPTH;
     }
-    pBuf                               = Di_read();  // ˝◊÷ ‰»Î◊¥Ã¨
+    pBuf                               = Di_read();  //Êï∞Â≠óËæìÂÖ•Áä∂ÊÄÅ
     dio_dev_inst.din.reg_array[u16Cnt] = pBuf;
     u16Cnt++;
     return;
@@ -258,7 +133,7 @@ void Sync_Di_timeout(void)
  * @param  none
  * @retval none
  */
-// ˝◊÷ ‰»Î≥ı ºªØ∫Ø ˝?
+//Êï∞Â≠óËæìÂÖ•ÂàùÂßãÂåñÂáΩÊï∞?
 void DIO_reg_init(void)
 {
     uint16_t i;
@@ -275,7 +150,7 @@ void DIO_reg_init(void)
  * @param  none
  * @retval none
  */
-// ˝◊÷ ‰»ÎOOKΩ‚µ˜
+//Êï∞Â≠óËæìÂÖ•OOKËß£Ë∞É
 void DI_reg_update(void)
 {
     uint16_t di_data, i, j;
@@ -308,8 +183,7 @@ void DI_reg_update(void)
             }
         }
     }
-    //				rt_kprintf("di_reg[0] = %d,di_reg[1] = %d,di_reg[2] = %d,di_reg[3] = %d,di_reg[4] =
-    //%d\n",di_reg[0],di_reg[1],di_reg[2],di_reg[3],di_reg[4]);
+    // rt_kprintf("di_reg [0]=%d,[1]=%d,[2]=%d,[3]=%d,[4]=%d\n", di_reg[0], di_reg[1], di_reg[2], di_reg[3], di_reg[4]);
     dio_dev_inst.din.bitmap = di_data;
     return;
 }
@@ -325,7 +199,7 @@ void DI_sts_update(void)
     uint16_t din_bitmap_polarity;
     uint16_t u16Din_bitmap;
 
-    // mask±®æØ—⁄¬Î
+    // maskÊä•Ë≠¶Êé©Á†Å
     din_mask_bitmap     = g_sVariable.gPara.dev_mask.din;
     din_bitmap_polarity = g_sVariable.gPara.dev_mask.din_bitmap_polarity;
     //		din_mask_bitmap=DI_MASK;
@@ -333,7 +207,7 @@ void DI_sts_update(void)
 
     dio_dev_inst.din.bitmap = (~(dio_dev_inst.din.bitmap ^ din_bitmap_polarity));
 
-    //  ˝◊÷ ‰»Î—⁄¬Î
+    // Êï∞Â≠óËæìÂÖ•Êé©Á†Å
     u16Din_bitmap = din_mask_bitmap & dio_dev_inst.din.bitmap;
 
     g_sVariable.status.u16DI_Bitmap[0] = u16Din_bitmap;
@@ -343,7 +217,7 @@ void DI_sts_update(void)
     return;
 }
 
-//ª÷∏¥‘≠ º≤Œ ˝
+//ÊÅ¢Â§çÂéüÂßãÂèÇÊï∞
 uint8_t GetSEL(void)
 {
     uint8_t u8Ret;
@@ -358,24 +232,24 @@ uint8_t GetSEL(void)
     {
         u8Ret &= ~0x02;
     }
-    //		g_sVariable.u16Test=u8Ret;
-    //    if (!SLE1_READ)
-    //    {
-    //        u8Ret |= 0x01;
-    //    }
-    //    else
-    //    {
-    //        u8Ret &= ~0x01;
-    //    }
+    // g_sVariable.u16Test = u8Ret;
+    // if (!SLE1_READ)
+    // {
+    //     u8Ret |= 0x01;
+    // }
+    // else
+    // {
+    //     u8Ret &= ~0x01;
+    // }
     return u8Ret;
 }
 
-// ˝◊÷ ‰≥ˆøÿ÷∆∫Ø ˝£ª
-uint16_t do_set(int16_t pin_id, BitAction value)
+//Êï∞Â≠óËæìÂá∫ÊéßÂà∂ÂáΩÊï∞Ôºõ
+uint16_t do_set(int16_t pin_id, GPIO_PinState value)
 {
     if ((pin_id <= (Pin_Map_Out)) && (pin_id > 0))
     {
-        GPIO_WriteBit(out_pin_map_inst[pin_id - 1].pin_base, out_pin_map_inst[pin_id - 1].pin_id, value);
+        HAL_GPIO_WritePin(out_pin_map_inst[pin_id - 1].pin_base, out_pin_map_inst[pin_id - 1].pin_id, value);
         return 1;
     }
     else
@@ -384,127 +258,38 @@ uint16_t do_set(int16_t pin_id, BitAction value)
     }
 }
 
-////÷√ŒªÀ˘”– ˝◊÷ ‰≥ˆ
+// //ÁΩÆ‰ΩçÊâÄÊúâÊï∞Â≠óËæìÂá∫
 // static void do_set_all(void)
-//{
-//		uint16_t i;
-//		for(i=1;i<Pin_Map_Out-1;i++)
-//		{
-//				do_set(i,Bit_SET);
-//		}
+// {
+//     uint16_t i;
+//     for (i = 1; i < Pin_Map_Out - 1; i++)
+//     {
+//         do_set(i, Bit_SET);
+//     }
 // }
 
-////∏¥ŒªÀ˘”– ˝◊÷ ‰≥ˆ
+// //Â§ç‰ΩçÊâÄÊúâÊï∞Â≠óËæìÂá∫
 // static void do_reset_all(void)
-//{
-//		uint16_t i;
-//		for(i=1;i<Pin_Map_Out-1;i++)
-//		{
-//				do_set(i,Bit_RESET);
-//		}
+// {
+//     uint16_t i;
+//     for (i = 1; i < Pin_Map_Out - 1; i++)
+//     {
+//         do_set(i, Bit_RESET);
+//     }
 // }
 
-/********  74HC595 GPIO ≈‰÷√ *************************/
-void HC595_GPIO_Config(void)
-{
-    u8 u8Data[2] = {0};
-
-    GPIO_InitTypeDef GPIO_InitStructure;
-    RCC_AHBPeriphClockCmd(OE_GPIO_CLK | SHCP_GPIO_CLK | STCP_GPIO_CLK | DS_GPIO_CLK, ENABLE);
-
-    RCC_LSEConfig(RCC_LSE_OFF); /* πÿ±’Õ‚≤øµÕÀŸ ±÷”,PC14+PC15ø…“‘”√◊˜∆’Õ®IO*/
-
-    GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_OUT;
-    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-    //    GPIO_InitStructure.GPIO_PuPd=GPIO_PuPd_NOPULL ;
-    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_10MHz;
-
-    GPIO_InitStructure.GPIO_Pin = OE_GPIO_PIN;
-    GPIO_Init(OE_GPIO_PORT, &GPIO_InitStructure);  // ≥ı ºªØ SHCP “˝Ω≈
-
-    GPIO_InitStructure.GPIO_Pin = SHCP_GPIO_PIN;
-    GPIO_Init(SHCP_GPIO_PORT, &GPIO_InitStructure);  // ≥ı ºªØ SHCP “˝Ω≈
-
-    GPIO_InitStructure.GPIO_Pin = STCP_GPIO_PIN;
-    GPIO_Init(STCP_GPIO_PORT, &GPIO_InitStructure);  // ≥ı ºªØ STCP “˝Ω≈
-
-    GPIO_InitStructure.GPIO_Pin = DS_GPIO_PIN;
-    GPIO_Init(DS_GPIO_PORT, &GPIO_InitStructure);  // ≥ı ºªØ DS   “˝Ω≈
-
-    GPIO_ResetBits(OE_GPIO_PORT, OE_GPIO_PIN);      //µÕµÁ∆Ω£¨ πƒ‹HC595
-    GPIO_ResetBits(SHCP_GPIO_PORT, SHCP_GPIO_PIN);  // “˝Ω≈≥ı º◊¥Ã¨Œ™∏ﬂ£¨±„”⁄≤˙…˙…œ…˝—ÿ
-    GPIO_ResetBits(STCP_GPIO_PORT, STCP_GPIO_PIN);
-    GPIO_ResetBits(DS_GPIO_PORT, DS_GPIO_PIN);
-
-    HC595_Send_Multi_Byte(&u8Data[0], 2);
-    return;
-}
-/***
- *74HC595 ∑¢ÀÕ“ª∏ˆ◊÷Ω⁄
- *º¥Õ˘74HC595µƒDS“˝Ω≈∑¢ÀÕ“ª∏ˆ◊÷Ω⁄
- */
-void HC595_Send_Byte(u8 byte)
-{
-    u8 i;
-
-    for (i = 0; i < 8; i++)  //“ª∏ˆ◊÷Ω⁄8Œª£¨¥´ ‰8¥Œ£¨“ª¥Œ“ªŒª£¨—≠ª∑8¥Œ£¨∏’∫√“∆ÕÍ8Œª
-    {
-        /****  ≤Ω÷Ë1£∫Ω´ ˝æ›¥´µΩDS“˝Ω≈    ****/
-        if (byte & 0x80)        //œ»¥´ ‰∏ﬂŒª£¨Õ®π˝”Î‘ÀÀ„≈–∂œµ⁄∞À «∑ÒŒ™1
-            HC595_Data_High();  //»Áπ˚µ⁄∞ÀŒª «1£¨‘Ú”Î 595 DS¡¨Ω”µƒ“˝Ω≈ ‰≥ˆ∏ﬂµÁ∆Ω
-        else                    //∑Ò‘Ú ‰≥ˆµÕµÁ∆Ω
-            HC595_Data_Low();
-
-        /*** ≤Ω÷Ë2£∫SHCP√ø≤˙…˙“ª∏ˆ…œ…˝—ÿ£¨µ±«∞µƒbitæÕ±ªÀÕ»Î“∆Œªºƒ¥Ê∆˜ ***/
-        HC595_SHCP_Low();   // SHCP¿≠µÕ
-        Delay_us(10);       //   µ±—” ±
-        HC595_SHCP_High();  // SHCP¿≠∏ﬂ£¨ SHCP≤˙…˙…œ…˝—ÿ
-        Delay_us(10);
-
-        byte <<= 1;  // ◊Û“∆“ªŒª£¨Ω´µÕŒªÕ˘∏ﬂŒª“∆£¨Õ®π˝	if (byte & 0x80)≈–∂œµÕŒª «∑ÒŒ™1
-    }
-}
-
-/**
- *74HC595 ‰≥ˆÀ¯¥Ê  πƒ‹
- **/
-void HC595_CS(void)
-{
-    /**  ≤Ω÷Ë3£∫STCP≤˙…˙“ª∏ˆ…œ…˝—ÿ£¨“∆Œªºƒ¥Ê∆˜µƒ ˝æ›“∆»Î¥Ê¥¢ºƒ¥Ê∆˜  **/
-    HC595_STCP_Low();   // Ω´STCP¿≠µÕ
-    Delay_us(10);       //   µ±—” ±
-    HC595_STCP_High();  // ‘ŸΩ´STCP¿≠∏ﬂ£¨STCPº¥ø…≤˙…˙“ª∏ˆ…œ…˝—ÿ
-    Delay_us(10);
-}
-
-/**
- *∑¢ÀÕ∂‡∏ˆ◊÷Ω⁄
- *±„”⁄º∂¡™ ± ˝æ›µƒ∑¢ÀÕ
- *º∂¡™Nº∂£¨æÕ–Ë“™∑¢ÀÕN∏ˆ◊÷Ω⁄øÿ÷∆HC595
- ***/
-void HC595_Send_Multi_Byte(u8 *data, u8 len)
-{
-    u8 i;
-    for (i = 0; i < len; i++)  // len ∏ˆ◊÷Ω⁄
-    {
-        HC595_Send_Byte(data[i]);
-    }
-
-    HC595_CS();  //œ»∞—À˘”–◊÷Ω⁄∑¢ÀÕÕÍ£¨‘Ÿ πƒ‹ ‰≥ˆ
-}
 /********************************************************************/
 /**
  * @brief 	system output arbitration
  * @param  none
  * @retval final output bitmap
  */
-// ˝◊÷ ‰≥ˆ÷Ÿ≤√∫Ø ˝
+//Êï∞Â≠óËæìÂá∫‰ª≤Ë£ÅÂáΩÊï∞
 static uint32_t oc_arbitration(void)
 {
     extern local_reg_st l_sys;
     uint16_t cat_bitmap;
     uint16_t sys_bitmap;
-    uint16_t alarm_bitmap, bitmap_mask, bitmap_mask_reg, bitmap_mask_reset;
     uint16_t target_bitmap;
     uint16_t final_bitmap;
     uint8_t u8i;
@@ -512,10 +297,6 @@ static uint32_t oc_arbitration(void)
 
     for (u8i = 0; u8i <= 1; u8i++)
     {
-        bitmap_mask_reset = 0;
-        alarm_bitmap      = l_sys.bitmap[u8i][BITMAP_ALARM];
-        bitmap_mask       = l_sys.bitmap[u8i][BITMAP_MASK];
-
         cat_bitmap = l_sys.bitmap[u8i][BITMAP_REQ];
 
         if ((g_sVariable.gPara.diagnose_mode_en == 0) &&
@@ -530,11 +311,6 @@ static uint32_t oc_arbitration(void)
             target_bitmap = l_sys.bitmap[u8i][BITMAP_MANUAL];
         }
 
-        //        bitmap_mask_reg = (g_sys.config.general.alarm_bypass_en == 0) ? bitmap_mask : bitmap_mask_reset;
-        //        //bitmap mask selection, if alarm_bypass_en set, output reset bitmap
-        //        //		rt_kprintf("alarm_bitmap = %X,bitmap_mask = %X,bitmap_mask_reg =
-        //        %X\n",alarm_bitmap,bitmap_mask,bitmap_mask_reg); sys_bitmap = (target_bitmap & ~bitmap_mask_reg) |
-        //        (alarm_bitmap & bitmap_mask_reg); //sys_out_bitmap output
         sys_bitmap   = target_bitmap;  // sys_out_bitmap output
         final_bitmap = (g_sVariable.gPara.u16Manual_Test_En == 0)
                            ? sys_bitmap
@@ -547,11 +323,11 @@ static uint32_t oc_arbitration(void)
         // l_sys.bitmap[0][BITMAP_FINAL];
     }
 
-    u32Bit_Final = l_sys.bitmap[0][BITMAP_FINAL] | ((uint32_t)l_sys.bitmap[1][BITMAP_FINAL] << 16);  // ‰≥ˆ
+    u32Bit_Final = l_sys.bitmap[0][BITMAP_FINAL] | ((uint32_t)l_sys.bitmap[1][BITMAP_FINAL] << 16);  //ËæìÂá∫
     return u32Bit_Final;
 }
 
-void dio_set_do(uint16_t channel_id, BitAction data)
+void dio_set_do(uint16_t channel_id, GPIO_PinState data)
 {
     do_set(channel_id, data);
 }
@@ -561,66 +337,38 @@ void dio_set_do(uint16_t channel_id, BitAction data)
  * @param  none
  * @retval none
  */
-// ˝◊÷ ‰≥ˆ÷¥––∫Ø ˝
+//Êï∞Â≠óËæìÂá∫ÊâßË°åÂáΩÊï∞
 static void oc_do_update(void)
 {
     extern local_reg_st l_sys;
 
-    uint16_t xor_bitmap[2];
+    uint32_t xor_bitmap, new_bitmap;
     uint16_t i;
     uint16_t u16new_bitmap_H;
     uint16_t u16new_bitmap_L;
-    U16_8Data u16Lnew_bitmap;
-    //		//TEST
-    //		{
-    //			static uint16_t j=0;
-    //			l_sys.bitmap[1][BITMAP_FINAL]=0;
-    //			l_sys.bitmap[0][BITMAP_FINAL]=0;
-
-    //			if(j<16)
-    //			{
-    //				j++;
-    //			}
-    //			else
-    //			{
-    //				j=0;
-    //			}
-    //			l_sys.bitmap[0][BITMAP_FINAL] |= (0x0001<<j);
-    //			l_sys.bitmap[1][BITMAP_FINAL] |= (0x0001<<j);
-    //		}
 
     u16new_bitmap_L = l_sys.bitmap[0][BITMAP_FINAL];
     u16new_bitmap_H = l_sys.bitmap[1][BITMAP_FINAL];
-    // rt_kprintf("new_bitmap= %x,old_bitmap= %x,u32DO[0]=%x,u32DO[1]=%x\n", new_bitmap, old_bitmap, u32DO[0],
-    // u32DO[1]);
-    xor_bitmap[0] = u16new_bitmap_L ^ g_sVariable.status.u16DO_Bitmap[0];
-    xor_bitmap[1] = u16new_bitmap_H ^ g_sVariable.status.u16DO_Bitmap[1];
-
-    u16Lnew_bitmap.u16Data = Sts_Remap(u16new_bitmap_L, Rep_DO, 0);
+    // rt_kprintf("new_bitmap=%x,old_bitmap=%x,u32DO[0]=%x,u32DO[1]=%x\n", new_bitmap, old_bitmap, u32DO[0], u32DO[1]);
+    xor_bitmap = u16new_bitmap_L ^ g_sVariable.status.u16DO_Bitmap[0] |
+                 ((u16new_bitmap_H ^ g_sVariable.status.u16DO_Bitmap[1]) << 16);
 
     g_sVariable.status.REQ_TEST[7] = u16new_bitmap_L;
     //		g_sVariable.status.REQ_TEST[8]=u16new_bitmap_H;
-    //µÕŒª
-    if (xor_bitmap[0] != 0)  // if output bitmap changed
+    new_bitmap = u16new_bitmap_L | (u16new_bitmap_H << 16);
+    if (xor_bitmap != 0)  // if output bitmap changed
     {
-        //				u16Lnew_bitmap.u16Data = ~u16Lnew_bitmap.u16Data;
-        HC595_Send_Multi_Byte(&u16Lnew_bitmap.u8Data[0], 2);
-        g_sVariable.status.u16DO_Bitmap[0] = u16new_bitmap_L;  // update system dout bitmap
-    }
-    //∏ﬂŒª
-    if (xor_bitmap[1] != 0)  // if output bitmap changed
-    {
-        for (i = 0; i < Pin_Map_Out; i++)
+        for (i = 0; i < 32; i++)
         {
-            if (((xor_bitmap[1] >> i) & 0x0001) != 0)  // do status change
+            if (((xor_bitmap >> i) & 1) != 0)  // do status change
             {
-                if (((u16new_bitmap_H >> i) & 0x0001) != 0)
+                if (((new_bitmap >> i) & 1) != 0)
                 {
-                    dio_set_do(i + 1, Bit_SET);
+                    dio_set_do(i + 1, GPIO_PIN_SET);
                 }
                 else
                 {
-                    dio_set_do(i + 1, Bit_RESET);
+                    dio_set_do(i + 1, GPIO_PIN_RESET);
                 }
             }
             else  // do status no change, continue for loop
@@ -628,11 +376,8 @@ static void oc_do_update(void)
                 continue;
             }
         }
+        g_sVariable.status.u16DO_Bitmap[0] = u16new_bitmap_L;  // update system dout bitmap
         g_sVariable.status.u16DO_Bitmap[1] = u16new_bitmap_H;  // update system dout bitmap
-    }
-    else  // output bitmap unchange
-    {
-        ;
     }
 }
 
@@ -643,12 +388,12 @@ static void oc_do_update(void)
  */
 void oc_update(void)
 {
-    // ˝◊÷ ‰≥ˆ÷Ÿ≤√≈–æˆ
+    //Êï∞Â≠óËæìÂá∫‰ª≤Ë£ÅÂà§ÂÜ≥
     oc_arbitration();
-    // ˝◊÷ ‰≥ˆ÷¥––
+    //Êï∞Â≠óËæìÂá∫ÊâßË°å
     oc_do_update();
-    //    //ƒ£ƒ‚ ‰≥ˆ÷Ÿ≤√
+    //    //Ê®°ÊãüËæìÂá∫‰ª≤Ë£Å
     //		oc_ao_arbitration();
-    //    //ƒ£ƒ‚ ‰≥ˆ÷¥––
+    //    //Ê®°ÊãüËæìÂá∫ÊâßË°å
     //		oc_ao_update();
 }
