@@ -188,7 +188,7 @@
             <hadIRAM2>0</hadIRAM2>
             <hadIROM2>0</hadIROM2>
             <StupSel>8</StupSel>
-            <useUlib>1</useUlib>
+            <useUlib>0</useUlib>
             <EndSel>0</EndSel>
             <uLtcg>0</uLtcg>
             <nSecure>0</nSecure>
@@ -324,11 +324,11 @@
             <wLevel>2</wLevel>
             <uThumb>0</uThumb>
             <uSurpInc>0</uSurpInc>
-            <uC99>1</uC99>
-            <uGnu>1</uGnu>
+            <uC99>0</uC99>
+            <uGnu>0</uGnu>
             <useXO>0</useXO>
-            <v6Lang>1</v6Lang>
-            <v6LangP>1</v6LangP>
+            <v6Lang>3</v6Lang>
+            <v6LangP>3</v6LangP>
             <vShortEn>1</vShortEn>
             <vShortWch>1</vShortWch>
             <v6Lto>0</v6Lto>
@@ -338,7 +338,7 @@
               <MiscControls></MiscControls>
               <Define></Define>
               <Undefine></Undefine>
-              <IncludePath>.\;..\DRV\Inc;..\APP\Inc;..\USER\Inc;..\SYS\Inc;..\LIB\Kits\Inc;..\LIB\freemodbus-v1.5.0\demo\BARE;..\LIB\freemodbus-v1.5.0\demo\BARE\port;..\LIB\freemodbus-v1.5.0\modbus\rtu;..\LIB\freemodbus-v1.5.0\modbus\functions;..\LIB\freemodbus-v1.5.0\modbus\include</IncludePath>
+              <IncludePath>.\;..\DRV\Inc;..\APP\Inc;..\USER\Inc;..\SYS\Inc;..\LIB\Kits\Inc;..\LIB\freemodbus-v1.5.0\demo\BARE;..\LIB\freemodbus-v1.5.0\demo\BARE\port;..\LIB\freemodbus-v1.5.0\modbus\rtu;..\LIB\freemodbus-v1.5.0\modbus\functions;..\LIB\freemodbus-v1.5.0\modbus\include;..\HAL\Inc</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -458,9 +458,29 @@
           <GroupName>drv</GroupName>
           <Files>
             <File>
+              <FileName>adc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\DRV\Src\adc.c</FilePath>
+            </File>
+            <File>
+              <FileName>Drv_Time.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\DRV\Src\Drv_Time.c</FilePath>
+            </File>
+            <File>
+              <FileName>Drv_Uart.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\DRV\Src\Drv_Uart.c</FilePath>
+            </File>
+            <File>
               <FileName>Drv_Led.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\DRV\Src\Drv_Led.c</FilePath>
+            </File>
+            <File>
+              <FileName>i2c_bsp.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\DRV\Src\i2c_bsp.c</FilePath>
             </File>
             <File>
               <FileName>Drv_DIO.c</FileName>
@@ -468,9 +488,9 @@
               <FilePath>..\DRV\Src\Drv_DIO.c</FilePath>
             </File>
             <File>
-              <FileName>i2c_bsp.c</FileName>
+              <FileName>TH_Sensor_Bsp.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\DRV\Src\i2c_bsp.c</FilePath>
+              <FilePath>..\DRV\Src\TH_Sensor_Bsp.c</FilePath>
             </File>
           </Files>
         </Group>

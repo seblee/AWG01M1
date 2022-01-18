@@ -6,11 +6,8 @@
 #include <macro.h>
 
 /* USART1 */
-#define UART1_GPIO_TX GPIO_PIN_6
-#define UART1_GPIO_RX GPIO_PIN_7
-#define UART1_GPIO GPIOB
-#define UART1_DIR_GPIO GPIOA
-#define UART1_DIR_GPIO_PIN GPIO_PIN_12
+#define UART1_DIR_GPIO GPIOB
+#define UART1_DIR_GPIO_PIN GPIO_PIN_8
 
 #define TE485 HAL_GPIO_WritePin(UART1_DIR_GPIO, UART1_DIR_GPIO_PIN, GPIO_PIN_SET);
 #define RE485 HAL_GPIO_WritePin(UART1_DIR_GPIO, UART1_DIR_GPIO_PIN, GPIO_PIN_RESET);
@@ -54,6 +51,13 @@ typedef struct
 #define PROTOCOL_FRAME_ByteGap 250
 #define PROTOCOL_FRAME_SendGap 10
 
+extern UART_HandleTypeDef huart1;
+extern UART_HandleTypeDef huart2;
+extern UART_HandleTypeDef huart4;
+
+extern volatile uint8_t uart1TXBuff;
+extern volatile uint8_t uart1RXBuff;
+
 void uart1_init(uint16_t baudrate);
 void uart1_dma_send(uint8_t *s_addr, uint16_t length);
 int fputc(int ch, FILE *f);
@@ -64,5 +68,8 @@ extern void TDS_Usart_Init(void);
 extern void Comm_Service(void);
 extern uint8_t TDS_Send(void);
 extern int16_t AVGfilter_TDS(uint8_t i8Type, int16_t i16Value);
+
+extern void prvvUARTRxISR(void);
+extern void prvvUARTTxReadyISR(void);
 
 #endif /* __UART_H */

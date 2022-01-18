@@ -193,11 +193,10 @@ void BackGround_proc(void)
     static uint8_t num[5] = {0};
 
     osDelay(BKG_OSDELAY);  //上电延时
-//    led_init();
-//    AM_Init();  // TH
-//    drv_adc_dma_init();
-//    TDS_Usart_Init();  // TDS
-//    IWDG_Configuration();
+    led_init();
+    AM_Init();  // TH
+    drv_adc_dma_init();
+    TDS_Usart_Init();  // TDS
     while (1)
     {
         LEDCtrlStatus();  // LED运行状态
@@ -212,16 +211,6 @@ void BackGround_proc(void)
             num[1] = 0;
             AM_Sensor_update();  //温湿度更新
         }
-        //			if(++num[2] >= 19)
-        //			{
-        //				num[2]=0;
-        //				TDS_Send();
-        //			}
-        //			if(++num[3] >= 5)
-        //			{
-        //				num[3]=0;
-        //				Comm_Service();
-        //			}
         if (++num[4] >= 10)
         {
             num[4] = 0;

@@ -21,56 +21,56 @@
 
 /* ----------------------- Modbus includes ----------------------------------*/
 #include "mb_cb.h"
-#include "i2c_bsp.h" 
+#include "i2c_bsp.h"
 #include "global.h"
 /* ----------------------- Defines ------------------------------------------*/
 static uint16_t mbs_read_reg(uint16_t read_addr);
 /* ----------------------- Static variables ---------------------------------*/
-//static sModbus lgsModbus_inst;
-extern	conf_reg_map_st conf_reg_map_inst[];	 
+// static sModbus lgsModbus_inst;
+extern conf_reg_map_st conf_reg_map_inst[];
 
-//mb_reg_st lgsModbus_inst;
+// mb_reg_st lgsModbus_inst;
 
-eMBErrorCode
-eMBRegInputCB( UCHAR * pucRegBuffer, USHORT usAddress, USHORT usNRegs )
+eMBErrorCode eMBRegInputCB(UCHAR *pucRegBuffer, USHORT usAddress, USHORT usNRegs)
 {
     return MB_ENOREG;
 }
 
-uint16_t Reg_Map_Write(uint16_t reg_addr,uint16_t *wr_data)
-{ 
-		uint16_t err_code;
-		err_code = CPAD_ERR_NOERR;
-	
-		if((conf_reg_map_inst[reg_addr].rw != 1)&&(conf_reg_map_inst[reg_addr].rw != 2))	
-		{
-				err_code = CPAD_ERR_WR_OR;
-//				rt_kprintf("CPAD_ERR_WR_OR02 failed\n");
-				return err_code;	
-		}	
-		
-		if((*(wr_data)>conf_reg_map_inst[reg_addr].max)||(*(wr_data)<conf_reg_map_inst[reg_addr].min))		//min_max limit check
-		{
-				err_code = CPAD_ERR_DATA_OR;
-//				rt_kprintf("CPAD_ERR_WR_OR03 failed\n");
-				return err_code;	
-		}
-		return err_code;	
+uint16_t Reg_Map_Write(uint16_t reg_addr, uint16_t *wr_data)
+{
+    uint16_t err_code;
+    err_code = CPAD_ERR_NOERR;
+
+    if ((conf_reg_map_inst[reg_addr].rw != 1) && (conf_reg_map_inst[reg_addr].rw != 2))
+    {
+        err_code = CPAD_ERR_WR_OR;
+        //				rt_kprintf("CPAD_ERR_WR_OR02 failed\n");
+        return err_code;
+    }
+
+    if ((*(wr_data) > conf_reg_map_inst[reg_addr].max) ||
+        (*(wr_data) < conf_reg_map_inst[reg_addr].min))  // min_max limit check
+    {
+        err_code = CPAD_ERR_DATA_OR;
+        //				rt_kprintf("CPAD_ERR_WR_OR03 failed\n");
+        return err_code;
+    }
+    return err_code;
 }
 
 /*********************************************************
   * @name   eMBRegHoldingCB
-	* @brief  modbus holding register operation call back function
-	* @calls  None       
+    * @brief  modbus holding register operation call back function
+    * @calls  None
   * @called modbus protocal stack
   * @param  None
   * @retval The return value can be:
-						@arg MB_ENOERR: 
-            @arg MB_ENORES: 
+                        @arg MB_ENOERR:
+            @arg MB_ENORES:
 *********************************************************/
-//eMBErrorCode eMBRegHoldingCB( UCHAR * pucRegBuffer, USHORT usAddress, USHORT usNRegs, eMBRegisterMode eMode )
+// eMBErrorCode eMBRegHoldingCB( UCHAR * pucRegBuffer, USHORT usAddress, USHORT usNRegs, eMBRegisterMode eMode )
 //{
-////    extern g_var_st g_var_st_inst; 
+////    extern g_var_st g_var_st_inst;
 //		eMBErrorCode    eStatus = MB_ENOERR;
 //    int             iRegIndex;
 //	  uint16_t u16RegAddr = 0;
@@ -82,7 +82,7 @@ uint16_t Reg_Map_Write(uint16_t reg_addr,uint16_t *wr_data)
 //        iRegIndex = ( int )( usAddress - REG_HOLDING_START );
 //        switch ( eMode )
 //        {
-//        // Pass current register values to the protocol stack. 
+//        // Pass current register values to the protocol stack.
 //        case MB_REG_READ:
 //            while( usNRegs > 0 )
 //            {
@@ -97,28 +97,31 @@ uint16_t Reg_Map_Write(uint16_t reg_addr,uint16_t *wr_data)
 //        case MB_REG_WRITE:
 //            while( usNRegs > 0 )
 //            {
-//								if(lgsModbus_inst.u8RegProperty[iRegIndex] == 0)					//if reg is RO, quit process
+//								if(lgsModbus_inst.u8RegProperty[iRegIndex] == 0)					//if reg is RO, quit
+//process
 //								{
 //										eStatus = MB_EIO;
 //										break;
-//								} 
+//								}
 ////								lgsModbus_inst.u16RegBuffer[iRegIndex] = *pucRegBuffer++ << 8;
 ////                lgsModbus_inst.u16RegBuffer[iRegIndex] |= *pucRegBuffer++;
-////								lgsModbus_inst.u8RegStatus[iRegIndex] = MB_REG_WRITE;								//content change measn new cmd request
-////								
+////								lgsModbus_inst.u8RegStatus[iRegIndex] = MB_REG_WRITE;								//content change measn new cmd
+///request
+////
 ////                iRegIndex++;
 ////                usNRegs--;
 //								u16RegAddr=iRegIndex;
 
 //								usValue = *pucRegBuffer++ << 8;
 //                usValue |= *pucRegBuffer++;
-//								
+//
 //								u16Ret=Reg_Map_Write(conf_reg_map_inst[u16RegAddr].id, &usValue);
 //								if(u16Ret == CPAD_ERR_NOERR)
 //								{
 //									lgsModbus_inst.u16RegBuffer[iRegIndex] = usValue;
-//									lgsModbus_inst.u8RegStatus[iRegIndex] = MB_REG_WRITE;								//content change measn new cmd request
-//									
+//									lgsModbus_inst.u8RegStatus[iRegIndex] = MB_REG_WRITE;								//content change measn new cmd
+//request
+//
 //									iRegIndex++;
 //									usNRegs--;
 //								}
@@ -144,247 +147,245 @@ uint8_t COM_SINGLE_eMBRegHoldingCB(uint16_t usAddress, uint16_t usValue)
     extern local_reg_st l_sys;
     extern conf_reg_map_st conf_reg_map_inst[];
     eMBErrorCode eStatus = MB_ENOERR;
-    uint16_t temp = 0;
-//    uint16_t u16RegAddr = usAddress;
-//    uint16_t u16Value = usValue;
+    uint16_t temp        = 0;
+    //    uint16_t u16RegAddr = usAddress;
+    //    uint16_t u16Value = usValue;
 
     switch (usAddress)
     {
-			case FACTORY_RESET: //≥ˆ≥ß…Ë÷√
-			{
-					temp = usValue;
-					if (temp == 0x3C) //ª÷∏¥‘≠ º≤Œ ˝
-					{
-	//            reset_runtime(0xFF); //«Â¡„À˘”–‘À–– ±º‰
-							set_load_flag(0x02);
-							osDelay(1000);
-							NVIC_SystemReset();
-							return MB_ENOERR;
-					}
-					else if (temp == 0x5A) //ª÷∏¥≥ˆ≥ß…Ë÷√
-					{
-							set_load_flag(0x01);
-							osDelay(1000);
-							NVIC_SystemReset();
-							return MB_ENOERR;
-					}
-					else if (temp == 0x69) //±£¥Ê≥ˆ≥ß…Ë÷√
-					{
-							save_conf_reg(0x01);
-							osDelay(1000);
-							NVIC_SystemReset();
-							return MB_ENOERR;
-					}
-					else if (temp == 0x2D) //÷ÿ∆Ù
-					{
-							osDelay(1000);
-							NVIC_SystemReset();
-							return MB_ENOERR;
-					}
-					else
-					if (temp == 0x15) //«Â¡„‘À–– ±º‰
-					{
-							reset_runtime(0xFF); //«Â¡„À˘”–‘À–– ±º‰
-							osDelay(100);
-							return MB_ENOERR;
-					}
-					else
-					{
-							eStatus = MB_ENORES;
-					}
-			}
-			break;
-			case MANUAL_TSET: //≤‚ ‘ƒ£ Ω
-			{
-					temp = usValue;
-					if (temp == TEST_MANUAL_UNABLE)
-					{
-							osDelay(500);
-							NVIC_SystemReset();
-							return MB_ENOERR;
-					}
-					else
-					{
-							if (reg_map_write(conf_reg_map_inst[usAddress].id, &usValue, 1) == CPAD_ERR_NOERR)
-							{
-									//										iRegIndex++;
-									//										usNRegs--;
-									eStatus = MB_ENOERR;
-							}
-							else
-							{
-
-									eStatus = MB_ENORES;
-									//	 while( usNRegs > 0 )
-							}
-					}
-			}
-			break;
-			case CLEAR_RT: //«Â¡„≤øº˛‘À–– ±º‰
-			{
-					temp = usValue;
-					if (temp) //«Â¡„≤øº˛‘À–– ±º‰
-					{
-							reset_runtime(temp);
-							return MB_ENOERR;
-					}
-					else
-					{
-							eStatus = MB_ENORES;
-					}
-			}
-			break;
-			case CLEAR_ALARM: //«Â≥˝∏ÊæØ
-			{
-					temp = usValue;
-					if (temp == 0x5A) //«Â¡„≤øº˛‘À–– ±º‰
-					{
-							clear_alarm(0xFF);
-							return MB_ENOERR;
-					}
-					else
-					{
-							eStatus = MB_ENORES;
-					}
-			}
-			break;
-			default:
-			{
-					if (reg_map_write(conf_reg_map_inst[usAddress].id, &usValue, 1) == CPAD_ERR_NOERR)
-					{
-							//										iRegIndex++;
-							//										usNRegs--;
-							eStatus = MB_ENOERR;
-					}
-					else
-					{
-
-							eStatus = MB_ENORES;
-					}
-			}
-			break;
+        case FACTORY_RESET:  //Âá∫ÂéÇËÆæÁΩÆ
+        {
+            temp = usValue;
+            if (temp == 0x3C)  //ÊÅ¢Â§çÂéüÂßãÂèÇÊï∞
+            {
+                //            reset_runtime(0xFF); //Ê∏ÖÈõ∂ÊâÄÊúâËøêË°åÊó∂Èó¥
+                set_load_flag(0x02);
+                osDelay(1000);
+                NVIC_SystemReset();
+                return MB_ENOERR;
+            }
+            else if (temp == 0x5A)  //ÊÅ¢Â§çÂá∫ÂéÇËÆæÁΩÆ
+            {
+                set_load_flag(0x01);
+                osDelay(1000);
+                NVIC_SystemReset();
+                return MB_ENOERR;
+            }
+            else if (temp == 0x69)  //‰øùÂ≠òÂá∫ÂéÇËÆæÁΩÆ
+            {
+                save_conf_reg(0x01);
+                osDelay(1000);
+                NVIC_SystemReset();
+                return MB_ENOERR;
+            }
+            else if (temp == 0x2D)  //ÈáçÂêØ
+            {
+                osDelay(1000);
+                NVIC_SystemReset();
+                return MB_ENOERR;
+            }
+            else if (temp == 0x15)  //Ê∏ÖÈõ∂ËøêË°åÊó∂Èó¥
+            {
+                reset_runtime(0xFF);  //Ê∏ÖÈõ∂ÊâÄÊúâËøêË°åÊó∂Èó¥
+                osDelay(100);
+                return MB_ENOERR;
+            }
+            else
+            {
+                eStatus = MB_ENORES;
+            }
+        }
+        break;
+        case MANUAL_TSET:  //ÊµãËØïÊ®°Âºè
+        {
+            temp = usValue;
+            if (temp == TEST_MANUAL_UNABLE)
+            {
+                osDelay(500);
+                NVIC_SystemReset();
+                return MB_ENOERR;
+            }
+            else
+            {
+                if (reg_map_write(conf_reg_map_inst[usAddress].id, &usValue, 1) == CPAD_ERR_NOERR)
+                {
+                    //										iRegIndex++;
+                    //										usNRegs--;
+                    eStatus = MB_ENOERR;
+                }
+                else
+                {
+                    eStatus = MB_ENORES;
+                    //	 while( usNRegs > 0 )
+                }
+            }
+        }
+        break;
+        case CLEAR_RT:  //Ê∏ÖÈõ∂ÈÉ®‰ª∂ËøêË°åÊó∂Èó¥
+        {
+            temp = usValue;
+            if (temp)  //Ê∏ÖÈõ∂ÈÉ®‰ª∂ËøêË°åÊó∂Èó¥
+            {
+                reset_runtime(temp);
+                return MB_ENOERR;
+            }
+            else
+            {
+                eStatus = MB_ENORES;
+            }
+        }
+        break;
+        case CLEAR_ALARM:  //Ê∏ÖÈô§ÂëäË≠¶
+        {
+            temp = usValue;
+            if (temp == 0x5A)  //Ê∏ÖÈõ∂ÈÉ®‰ª∂ËøêË°åÊó∂Èó¥
+            {
+                clear_alarm(0xFF);
+                return MB_ENOERR;
+            }
+            else
+            {
+                eStatus = MB_ENORES;
+            }
+        }
+        break;
+        default: {
+            if (reg_map_write(conf_reg_map_inst[usAddress].id, &usValue, 1) == CPAD_ERR_NOERR)
+            {
+                //										iRegIndex++;
+                //										usNRegs--;
+                eStatus = MB_ENOERR;
+            }
+            else
+            {
+                eStatus = MB_ENORES;
+            }
+        }
+        break;
     }
     return eStatus;
 }
 
-eMBErrorCode eMBRegHoldingCB( UCHAR * pucRegBuffer, USHORT usAddress, USHORT usNRegs, eMBRegisterMode eMode )
-{ 
-	extern	conf_reg_map_st conf_reg_map_inst[];
-	eMBErrorCode    eStatus = MB_ENOERR;
-    USHORT          iRegIndex;
+eMBErrorCode eMBRegHoldingCB(UCHAR *pucRegBuffer, USHORT usAddress, USHORT usNRegs, eMBRegisterMode eMode)
+{
+    extern conf_reg_map_st conf_reg_map_inst[];
+    eMBErrorCode eStatus = MB_ENOERR;
+    USHORT iRegIndex;
     uint16_t cmd_value;
     uint16_t u16RegAddr = usAddress;
 
-		uint16_t err_code;
-	usAddress--;   //FreeModbusπ¶ƒ‹∫Ø ˝÷–“—æ≠º”1£¨Œ™±£÷§”Îª∫≥Â«¯ ◊µÿ÷∑“ª÷¬£¨π ºı1
-    //if((usAddress >= REG_HOLDING_START)&&(usAddress + usNRegs <= REG_HOLDING_START + REG_HOLDING_NREGS ))
-	if(usAddress + usNRegs <= REG_HOLDING_START + REG_HOLDING_NREGS )
+    // uint16_t err_code;
+    usAddress--;  // FreeModbusÂäüËÉΩÂáΩÊï∞‰∏≠Â∑≤ÁªèÂä†1Ôºå‰∏∫‰øùËØÅ‰∏éÁºìÂÜ≤Âå∫È¶ñÂú∞ÂùÄ‰∏ÄËá¥ÔºåÊïÖÂáè1
+    // if((usAddress >= REG_HOLDING_START)&&(usAddress + usNRegs <= REG_HOLDING_START + REG_HOLDING_NREGS ))
+    if (usAddress + usNRegs <= REG_HOLDING_START + REG_HOLDING_NREGS)
     {
-        iRegIndex = ( USHORT )( usAddress - REG_HOLDING_START );
-        switch ( eMode )
+        iRegIndex = (USHORT)(usAddress - REG_HOLDING_START);
+        switch (eMode)
         {
-        // Pass current register values to the protocol stack. 
-        case MB_REG_READ:
-            while( usNRegs > 0 )
-            {
-#ifdef  E2PROM
-                cmd_value = mbs_read_reg(iRegIndex);
-								*pucRegBuffer++ = ( unsigned char )( cmd_value >> 8 );
-								*pucRegBuffer++ = ( unsigned char )( cmd_value & 0xFF );
-#else
-                *pucRegBuffer++ = ( UCHAR ) ( lgsModbus_inst.u16RegBuffer[iRegIndex] >> 8 );
-                *pucRegBuffer++ = ( UCHAR ) ( lgsModbus_inst.u16RegBuffer[iRegIndex] & 0xFF );
-#endif 								
-
-                iRegIndex++;
-                usNRegs--;
-            }
-            break;
-
-        // Update current register values with new values from the protocol stack.
-        case MB_REG_WRITE:
-            while( usNRegs > 0 )
-            {
-#ifdef  E2PROM
-                //≥¨≥ˆø…–¥∑∂Œß±®¥Ì≈–∂œ
-                if ((usAddress + usNRegs) <= (REG_HOLDING_START + CPAD_REG_HOLDING_WRITE_NREGS))
+            // Pass current register values to the protocol stack.
+            case MB_REG_READ:
+                while (usNRegs > 0)
                 {
-                    if ((usAddress + usNRegs) >= (REG_HOLDING_START + CONFIG_REG_MAP_OFFSET + 1))
+#ifdef E2PROM
+                    cmd_value       = mbs_read_reg(iRegIndex);
+                    *pucRegBuffer++ = (unsigned char)(cmd_value >> 8);
+                    *pucRegBuffer++ = (unsigned char)(cmd_value & 0xFF);
+#else
+                    *pucRegBuffer++ = (UCHAR)(lgsModbus_inst.u16RegBuffer[iRegIndex] >> 8);
+                    *pucRegBuffer++ = (UCHAR)(lgsModbus_inst.u16RegBuffer[iRegIndex] & 0xFF);
+#endif
+
+                    iRegIndex++;
+                    usNRegs--;
+                }
+                break;
+
+            // Update current register values with new values from the protocol stack.
+            case MB_REG_WRITE:
+                while (usNRegs > 0)
+                {
+#ifdef E2PROM
+                    //Ë∂ÖÂá∫ÂèØÂÜôËåÉÂõ¥Êä•ÈîôÂà§Êñ≠
+                    if ((usAddress + usNRegs) <= (REG_HOLDING_START + CPAD_REG_HOLDING_WRITE_NREGS))
                     {
-                        cmd_value = (*pucRegBuffer) << 8;
-                        cmd_value += *(pucRegBuffer + 1);
-                        //–¥»Î±£≥÷ºƒ¥Ê∆˜÷–Õ¨ ±∏˙–¬µΩƒ⁄¥Ê∫Õflash±£¥Ê
-                        // –¥»Îºƒ¥Ê∆˜∫ÕEEPROM÷–°£
-                        //																					
-                        u16RegAddr = iRegIndex - CONFIG_REG_MAP_OFFSET;
-                        if (COM_SINGLE_eMBRegHoldingCB(u16RegAddr, cmd_value) == MB_ENOERR)
+                        if ((usAddress + usNRegs) >= (REG_HOLDING_START + CONFIG_REG_MAP_OFFSET + 1))
                         {
-                            usNRegs--;
+                            cmd_value = (*pucRegBuffer) << 8;
+                            cmd_value += *(pucRegBuffer + 1);
+                            //ÂÜôÂÖ•‰øùÊåÅÂØÑÂ≠òÂô®‰∏≠ÂêåÊó∂Ë∑üÊñ∞Âà∞ÂÜÖÂ≠òÂíåflash‰øùÂ≠ò
+                            // ÂÜôÂÖ•ÂØÑÂ≠òÂô®ÂíåEEPROM‰∏≠„ÄÇ
+                            //
+                            u16RegAddr = iRegIndex - CONFIG_REG_MAP_OFFSET;
+                            if (COM_SINGLE_eMBRegHoldingCB(u16RegAddr, cmd_value) == MB_ENOERR)
+                            {
+                                usNRegs--;
+                            }
+                            else
+                            {
+                                eStatus = MB_ENORES;
+                                break;  //	 while( usNRegs > 0 )
+                            }
                         }
                         else
                         {
-                            eStatus = MB_ENORES;
-                            break; //	 while( usNRegs > 0 )
+                            //                        pusRegHoldingBuf[iRegIndex] = *pucRegBuffer++ << 8;
+                            //                        pusRegHoldingBuf[iRegIndex] |= *pucRegBuffer++;
+                            iRegIndex++;
+                            usNRegs--;
                         }
                     }
                     else
                     {
-//                        pusRegHoldingBuf[iRegIndex] = *pucRegBuffer++ << 8;
-//                        pusRegHoldingBuf[iRegIndex] |= *pucRegBuffer++;
+                        eStatus = MB_ENOREG;
+                        break;  //  while( usNRegs > 0 )
+                    }
+#else
+                    //								if(lgsModbus_inst.u8RegProperty[iRegIndex] == 0)					//if reg is RO, quit
+                    //process
+                    //								{
+                    //										eStatus = MB_EIO;
+                    //										break;
+                    //								}
+                    //								lgsModbus_inst.u16RegBuffer[iRegIndex] = *pucRegBuffer++ << 8;
+                    //                lgsModbus_inst.u16RegBuffer[iRegIndex] |= *pucRegBuffer++;
+                    //								lgsModbus_inst.u8RegStatus[iRegIndex] = MB_REG_WRITE;								//content
+                    //change measn new cmd request
+                    //
+                    //                iRegIndex++;
+                    //                usNRegs--;
+
+                    cmd_value = *pucRegBuffer++ << 8;
+                    cmd_value |= *pucRegBuffer++;
+
+                    err_code = Reg_Map_Write(conf_reg_map_inst[iRegIndex].id, &cmd_value);
+                    if (err_code == CPAD_ERR_NOERR)
+                    {
+                        lgsModbus_inst.u16RegBuffer[iRegIndex] = cmd_value;
+                        lgsModbus_inst.u8RegStatus[iRegIndex]  = MB_REG_WRITE;  // content change measn new cmd request
+                        if (iRegIndex == FACTORY_RESET)                         //Â§ç‰ΩçÈªòËÆ§ÂèÇÊï∞
+                        {
+                            //										temp =
+                            //(uint8_t)(*conf_reg_map_inst[FACTORY_RESET].reg_ptr);
+                            if (cmd_value == 0x5A)
+                            {
+                                __set_PRIMASK(1);
+                                SaveSettings(0);
+                                Delay(50);
+                                NVIC_SystemReset();  //Â§ç‰Ωç
+                            }
+                        }
+
                         iRegIndex++;
                         usNRegs--;
                     }
+                    else
+                    {
+                        eStatus = err_code;
+                        break;
+                    }
+#endif
                 }
-                else
-                {
-
-                    eStatus = MB_ENOREG;
-                    break; //  while( usNRegs > 0 )
-                }
-#else			
-//								if(lgsModbus_inst.u8RegProperty[iRegIndex] == 0)					//if reg is RO, quit process
-//								{
-//										eStatus = MB_EIO;
-//										break;
-//								} 
-//								lgsModbus_inst.u16RegBuffer[iRegIndex] = *pucRegBuffer++ << 8;
-//                lgsModbus_inst.u16RegBuffer[iRegIndex] |= *pucRegBuffer++;
-//								lgsModbus_inst.u8RegStatus[iRegIndex] = MB_REG_WRITE;								//content change measn new cmd request
-//								
-//                iRegIndex++;
-//                usNRegs--;
-
-								cmd_value = *pucRegBuffer++ << 8;
-                cmd_value |= *pucRegBuffer++;
-								
-								err_code=Reg_Map_Write(conf_reg_map_inst[iRegIndex].id, &cmd_value);
-								if(err_code == CPAD_ERR_NOERR)
-								{
-									lgsModbus_inst.u16RegBuffer[iRegIndex] = cmd_value;
-									lgsModbus_inst.u8RegStatus[iRegIndex] = MB_REG_WRITE;								//content change measn new cmd request
-									if(iRegIndex == FACTORY_RESET)//∏¥Œªƒ¨»œ≤Œ ˝
-									{
-//										temp = (uint8_t)(*conf_reg_map_inst[FACTORY_RESET].reg_ptr);
-										if(cmd_value == 0x5A)
-										{									
-											__set_PRIMASK(1);
-											SaveSettings(0);
-											Delay(50);
-											NVIC_SystemReset();	//∏¥Œª
-										}
-									}
-									
-									iRegIndex++;
-									usNRegs--;
-								}
-								else
-								{
-										eStatus = err_code;
-										break;
-								}
-#endif 	
-            }
-            break;
+                break;
         }
     }
     else
@@ -394,112 +395,107 @@ eMBErrorCode eMBRegHoldingCB( UCHAR * pucRegBuffer, USHORT usAddress, USHORT usN
     return eStatus;
 }
 
-
-eMBErrorCode
-eMBRegCoilsCB( UCHAR * pucRegBuffer, USHORT usAddress, USHORT usNCoils,
-               eMBRegisterMode eMode )
+eMBErrorCode eMBRegCoilsCB(UCHAR *pucRegBuffer, USHORT usAddress, USHORT usNCoils, eMBRegisterMode eMode)
 {
     return MB_ENOREG;
 }
 
-eMBErrorCode
-eMBRegDiscreteCB( UCHAR * pucRegBuffer, USHORT usAddress, USHORT usNDiscrete )
+eMBErrorCode eMBRegDiscreteCB(UCHAR *pucRegBuffer, USHORT usAddress, USHORT usNDiscrete)
 {
     return MB_ENOREG;
 }
-
 
 /*********************************************************
-  * @name   SetWorkMode
-	* @brief  switch to factory mode, in which all modbus regs could be accessed
-	* @calls  ConfigRegister()         
-  * @called None
-  * @param  None
-  * @retval None
-*********************************************************/
-//static void SetWorkMode(uint8_t WorkMode)
+ * @name   SetWorkMode
+ * @brief  switch to factory mode, in which all modbus regs could be accessed
+ * @calls  ConfigRegister()
+ * @called None
+ * @param  None
+ * @retval None
+ *********************************************************/
+// static void SetWorkMode(uint8_t WorkMode)
 //{
 ////    uint16_t i;
 //#ifdef  E2PROM
 
 //#else
-//		if(WorkMode)//”√ªßƒ£ Ω
+//		if(WorkMode)//Áî®Êà∑Ê®°Âºè
 //		{
-//				lgsModbus_inst.u16RegBuffer[MB_CFG_WorkMode] &= ~0x0001;				//reset status flag bit that indcates factory mode
-//				for(i=0;i<REG_HOLDING_NREGS;i++)
+//				lgsModbus_inst.u16RegBuffer[MB_CFG_WorkMode] &= ~0x0001;				//reset status flag bit that indcates factory
+//mode 				for(i=0;i<REG_HOLDING_NREGS;i++)
 //				{
 //						lgsModbus_inst.u8RegProperty[i] = MB_REG_READ;
-//				}		 
-////				lgsModbus_inst.u8RegProperty[MB_CFG_ADDR] = MB_REG_WRITE;			
-////				lgsModbus_inst.u8RegProperty[MB_CFG_BAUDRATE] = MB_REG_WRITE;								
-////				lgsModbus_inst.u8RegProperty[MB_CFG_CMD] = MB_REG_WRITE;			//active device seting change permission	
-////				lgsModbus_inst.u8RegProperty[MB_CFG_FANSTEP] = MB_REG_WRITE;			
-////				lgsModbus_inst.u8RegProperty[MB_CFG_FANOUT] = MB_REG_WRITE;							
+//				}
+////				lgsModbus_inst.u8RegProperty[MB_CFG_ADDR] = MB_REG_WRITE;
+////				lgsModbus_inst.u8RegProperty[MB_CFG_BAUDRATE] = MB_REG_WRITE;
+////				lgsModbus_inst.u8RegProperty[MB_CFG_CMD] = MB_REG_WRITE;			//active device seting change
+///permission /				lgsModbus_inst.u8RegProperty[MB_CFG_FANSTEP] = MB_REG_WRITE; /
+///lgsModbus_inst.u8RegProperty[MB_CFG_FANOUT] = MB_REG_WRITE;
 //		}
-//		else//π§≥ßƒ£ Ω
-//		{	
-//				lgsModbus_inst.u16RegBuffer[MB_CFG_WorkMode] |= 0x0001;			//set status flag bit that indcates factory mode
-//				for(i=0;i<REG_HOLDING_NREGS;i++)
+//		else//Â∑•ÂéÇÊ®°Âºè
+//		{
+//				lgsModbus_inst.u16RegBuffer[MB_CFG_WorkMode] |= 0x0001;			//set status flag bit that indcates factory
+//mode 				for(i=0;i<REG_HOLDING_NREGS;i++)
 //				{
 //						lgsModbus_inst.u8RegProperty[i] = MB_REG_WRITE;
-//				}	
-//		}  
-//#endif 			
+//				}
+//		}
+//#endif
 
 //}
 static uint16_t init_load_default(void)
 {
-		uint16_t i, ret;
-		ret =1;
-		for(i=0;i<REG_HOLDING_NREGS;i++)		//initialize global variable with default values
-		{
-				if(conf_reg_map_inst[i].reg_ptr != NULL)
-				{
-						*(conf_reg_map_inst[i].reg_ptr) = conf_reg_map_inst[i].dft;
-				}
-		}			
-		return ret;
+    uint16_t i, ret;
+    ret = 1;
+    for (i = 0; i < REG_HOLDING_NREGS; i++)  // initialize global variable with default values
+    {
+        if (conf_reg_map_inst[i].reg_ptr != NULL)
+        {
+            *(conf_reg_map_inst[i].reg_ptr) = conf_reg_map_inst[i].dft;
+        }
+    }
+    return ret;
 }
 /*********************************************************
   * @name   MBREGDeflaut
-	* @brief  reset to initial factory parameters
-	* @calls  ResetDefaultParameter();
+    * @brief  reset to initial factory parameters
+    * @calls  ResetDefaultParameter();
 
-  * @called SetWorkMode(1);//”√ªßƒ£ Ω();
+  * @called SetWorkMode(1);//Áî®Êà∑Ê®°Âºè();
   * @param  None
   * @retval None
 *********************************************************/
 static void MBREGDeflaut(void)
 {
 //	  uint16_t i;
-#ifdef  E2PROM
-//		//ƒ¨»œ≤Œ ˝≥ı ºªØ
-		init_load_default();
-#else	
+#ifdef E2PROM
+    //		//ÈªòËÆ§ÂèÇÊï∞ÂàùÂßãÂåñ
+    init_load_default();
+#else
     lgsModbus_inst.u8RegStart = REG_HOLDING_START;
 
-		memcpy((u8*)&lgsModbus_inst.u16RegBuffer[MB_CFG_Num],(u8*)&g_sVariable.gPara.Num,sizeof(sParameter));	//
-    SetWorkMode(1);//”√ªßƒ£ Ω()
+    memcpy((u8 *)&lgsModbus_inst.u16RegBuffer[MB_CFG_Num], (u8 *)&g_sVariable.gPara.Num, sizeof(sParameter));  //
+    SetWorkMode(1);  //Áî®Êà∑Ê®°Âºè()
 #endif
 }
 
 /*********************************************************
   * @name   cmd_mb_stack_restart
-	* @brief  restart modbus protocal stack, update device address or/and communication baudrate
-	* @calls  MBGetAddrsee(),
+    * @brief  restart modbus protocal stack, update device address or/and communication baudrate
+    * @calls  MBGetAddrsee(),
             MBGetBaudrate(),
             eMBDisable(),
             eMBInit();
-						eMBEnable();
+                        eMBEnable();
   * @called ();
-  * @param  None 
+  * @param  None
   * @retval None
 *********************************************************/
-//static eMBErrorCode MBStackRestart(void)
-//{	  		
+// static eMBErrorCode MBStackRestart(void)
+//{
 //	  eMBErrorCode eStatus=MB_ENOERR;
-//	
-//		osDelay(50);	
+//
+//		osDelay(50);
 //		eStatus = eMBDisable();
 //		if(eStatus != MB_ENOERR)
 //		{
@@ -512,308 +508,307 @@ static void MBREGDeflaut(void)
 //		}
 //		eStatus = eMBEnable();
 //		return eStatus;
-//}
+// }
 
 /*********************************************************
-  * @name   SaveSettings
-	* @brief  save current modbus register data into flashrom
-	* @calls  ()          
-  * @called flash_write()
-  * @param  None
-  * @retval None
-*********************************************************/
+ * @name   SaveSettings
+ * @brief  save current modbus register data into flashrom
+ * @calls  ()
+ * @called flash_write()
+ * @param  None
+ * @retval None
+ *********************************************************/
 void SaveSettings(uint8_t u8Type)
 {
-#ifdef  E2PROM
+#ifdef E2PROM
 
-#else	
-		if(u8Type==1)
-		{
-			lgsModbus_inst.u8PgFlag = MB_FLASH_WR_FLAG;
-		}
-		else
-		{
-			lgsModbus_inst.u8PgFlag = 0;			
-		}
-    Flash_Write(FLASH_USER_START,(uint16_t *)&lgsModbus_inst,(sizeof(sModbus)/2));
+#else
+    if (u8Type == 1)
+    {
+        lgsModbus_inst.u8PgFlag = MB_FLASH_WR_FLAG;
+    }
+    else
+    {
+        lgsModbus_inst.u8PgFlag = 0;
+    }
+    Flash_Write(FLASH_USER_START, (uint16_t *)&lgsModbus_inst, (sizeof(sModbus) / 2));
 #endif
-
 }
 
 /*********************************************************
   * @name   ResetDefaultParameter
-	* @brief  reset system parameters to default values
-	* @calls  ConfigRegister()          
+    * @brief  reset system parameters to default values
+    * @calls  ConfigRegister()
   * @called MBREGDeflaut(),
-						eMBClose(),
+                        eMBClose(),
             eMBDisable(),
             eMBInit(),
-						eMBEnable();
+                        eMBEnable();
   * @param  None
   * @retval None
 *********************************************************/
- eMBErrorCode ResetDefaultParameter(void)
+eMBErrorCode ResetDefaultParameter(void)
 {
-		eMBErrorCode eStatus = MB_ENOERR;
-	
-		osDelay(50);
-		eStatus = eMBDisable();
-		if(eStatus != MB_ENOERR)
-		{
-				return eStatus;
-		}	
-	  eStatus = eMBClose();
-		if(eStatus != MB_ENOERR)
-		{
-				return eStatus;
-		}		
-		MBREGDeflaut();   
-		eStatus = eMBInit( MB_RTU, MBGetAddrsee(), USART0_CH, MBGetBaudrate(), MB_PAR_NONE );
-		if(eStatus != MB_ENOERR)
-		{
-				return eStatus;
-		}	
-		eStatus = eMBEnable();
-		return eStatus;
+    eMBErrorCode eStatus = MB_ENOERR;
+
+    osDelay(50);
+    eStatus = eMBDisable();
+    if (eStatus != MB_ENOERR)
+    {
+        return eStatus;
+    }
+    eStatus = eMBClose();
+    if (eStatus != MB_ENOERR)
+    {
+        return eStatus;
+    }
+    MBREGDeflaut();
+    eStatus = eMBInit(MB_RTU, MBGetAddrsee(), USART0_CH, MBGetBaudrate(), MB_PAR_NONE);
+    if (eStatus != MB_ENOERR)
+    {
+        return eStatus;
+    }
+    eStatus = eMBEnable();
+    return eStatus;
 }
 
 /*********************************************************
   * @name   SystemReset
-	* @brief  system software reset
-	* @calls  ConfigRegister()          
+    * @brief  system software reset
+    * @calls  ConfigRegister()
   * @called eMBDisable(),
-						eMBClose(),
-						NVIC_SystemReset();
+                        eMBClose(),
+                        NVIC_SystemReset();
   * @param  None
   * @retval None
 *********************************************************/
-//static void SystemReset(void)
+// static void SystemReset(void)
 void SystemReset(void)
 {
-		osDelay(100);
-		eMBDisable();
+    osDelay(100);
+    eMBDisable();
     eMBClose();
-	  NVIC_SystemReset();	
+    NVIC_SystemReset();
 }
 
 /*********************************************************
   * @name   ConfigRegister
-	* @brief  modbus configuration register command execution
-	* @calls            
+    * @brief  modbus configuration register command execution
+    * @calls
   * @called ResetDefaultParameter(),
-						SystemReset(),
-						SetWorkMode;
+                        SystemReset(),
+                        SetWorkMode;
   * @param  None
   * @retval None
 *********************************************************/
-//static void ConfigRegister(uint16_t u16CMD)
+// static void ConfigRegister(uint16_t u16CMD)
 //{
-//    switch(u16CMD)
+//     switch(u16CMD)
 //		{
 //		    case (CMD_MB_SAVE_FLASH):
 //		    {
-//		        SaveSettings(1);//±£¥Ê…Ë÷√
+//		        SaveSettings(1);//‰øùÂ≠òËÆæÁΩÆ
 //				    break;
-//		    }				
+//		    }
 //		    case (CMD_MB_SYS_RESET):
 //		    {
-//		        SystemReset();//œµÕ≥∏¥Œª
+//		        SystemReset();//Á≥ªÁªüÂ§ç‰Ωç
 //				    break;
-//		    }				
+//		    }
 //		    case (CMD_MB_RESET_DEFAULT):
 //		    {
-//		        ResetDefaultParameter();//∏¥Œªƒ¨»œ≤Œ ˝
+//		        ResetDefaultParameter();//Â§ç‰ΩçÈªòËÆ§ÂèÇÊï∞
 //						Delay(50);
 //						SaveSettings(1);
 //				    break;
 //		    }
 //		    case (CMD_MB_USER_MODE):
 //		    {
-//		        SetWorkMode(1);//”√ªßƒ£ Ω
+//		        SetWorkMode(1);//Áî®Êà∑Ê®°Âºè
 //				    break;
 //		    }
 //		    case (CMD_MB_FACTORY_MODE):
 //		    {
-//		        SetWorkMode(0);//π§≥ßƒ£ Ω
+//		        SetWorkMode(0);//Â∑•ÂéÇÊ®°Âºè
 //				    break;
-//		    }				
+//		    }
 //				default:
 //				{
 //				    break;
 //				}
 //		}
-//}
+// }
 
 /*********************************************************
   * @name   MBGetBaudrate
-	* @brief  get current modbus communication baudrate
-	* @calls  MBStackRestart(),
-						ResetDefaultParameter(),
+    * @brief  get current modbus communication baudrate
+    * @calls  MBStackRestart(),
+                        ResetDefaultParameter(),
   * @called None
   * @param  None
   * @retval baudrate
 *********************************************************/
 uint16_t MBGetBaudrate(void)
 {
-#ifdef  E2PROM
-		g_sVariable.gPara.Bardrate=19200;
+#ifdef E2PROM
+    g_sVariable.gPara.Bardrate = 19200;
     return g_sVariable.gPara.Bardrate;
-#else	
-		lgsModbus_inst.u16RegBuffer[MB_CFG_BAUDRATE]=g_sVariable.gPara.Bardrate;
+#else
+    lgsModbus_inst.u16RegBuffer[MB_CFG_BAUDRATE] = g_sVariable.gPara.Bardrate;
     return lgsModbus_inst.u16RegBuffer[MB_CFG_BAUDRATE];
 #endif
 }
 
 /*********************************************************
   * @name   MBGetAddrsee
-	* @brief  get current modbus communication address
-	* @calls  MBStackRestart(),
-						ResetDefaultParameter(),          
+    * @brief  get current modbus communication address
+    * @calls  MBStackRestart(),
+                        ResetDefaultParameter(),
   * @called None
   * @param  None
   * @retval device modbus slave address
 *********************************************************/
 uint8_t MBGetAddrsee(void)
 {
-#ifdef  E2PROM
-		g_sVariable.gPara.CommAddress=1;
+#ifdef E2PROM
+    g_sVariable.gPara.CommAddress = 1;
     return g_sVariable.gPara.CommAddress;
-#else	
-		g_sVariable.gPara.CommAddress=1;
-		lgsModbus_inst.u16RegBuffer[MB_CFG_ADDR]=g_sVariable.gPara.CommAddress;
+#else
+    g_sVariable.gPara.CommAddress = 1;
+    lgsModbus_inst.u16RegBuffer[MB_CFG_ADDR] = g_sVariable.gPara.CommAddress;
     return lgsModbus_inst.u16RegBuffer[MB_CFG_ADDR];
 #endif
-
 }
 
 /*********************************************************
   * @name   MBRegsiterUpdate
-	* @brief  update modbus user registers according to internal status and data aquired
-	* @calls  
-						com_proc(),
+    * @brief  update modbus user registers according to internal status and data aquired
+    * @calls
+                        com_proc(),
   * @called None
   * @param  None
   * @retval None
 *********************************************************/
 INT8U MBRegsiterUpdate(INT8U u8Byte)
-{	
-#ifdef  E2PROM
+{
+#ifdef E2PROM
 
-#else	
-		memcpy((u8*)&lgsModbus_inst.u16RegBuffer[MB_CFG_RS],(u8*)&g_sVariable.gPara.u16RS,sizeof(sParameter));	//∂¡∑Áª˙∞Â ˝æ›	
+#else
+    memcpy((u8 *)&lgsModbus_inst.u16RegBuffer[MB_CFG_RS], (u8 *)&g_sVariable.gPara.u16RS,
+           sizeof(sParameter));  //ËØªÈ£éÊú∫ÊùøÊï∞ÊçÆ
 #endif
 
-	  return TRUE;
+    return TRUE;
 }
 
 /*********************************************************
   * @name   MBRegsiterInit
-	* @brief  modbus registers initialization, load data from flashrom if is programed, otherwise, set modbus registers with default value
-	* @calls  MBREGDeflaut(),
-						com_proc(),          
-  * @called MBRegsiterUpdate(0);//MB ˝æ›∏¸–¬
+    * @brief  modbus registers initialization, load data from flashrom if is programed, otherwise, set modbus registers
+with default value
+    * @calls  MBREGDeflaut(),
+                        com_proc(),
+  * @called MBRegsiterUpdate(0);//MBÊï∞ÊçÆÊõ¥Êñ∞
   * @param  None
   * @retval None
 *********************************************************/
 INT8U MBRegsiterInit(void)
-{	
-#ifdef  	E2PROM
-		sys_global_var_init();		
+{
+#ifdef E2PROM
+    sys_global_var_init();
 #else
-		sModbus *MBREGPtr = (sModbus *)(FLASH_USER_START);
-		if(MBREGPtr->u8PgFlag != MB_FLASH_WR_FLAG)
-		{
-				MBREGDeflaut();//load default
-		}
-		else
-		{
-				memcpy(&lgsModbus_inst,(const void*)FLASH_USER_START,sizeof(sModbus));//load reg from flash
-				memcpy((u8*)&g_sVariable.gPara.Num,(u8*)&lgsModbus_inst.u16RegBuffer[MB_CFG_Num],sizeof(sParameter));	//
-		}
-			   SetWorkMode(1);//”√ªßƒ£ Ω()
-		memset((uint8_t*)&g_sVariable.u8ReturnCall[0],0,CONF_REG_MAP_NUM);
-		MBRegsiterUpdate(0);//MB ˝æ›∏¸–¬
-#endif 		
+    sModbus *MBREGPtr = (sModbus *)(FLASH_USER_START);
+    if (MBREGPtr->u8PgFlag != MB_FLASH_WR_FLAG)
+    {
+        MBREGDeflaut();  // load default
+    }
+    else
+    {
+        memcpy(&lgsModbus_inst, (const void *)FLASH_USER_START, sizeof(sModbus));  // load reg from flash
+        memcpy((u8 *)&g_sVariable.gPara.Num, (u8 *)&lgsModbus_inst.u16RegBuffer[MB_CFG_Num], sizeof(sParameter));  //
+    }
+    SetWorkMode(1);  //Áî®Êà∑Ê®°Âºè()
+    memset((uint8_t *)&g_sVariable.u8ReturnCall[0], 0, CONF_REG_MAP_NUM);
+    MBRegsiterUpdate(0);  // MBÊï∞ÊçÆÊõ¥Êñ∞
+#endif
 
-	  return TRUE;
+    return TRUE;
 }
 /*********************************************************
   * @name   MBResolve
-	* @brief  scan writable modbus registers, if modified, call according handler
-	* @calls  com_proc();          
+    * @brief  scan writable modbus registers, if modified, call according handler
+    * @calls  com_proc();
   * @called MBStackRestart(),
-						ConfigRegister(),
-						SaveSettings();
+                        ConfigRegister(),
+                        SaveSettings();
   * @param  None
   * @retval None
 *********************************************************/
 void MBResolve(void)
 {
-
-////		INT8U u8Register;
-//		uint16_t i;	
-//	
-//		for(i=0;i<REG_HOLDING_NREGS;i++)
-//		{
-//				if(lgsModbus_inst.u8RegStatus[i] != MB_REG_READ)
-//				{						
-//						switch(i)
-//						{				
-//								case (MB_CFG_ADDR):	//address change//Õ®–≈µÿ÷∑
-//								{
-//										if((lgsModbus_inst.u16RegBuffer[i]<1)||(lgsModbus_inst.u16RegBuffer[i]>247))
-//										{
-//												lgsModbus_inst.u16RegBuffer[i] =0x01;	
-//										}
-//										g_sVariable.gPara.CommAddress=lgsModbus_inst.u16RegBuffer[MB_CFG_ADDR];
-//										MBStackRestart();
-//										ConfigRegister(CMD_MB_SAVE_FLASH);
-//										break;
-//								}
-//								case (MB_CFG_BAUDRATE):	//baudrate change//Õ®–≈ÀŸ¬ 
-//								{
-//										if((lgsModbus_inst.u16RegBuffer[i] !=9600)&&(lgsModbus_inst.u16RegBuffer[i] !=4800) \
-//											&&(lgsModbus_inst.u16RegBuffer[i] !=2400)&&(lgsModbus_inst.u16RegBuffer[i] !=1200))
-//										{
-//												lgsModbus_inst.u16RegBuffer[i] =9600;	
-//										}
-//										g_sVariable.gPara.Bardrate=lgsModbus_inst.u16RegBuffer[MB_CFG_BAUDRATE];
-//										MBStackRestart();
-//										ConfigRegister(CMD_MB_SAVE_FLASH);
-//										break;
-//								}								
-//								default:
-//								{
-//										break;
-//								}								
-//						}
-//				}
-//				lgsModbus_inst.u8RegStatus[i] = MB_REG_READ;
-//		}
+    ////		INT8U u8Register;
+    //		uint16_t i;
+    //
+    //		for(i=0;i<REG_HOLDING_NREGS;i++)
+    //		{
+    //				if(lgsModbus_inst.u8RegStatus[i] != MB_REG_READ)
+    //				{
+    //						switch(i)
+    //						{
+    //								case (MB_CFG_ADDR):	//address change//ÈÄö‰ø°Âú∞ÂùÄ
+    //								{
+    //										if((lgsModbus_inst.u16RegBuffer[i]<1)||(lgsModbus_inst.u16RegBuffer[i]>247))
+    //										{
+    //												lgsModbus_inst.u16RegBuffer[i] =0x01;
+    //										}
+    //										g_sVariable.gPara.CommAddress=lgsModbus_inst.u16RegBuffer[MB_CFG_ADDR];
+    //										MBStackRestart();
+    //										ConfigRegister(CMD_MB_SAVE_FLASH);
+    //										break;
+    //								}
+    //								case (MB_CFG_BAUDRATE):	//baudrate change//ÈÄö‰ø°ÈÄüÁéá
+    //								{
+    //										if((lgsModbus_inst.u16RegBuffer[i] !=9600)&&(lgsModbus_inst.u16RegBuffer[i] !=4800)
+    //\
+//											&&(lgsModbus_inst.u16RegBuffer[i] !=2400)&&(lgsModbus_inst.u16RegBuffer[i]
+    //!=1200))
+    //										{
+    //												lgsModbus_inst.u16RegBuffer[i] =9600;
+    //										}
+    //										g_sVariable.gPara.Bardrate=lgsModbus_inst.u16RegBuffer[MB_CFG_BAUDRATE];
+    //										MBStackRestart();
+    //										ConfigRegister(CMD_MB_SAVE_FLASH);
+    //										break;
+    //								}
+    //								default:
+    //								{
+    //										break;
+    //								}
+    //						}
+    //				}
+    //				lgsModbus_inst.u8RegStatus[i] = MB_REG_READ;
+    //		}
 }
 
-
-//eMBErrorCode
-//eMBRegInputCB( UCHAR * pucRegBuffer, USHORT usAddress, USHORT usNRegs )
+// eMBErrorCode
+// eMBRegInputCB( UCHAR * pucRegBuffer, USHORT usAddress, USHORT usNRegs )
 //{
-//    return MB_ENOREG;
-//}
+//     return MB_ENOREG;
+// }
 
-
-//eMBErrorCode eMBRegHoldingCB( UCHAR * pucRegBuffer, USHORT usAddress, USHORT usNRegs, eMBRegisterMode eMode )
+// eMBErrorCode eMBRegHoldingCB( UCHAR * pucRegBuffer, USHORT usAddress, USHORT usNRegs, eMBRegisterMode eMode )
 //{
 ////    extern g_var_st g_var_st_inst;
-//	  
+//
 //		eMBErrorCode    eStatus = MB_ENOERR;
 //    int             iRegIndex;
 
 //    if( usAddress + usNRegs <= REG_HOLDING_START + REG_HOLDING_NUM )
 //    {
-//			
+//
 //        iRegIndex = ( int )( usAddress - g_sVariable.sModbus_inst.u8RegStart );
 //        switch ( eMode )
 //        {
-//        // Pass current register values to the protocol stack. 
+//        // Pass current register values to the protocol stack.
 //        case MB_REG_READ:
 //            while( usNRegs > 0 )
 //            {
@@ -828,14 +823,16 @@ void MBResolve(void)
 //        case MB_REG_WRITE:
 //            while( usNRegs > 0 )
 //            {
-//								if(g_sVariable.sModbus_inst.u8RegProperty[iRegIndex] == 0)					//if reg is RO, quit process
+//								if(g_sVariable.sModbus_inst.u8RegProperty[iRegIndex] == 0)					//if reg is RO, quit
+//process
 //								{
 //										eStatus = MB_EIO;
 //										break;
-//								} 							
+//								}
 //								g_sVariable.sModbus_inst.u16RegBuffer[iRegIndex] = *pucRegBuffer++ << 8;
 //                g_sVariable.sModbus_inst.u16RegBuffer[iRegIndex] |= *pucRegBuffer++;
-//								g_sVariable.sModbus_inst.u8RegStatus[iRegIndex] = MB_REG_WRITE;								//content change measn new cmd request
+//								g_sVariable.sModbus_inst.u8RegStatus[iRegIndex] = MB_REG_WRITE;								//content change measn
+//new cmd request
 
 //                iRegIndex++;
 //                usNRegs--;
@@ -850,25 +847,24 @@ void MBResolve(void)
 //    return eStatus;
 //}
 
-
-//eMBErrorCode
-//eMBRegCoilsCB( UCHAR * pucRegBuffer, USHORT usAddress, USHORT usNCoils,
-//               eMBRegisterMode eMode )
+// eMBErrorCode
+// eMBRegCoilsCB( UCHAR * pucRegBuffer, USHORT usAddress, USHORT usNCoils,
+//                eMBRegisterMode eMode )
 //{
-//    return MB_ENOREG;
-//}
+//     return MB_ENOREG;
+// }
 
-//eMBErrorCode
-//eMBRegDiscreteCB( UCHAR * pucRegBuffer, USHORT usAddress, USHORT usNDiscrete )
+// eMBErrorCode
+// eMBRegDiscreteCB( UCHAR * pucRegBuffer, USHORT usAddress, USHORT usNDiscrete )
 //{
-//    return MB_ENOREG;
-//}
+//     return MB_ENOREG;
+// }
 
 /*********************************************************
   * @name   mb_get_baudrate
-	* @brief  get current modbus communication baudrate
-	* @calls  cmd_mb_stack_restart(),
-						restore_factory(),
+    * @brief  get current modbus communication baudrate
+    * @calls  cmd_mb_stack_restart(),
+                        restore_factory(),
   * @called None
   * @param  None
   * @retval baudrate
@@ -876,61 +872,59 @@ void MBResolve(void)
 ULONG mb_get_baudrate(uint16_t baudrate)
 {
     ULONG ulBaudRate = 0;
-	switch(baudrate)
-	{
-		case BAUD_4800:
-				ulBaudRate = 4800;
-				break;
-		case BAUD_9600:
-				ulBaudRate = 9600;
-				break;
-		case BAUD_19200:
-				ulBaudRate = 19200;
-				break;
-		case BAUD_38400:
-				ulBaudRate = 38400;
-				break;
-		default:
-				ulBaudRate = 9600;
-			break;
-	}
-	ulBaudRate=19200;
-	return ulBaudRate;
+    switch (baudrate)
+    {
+        case BAUD_4800:
+            ulBaudRate = 4800;
+            break;
+        case BAUD_9600:
+            ulBaudRate = 9600;
+            break;
+        case BAUD_19200:
+            ulBaudRate = 19200;
+            break;
+        case BAUD_38400:
+            ulBaudRate = 38400;
+            break;
+        default:
+            ulBaudRate = 9600;
+            break;
+    }
+    ulBaudRate = 19200;
+    return ulBaudRate;
 }
 
 /*********************************************************
   * @name   mb_get_device_addr
-	* @brief  get current modbus communication address
-	* @calls  cmd_mb_stack_restart(),
-						restore_factory(),          
+    * @brief  get current modbus communication address
+    * @calls  cmd_mb_stack_restart(),
+                        restore_factory(),
   * @called None
   * @param  None
   * @retval device modbus slave address
 *********************************************************/
 uint8_t mb_get_device_addr(void)
 {
-//	return (UCHAR)g_sVariable.gPara.CommAddress;
-	return (1);
+    //	return (UCHAR)g_sVariable.gPara.CommAddress;
+    return (1);
 }
-
 
 static uint16_t mbs_read_reg(uint16_t read_addr)
 {
-	extern	conf_reg_map_st conf_reg_map_inst[];
-//	extern  sts_reg_map_st status_reg_map_inst[];
-	//if((read_addr >= CONFIG_REG_MAP_OFFSET)&&(read_addr<CONF_REG_MAP_NUM + CONFIG_REG_MAP_OFFSET))
-//	if(read_addr<CONF_REG_MAP_NUM + CONFIG_REG_MAP_OFFSET)
-	if(read_addr<REG_MAP_NUM + CONFIG_REG_MAP_OFFSET)
-	{
-		 return(*(conf_reg_map_inst[read_addr- CONFIG_REG_MAP_OFFSET].reg_ptr));
-	}
-//	else if((STATUS_REG_MAP_OFFSET <= read_addr)&&(read_addr<( STATUS_REG_MAP_OFFSET+STATUS_REG_MAP_NUM)))
-//	{
-//		 return(*(status_reg_map_inst[read_addr-STATUS_REG_MAP_OFFSET].reg_ptr));	
-//	}
-	else 
-	{
-		return(ABNORMAL_VALUE);
-	}
+    extern conf_reg_map_st conf_reg_map_inst[];
+    //	extern  sts_reg_map_st status_reg_map_inst[];
+    // if((read_addr >= CONFIG_REG_MAP_OFFSET)&&(read_addr<CONF_REG_MAP_NUM + CONFIG_REG_MAP_OFFSET))
+    //	if(read_addr<CONF_REG_MAP_NUM + CONFIG_REG_MAP_OFFSET)
+    if (read_addr < REG_MAP_NUM + CONFIG_REG_MAP_OFFSET)
+    {
+        return (*(conf_reg_map_inst[read_addr - CONFIG_REG_MAP_OFFSET].reg_ptr));
+    }
+    //	else if((STATUS_REG_MAP_OFFSET <= read_addr)&&(read_addr<( STATUS_REG_MAP_OFFSET+STATUS_REG_MAP_NUM)))
+    //	{
+    //		 return(*(status_reg_map_inst[read_addr-STATUS_REG_MAP_OFFSET].reg_ptr));
+    //	}
+    else
+    {
+        return (ABNORMAL_VALUE);
+    }
 }
-

@@ -27,7 +27,6 @@
 #include "global.h"
 #include "string.h"
 #include "Lib_Memory.h"
-#include "DRV_FLASH_EEPROM.h"
 #include "SYS_MemoryMap.h"
 #include "App_Communiction.h"
 #include "mb.h"

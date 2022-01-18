@@ -29,8 +29,6 @@
 #include "global.h"
 
 /* ----------------------- static functions ---------------------------------*/
-static void prvvUARTTxReadyISR(void);
-static void prvvUARTRxISR(void);
 
 /* ----------------------- Start implementation -----------------------------*/
 // void
@@ -46,24 +44,24 @@ void vMBPortSerialEnable(BOOL xRxEnable, BOOL xTxEnable)
     if (xRxEnable)
     {
         /* 485通信时，等待串口移位寄存器中的数据发送完成后，再去使能485的接收、失能485的发送*/
-        // while (!USART_GetFlagStatus(USART1, USART_FLAG_TC))
-        // {
-        // }
+        while (!__HAL_UART_GET_FLAG(&huart1, UART_FLAG_TC))
+        {
+        }
         RE485;
-        // USART_ITConfig(USART1, USART_IT_RXNE, ENABLE);
+        __HAL_UART_ENABLE_IT(&huart1, UART_IT_RXNE);
     }
     else
     {
         TE485;
-        // USART_ITConfig(USART1, USART_IT_RXNE, DISABLE);
+        __HAL_UART_DISABLE_IT(&huart1, UART_IT_RXNE);
     }
     if (xTxEnable)
     {
-        // USART_ITConfig(USART1, USART_IT_TXE, ENABLE);
+        __HAL_UART_ENABLE_IT(&huart1, UART_IT_TXE);
     }
     else
     {
-        // USART_ITConfig(USART1, USART_IT_TXE, DISABLE);
+        __HAL_UART_DISABLE_IT(&huart1, UART_IT_TXE);
     }
 }
 
@@ -75,13 +73,13 @@ BOOL xMBPortSerialInit(UCHAR ucPORT, ULONG ulBaudRate, UCHAR ucDataBits, eMBPari
 
 BOOL xMBPortSerialPutByte(CHAR ucByte)
 {
-    // USART_SendData(USART1, ucByte);
+    HAL_UART_Transmit_IT(&huart1, (uint8_t*)&uart1TXBuff, 1);
     return TRUE;
 }
 
 BOOL xMBPortSerialGetByte(CHAR* pucByte)
 {
-    // *pucByte = USART_ReceiveData(USART1);
+    *pucByte = uart1RXBuff;
     return TRUE;
 }
 
@@ -91,7 +89,7 @@ BOOL xMBPortSerialGetByte(CHAR* pucByte)
  * a new character can be sent. The protocol stack will then call
  * xMBPortSerialPutByte( ) to send the character.
  */
-static void prvvUARTTxReadyISR(void)
+void prvvUARTTxReadyISR(void)
 {
     pxMBFrameCBTransmitterEmpty();
 }
@@ -101,25 +99,7 @@ static void prvvUARTTxReadyISR(void)
  * protocol stack will then call xMBPortSerialGetByte( ) to retrieve the
  * character.
  */
-static void prvvUARTRxISR(void)
+void prvvUARTRxISR(void)
 {
     pxMBFrameCBByteReceived();
 }
-
-// void USART1_IRQHandler(void)
-// {
-//     //接收中断
-//     if (USART_GetITStatus(USART1, USART_IT_RXNE) == SET)
-//     {
-//         g_sVariable.status.Com_error = 0;
-//         USART_ClearITPendingBit(USART1, USART_IT_RXNE);
-//         prvvUARTRxISR();
-//     }
-//     //发送中断
-//     if (USART_GetITStatus(USART1, USART_IT_TXE) == SET)
-//     {
-//         USART_ClearITPendingBit(USART1, USART_IT_TXE);
-//         //		USART_ClearFlag(USART1, USART_FLAG_TC);
-//         prvvUARTTxReadyISR();
-//     }
-// }

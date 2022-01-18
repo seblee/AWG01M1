@@ -10,6 +10,18 @@
 #include "Drv_Led.h"
 #include "global.h"
 // #include "Drv_PWM.h"
+/*********************************************************
+  * @name   led_init
+	* @brief  led gpio and port bank clock initilization
+	* @calls  gpio dirvers
+  * @called BackGround_proc()
+  * @param  None
+  * @retval None
+*********************************************************/
+void led_init(void)
+{
+HAL_GPIO_WritePin(LED1_PORT, LED1_PIN, GPIO_PIN_SET);	
+}
 
 /*********************************************************
  * @name   led_open

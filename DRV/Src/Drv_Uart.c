@@ -1,6 +1,5 @@
 #include "Drv_Uart.h"
 #include "stm32g0xx_hal.h"
-#include "stm32f0xx_misc.h"
 #include <stdarg.h>
 #include <stdio.h>
 #include <macro.h>
@@ -17,8 +16,32 @@
 #define PUTCHAR_PROTOTYPE int fputc(int ch, FILE *f)
 #endif /* __GNUC__ */
 
-/* Private functions ---------------------------------------------------------*/
+#ifdef __cplusplus
+extern "C"
+{
+#endif  //__cplusplus
 
+    PUTCHAR_PROTOTYPE
+    {
+        // RS485A_DE = DOsnt;
+        //å‘é€è„šä½¿èƒ½ï¼ŒRS485ä¸ºå‘é€æ•°æ®çŠ¶æ€
+        // delay_us(10);
+        //ç­‰å¾…å‘é€è„šçš„ç”µå¹³ç¨³å®š
+        HAL_UART_Transmit(&huart4, (uint8_t *)&ch, 1, 0xFFFF);
+        //è°ƒç”¨STM32çš„HALåº“ï¼Œå‘é€ä¸€ä¸ªå­—èŠ‚
+        // delay_us(10);
+        //é¿å…æ•°æ®ä¿¡å·éœ‡è¡é€ æˆå›ç¯æ•°æ®
+        // RS485A_DE = DOrec;
+        //å‘é€è„šé™¤èƒ½ï¼ŒRS485æ¢å¤åˆ°æ¥æ”¶æ•°æ®çŠ¶æ€
+        return (ch);
+    }
+#ifdef __cplusplus
+}
+#endif  //__cplusplus
+/* Private functions ---------------------------------------------------------*/
+volatile uint8_t uart1TXBuff;
+volatile uint8_t uart1RXBuff; 
+volatile uint8_t uart2RXBuff;
 /*********************************************************
  * @name   uart1_gpio_init
  * @brief  USART1 GPIO initialization. Both uart port pins and direction control pins are configured
@@ -29,33 +52,6 @@
  *********************************************************/
 static void uart1_gpio_init(void)
 {
-    GPIO_InitTypeDef GPIO_InitStructure;
-
-    // USART1 GPIO and port clock enable
-    RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA | RCC_AHBPeriph_GPIOB, ENABLE);
-    RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1, ENABLE);
-
-    //	//USART1 GPIO function remapping
-    //	GPIO_PinAFConfig(GPIOA,GPIO_PinSource2,GPIO_AF_1);
-    //	GPIO_PinAFConfig(GPIOA,GPIO_PinSource3,GPIO_AF_1);
-
-    // USART1 GPIO configuration
-    GPIO_InitStructure.GPIO_Pin   = UART1_GPIO_TX | UART1_GPIO_RX;
-    GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_AF;
-    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-    GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;
-    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-    GPIO_Init(UART1_GPIO, &GPIO_InitStructure);
-
-    // RS485 direction control
-    //	RCC_AHBPeriphClockCmd( RCC_AHBPeriph_GPIOB, ENABLE);
-
-    GPIO_InitStructure.GPIO_Pin   = UART1_DIR_GPIO_PIN;
-    GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_OUT;
-    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-    GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_DOWN;
-    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-    GPIO_Init(UART1_DIR_GPIO, &GPIO_InitStructure);
     RE485
 }
 
@@ -69,14 +65,7 @@ static void uart1_gpio_init(void)
  *********************************************************/
 static void uart1_nvic_init(void)
 {
-    NVIC_InitTypeDef NVIC_InitStructure;
-
-    /* Enable the USART1 tx Interrupt */
-    NVIC_InitStructure.NVIC_IRQChannel         = USART1_IRQn;
-    NVIC_InitStructure.NVIC_IRQChannelPriority = 4;
-    NVIC_InitStructure.NVIC_IRQChannelCmd      = ENABLE;
-    NVIC_Init(&NVIC_InitStructure);
-    USART_ITConfig(USART1, USART_IT_RXNE, ENABLE);
+    __HAL_UART_ENABLE_IT(&huart1, UART_IT_RXNE);
 }
 
 /*********************************************************
@@ -88,21 +77,11 @@ static void uart1_nvic_init(void)
   * @param  None
   * @retval None
 *********************************************************/
-void uart1_init(uint16_t baudrate)  //´®¿Ú³õÊ¼»¯º¯Êı
+void uart1_init(uint16_t baudrate)  //ä¸²å£åˆå§‹åŒ–å‡½æ•°
 {
-    USART_InitTypeDef USART_InitStructure;
-
     uart1_gpio_init();
-
-    USART_InitStructure.USART_BaudRate            = baudrate;                        //ÉèÖÃ´®¿Ú²¨ÌØÂÊ
-    USART_InitStructure.USART_WordLength          = USART_WordLength_8b;             //ÉèÖÃÊı¾İÎ»
-    USART_InitStructure.USART_StopBits            = USART_StopBits_1;                //ÉèÖÃÍ£Ö¹Î»
-    USART_InitStructure.USART_Parity              = USART_Parity_No;                 //ÉèÖÃĞ§ÑéÎ»
-    USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;  //ÉèÖÃÁ÷¿ØÖÆ
-    USART_InitStructure.USART_Mode                = USART_Mode_Rx | USART_Mode_Tx;   //ÉèÖÃ¹¤×÷Ä£Ê½
-    USART_Init(USART1, &USART_InitStructure);                                        //ÅäÖÃÈë½á¹¹Ìå
-    USART_Cmd(USART1, ENABLE);                                                       //Ê¹ÄÜ´®¿Ú1
     uart1_nvic_init();
+    HAL_UART_Receive_IT(&huart1, (uint8_t *)&uart1RXBuff, 1);
 }
 
 /*********************************************************
@@ -116,95 +95,48 @@ void uart1_init(uint16_t baudrate)  //´®¿Ú³õÊ¼»¯º¯Êı
 *********************************************************/
 void uart1_dma_send(uint8_t *s_addr, uint16_t length)
 {
-    DMA_InitTypeDef DMA_InitStructure;
-    DMA_DeInit(DMA1_Channel2);
-    DMA_InitStructure.DMA_PeripheralBaseAddr = (uint32_t)(&USART1->TDR);
-    DMA_InitStructure.DMA_MemoryBaseAddr     = (uint32_t)s_addr;
-    DMA_InitStructure.DMA_DIR                = DMA_DIR_PeripheralDST;
-    DMA_InitStructure.DMA_BufferSize         = length;
-    DMA_InitStructure.DMA_PeripheralInc      = DMA_PeripheralInc_Disable;
-    DMA_InitStructure.DMA_MemoryInc          = DMA_MemoryInc_Enable;
-    DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte;
-    DMA_InitStructure.DMA_MemoryDataSize     = DMA_MemoryDataSize_Byte;
-    DMA_InitStructure.DMA_Mode               = DMA_Mode_Normal;
-    DMA_InitStructure.DMA_Priority           = DMA_Priority_Medium;
-    DMA_InitStructure.DMA_M2M                = DMA_M2M_Disable;
-    DMA_Init(DMA1_Channel2, &DMA_InitStructure);
+    // DMA_InitTypeDef DMA_InitStructure;
+    // DMA_DeInit(DMA1_Channel2);
+    // DMA_InitStructure.DMA_PeripheralBaseAddr = (uint32_t)(&USART1->TDR);
+    // DMA_InitStructure.DMA_MemoryBaseAddr     = (uint32_t)s_addr;
+    // DMA_InitStructure.DMA_DIR                = DMA_DIR_PeripheralDST;
+    // DMA_InitStructure.DMA_BufferSize         = length;
+    // DMA_InitStructure.DMA_PeripheralInc      = DMA_PeripheralInc_Disable;
+    // DMA_InitStructure.DMA_MemoryInc          = DMA_MemoryInc_Enable;
+    // DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte;
+    // DMA_InitStructure.DMA_MemoryDataSize     = DMA_MemoryDataSize_Byte;
+    // DMA_InitStructure.DMA_Mode               = DMA_Mode_Normal;
+    // DMA_InitStructure.DMA_Priority           = DMA_Priority_Medium;
+    // DMA_InitStructure.DMA_M2M                = DMA_M2M_Disable;
+    // DMA_Init(DMA1_Channel2, &DMA_InitStructure);
 
-    USART_ITConfig(USART1, USART_IT_RXNE, DISABLE);  // DISABLE UART RX IT
-    DMA_ITConfig(DMA1_Channel2, DMA_IT_TC, ENABLE);
-    USART_DMACmd(USART1, USART_DMAReq_Tx, ENABLE);
+    // USART_ITConfig(USART1, USART_IT_RXNE, DISABLE);  // DISABLE UART RX IT
+    // DMA_ITConfig(DMA1_Channel2, DMA_IT_TC, ENABLE);
+    // USART_DMACmd(USART1, USART_DMAReq_Tx, ENABLE);
 
     TE485
-    DMA_Cmd(DMA1_Channel2, ENABLE);
+    // DMA_Cmd(DMA1_Channel2, ENABLE);
 }
 
-///**********************************TDSÍ¨ĞÅ***********************************************/
+///**********************************TDSé€šä¿¡***********************************************/
 
 static uint8_t u8FrameCheckSum;
 static uint8_t u8FrameDataLength;
 uint8_t g_ComBuff[PROTOCOL_FRAME_MaxLen];
-PROTOCOL_STATUS g_ComStat;  //Í¨Ñ¶Í¨µÀ¹¤×÷×´Ì¬
-// uint8_t g_ComGap[1];          //Í¨Ñ¶Ö¡½ÓÊÕ¼ä¸ô¶¨Ê±Æ÷
+PROTOCOL_STATUS g_ComStat;  //é€šè®¯é€šé“å·¥ä½œçŠ¶æ€
+// uint8_t g_ComGap[1];          //é€šè®¯å¸§æ¥æ”¶é—´éš”å®šæ—¶å™¨
 ProtocolLayer Protocol;
 
 void Usart2_Rcc_Conf(void)
 {
-    /* Enable UART GPIO clocks */
-    RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA, ENABLE);
-    RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2, ENABLE);
     return;
 }
 
-void Usart2_Gpio_Conf(void)
-{
-    GPIO_InitTypeDef GPIO_InitStructure;
-
-    Usart2_Rcc_Conf();
-    // USART1 Tx(PA.14)
-    // USART1 Rx(PA.15)
-    //		GPIO_PinRemapConfig(GPIO_Remap_SWJ_DisableENABLE);
-    GPIO_InitStructure.GPIO_Pin   = GPIO_PIN_14 | GPIO_PIN_15;
-    GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_AF;
-    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-    GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;
-    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-    GPIO_Init(GPIOA, &GPIO_InitStructure);
-
-    GPIO_PinAFConfig(GPIOA, GPIO_PinSource14, GPIO_AF_1);
-    GPIO_PinAFConfig(GPIOA, GPIO_PinSource15, GPIO_AF_1);
-    return;
-}
-
+extern UART_HandleTypeDef huart2;
 void Usart2_Init_Conf(void)
 {
-    // USART1ÅäÖÃ
-    USART_InitTypeDef USART_InitStructure;
-    NVIC_InitTypeDef NVIC_InitStructure;
-
-    Usart2_Gpio_Conf();
-    USART_InitStructure.USART_BaudRate            = 9600;
-    USART_InitStructure.USART_WordLength          = USART_WordLength_8b;
-    USART_InitStructure.USART_StopBits            = USART_StopBits_1;
-    USART_InitStructure.USART_Parity              = USART_Parity_No;
-    USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
-    USART_InitStructure.USART_Mode                = USART_Mode_Tx | USART_Mode_Rx;
-
-    ENTER_CRITICAL_SECTION();  //¹ØÈ«¾ÖÖĞ¶Ï
-
-    USART_Init(UART_TDS, &USART_InitStructure);
-    USART_ITConfig(UART_TDS, USART_IT_RXNE, ENABLE);
-    USART_Cmd(UART_TDS, ENABLE);
-
-    //=====================ÖĞ¶Ï³õÊ¼»¯======================================
-    //ÉèÖÃNVICÓÅÏÈ¼¶·Ö×éÎªGroup2£º0-3ÇÀÕ¼Ê½ÓÅÏÈ¼¶£¬0-3µÄÏìÓ¦Ê½ÓÅÏÈ¼¶
-    /* Enable the USART2 tx Interrupt */
-    NVIC_InitStructure.NVIC_IRQChannel         = USART2_IRQn;
-    NVIC_InitStructure.NVIC_IRQChannelPriority = 5;
-    NVIC_InitStructure.NVIC_IRQChannelCmd      = ENABLE;
-    NVIC_Init(&NVIC_InitStructure);
-    USART_ITConfig(UART_TDS, USART_IT_RXNE, ENABLE);
-    EXIT_CRITICAL_SECTION();  //¿ªÈ«¾ÖÖĞ¶Ï
+    __HAL_UART_ENABLE_IT(&huart2, UART_IT_RXNE);
+    HAL_UART_Receive_IT(&huart2, (uint8_t *)&uart2RXBuff, 1);
     return;
 }
 
@@ -216,7 +148,7 @@ void UsartX_Var_Init(void)
     memset(&g_ComBuff[0], 0x00, PROTOCOL_FRAME_MaxLen);
     return;
 }
-//Í¨ĞÅ´®¿Ú³õÊ¼»¯
+//é€šä¿¡ä¸²å£åˆå§‹åŒ–
 void TDS_Usart_Init(void)
 {
     UsartX_Var_Init();
@@ -226,37 +158,32 @@ void TDS_Usart_Init(void)
 
 void TDS_Usart_Close(void)
 {
-    USART_ClearITPendingBit(UART_TDS, USART_IT_RXNE);
-    USART_Cmd(UART_TDS, DISABLE);
+    // USART_ClearITPendingBit(UART_TDS, USART_IT_RXNE);
+    // USART_Cmd(UART_TDS, DISABLE);
     return;
 }
-//¹Ø±Õ´®¿Ú
+//å…³é—­ä¸²å£
 void xPort_Usart_Close(void)
 {
     TDS_Usart_Close();
     return;
 }
 
-//´®¿Ú·¢ËÍÊı¾İ
+//ä¸²å£å‘é€æ•°æ®
 uint8_t UART_Send(uint8_t *u8Buf, uint8_t u8Len)
 {
-    uint8_t u8Se;
-    uint8_t i;
+    uint8_t u8Se = 0;
     if (u8Len == 0)
     {
         return u8Se;
     }
-    for (i = 0; i < u8Len; i++)
-    {
-        USART_SendData(UART_TDS, u8Buf[i]);  //·¢ËÍÊı¾İ
-        while (USART_GetFlagStatus(UART_TDS, USART_FLAG_TC) != SET)
-            ;  //µÈ´ı·¢ËÍ½áÊø
-        u8Se = 1;
-    }
+
+    HAL_UART_Transmit(&huart2, u8Buf, u8Len, 0xffff);
+    u8Se = 1;
     return u8Se;
 }
 
-//´®¿Ú·¢ËÍÊı¾İ
+//ä¸²å£å‘é€æ•°æ®
 uint8_t TDS_Send(void)
 {
     uint8_t u8SendBuf[SEND_NUM] = {0};
@@ -285,33 +212,32 @@ uint8_t TDS_Send(void)
 
 uint8_t xPortSerialGetByte(char *pucByte, uint8_t ucMB_Number)
 {
-    *pucByte = USART_ReceiveData(UART_TDS);
-
+    *pucByte = uart2RXBuff;
     return 1;
 }
 
 uint8_t AnalyseProtocol(uint8_t *u8Buff)
 {
-    // TDSÖµ
+    // TDSå€¼
 
     return 1;
 }
 
 ///*************************************************
-// Function:void Comm_Service(void)// º¯ÊıÃû³Æ
-// Description:// º¯Êı¹¦ÄÜ¡¢ĞÔÄÜµÈµÄÃèÊö
-//			Ö´ĞĞÍ¨Ñ¶ÈÎÎñ
-//			×´Ì¬»ú×ª»»£¨Õı³£Çé¿ö£©: RECV_Wait->RECV_Going->RECV_Over->
+// Function:void Comm_Service(void)// å‡½æ•°åç§°
+// Description:// å‡½æ•°åŠŸèƒ½ã€æ€§èƒ½ç­‰çš„æè¿°
+//			æ‰§è¡Œé€šè®¯ä»»åŠ¡
+//			çŠ¶æ€æœºè½¬æ¢ï¼ˆæ­£å¸¸æƒ…å†µï¼‰: RECV_Wait->RECV_Going->RECV_Over->
 //                                     SEND_Wait->SEND_Going->SEND_Over->RECV_Wait
-// Author:xdp£¨×÷Õß£©
-// Calls:// ±»±¾º¯Êıµ÷ÓÃµÄº¯ÊıÇåµ¥
-// Called By:// µ÷ÓÃ±¾º¯ÊıµÄº¯ÊıÇåµ¥
+// Author:xdpï¼ˆä½œè€…ï¼‰
+// Calls:// è¢«æœ¬å‡½æ•°è°ƒç”¨çš„å‡½æ•°æ¸…å•
+// Called By:// è°ƒç”¨æœ¬å‡½æ•°çš„å‡½æ•°æ¸…å•
 //			main();
-// Input:// ÊäÈë²ÎÊıËµÃ÷£¬°üÀ¨Ã¿¸ö²ÎÊıµÄ×÷
-//     // ÓÃ¡¢È¡ÖµËµÃ÷¼°²ÎÊı¼ä¹ØÏµ¡£
-// Output:// ¶ÔÊä³ö²ÎÊıµÄËµÃ÷¡£
-// Return:// º¯Êı·µ»ØÖµµÄËµÃ÷
-// Others:// ÆäËüËµÃ÷
+// Input:// è¾“å…¥å‚æ•°è¯´æ˜ï¼ŒåŒ…æ‹¬æ¯ä¸ªå‚æ•°çš„ä½œ
+//     // ç”¨ã€å–å€¼è¯´æ˜åŠå‚æ•°é—´å…³ç³»ã€‚
+// Output:// å¯¹è¾“å‡ºå‚æ•°çš„è¯´æ˜ã€‚
+// Return:// å‡½æ•°è¿”å›å€¼çš„è¯´æ˜
+// Others:// å…¶å®ƒè¯´æ˜
 //*************************************************/
 void Comm_Service(void)
 {
@@ -347,7 +273,7 @@ void Comm_Service(void)
     return;
 }
 
-// TDS´®¿Ú½ÓÊÕÊı¾İ
+// TDSä¸²å£æ¥æ”¶æ•°æ®
 uint8_t PortSerialReceiveFSM(void)
 {
     uint8_t RXDByte;
@@ -359,10 +285,10 @@ uint8_t PortSerialReceiveFSM(void)
     switch (Protocol.StatckStatus)
     {
         case PROTOCOL_STACK_IDLE:
-            // ¿ÕÏĞ×´Ì¬,µÈ´ı½ÓÊÕÖ¡Ê××Ö·û(01)
+            // ç©ºé—²çŠ¶æ€,ç­‰å¾…æ¥æ”¶å¸§é¦–å­—ç¬¦(01)
             if (0xAA == RXDByte)
             {
-                g_ComStat             = RECV_Going;  //ÖÃ"½ÓÊÕ½øĞĞ"×´Ì¬
+                g_ComStat             = RECV_Going;  //ç½®"æ¥æ”¶è¿›è¡Œ"çŠ¶æ€
                 g_ComBuff[0]          = RXDByte;
                 u8FrameCheckSum       = RXDByte;
                 Protocol.DataCount    = 1;
@@ -373,26 +299,26 @@ uint8_t PortSerialReceiveFSM(void)
         case PROTOCOL_STACK_CK:
             break;
         case PROTOCOL_STACK_RCV:
-            // ÀÛ¼ÓĞ£ÑéºÍ
+            // ç´¯åŠ æ ¡éªŒå’Œ
             u8FrameCheckSum += RXDByte;
             g_ComBuff[(Protocol.DataCount)++] = RXDByte;
             //				memcpy((u8*)&g_sVariable.status.TEST[1],(u8*)&g_ComBuff[port][1],8);	//
             u8FrameDataLength--;
-            // ½ÓÊÕÊı¾İÓòµÄÊı¾İ
+            // æ¥æ”¶æ•°æ®åŸŸçš„æ•°æ®
             if (!u8FrameDataLength)
             {
-                // ½ÓÊÕĞ£ÑéºÍ
+                // æ¥æ”¶æ ¡éªŒå’Œ
                 //            u8FrameDataLength = 1;
                 //            Protocol[port].StatckStatus++;
                 Protocol.StatckStatus = PROTOCOL_STACK_IDLE;
-                g_ComStat             = RECV_Over;  //ÖÃ"½ÓÊÕÍê³É"×´Ì¬
+                g_ComStat             = RECV_Over;  //ç½®"æ¥æ”¶å®Œæˆ"çŠ¶æ€
             }
             break;
         case PROTOCOL_STACK_CS:
             g_ComBuff[(Protocol.DataCount)++] = RXDByte;
             u8FrameCheckSum += RXDByte;
             u8FrameDataLength--;
-            // ½ÓÊÕÊı¾İÓòµÄÊı¾İ
+            // æ¥æ”¶æ•°æ®åŸŸçš„æ•°æ®
             if (!u8FrameDataLength)
             {
             }
@@ -402,31 +328,54 @@ uint8_t PortSerialReceiveFSM(void)
             break;
         default:
             Protocol.StatckStatus = PROTOCOL_STACK_IDLE;
-            g_ComStat             = INIT_Apply;  //ÖÃ"³õÊ¼»¯"×´Ì¬
+            g_ComStat             = INIT_Apply;  //ç½®"åˆå§‹åŒ–"çŠ¶æ€
             break;
     }
     return 1;
 }
 
-void USART2_IRQHandler(void)
+/**
+ * @brief  Rx Transfer completed callbacks.
+ * @param  huart  Pointer to a UART_HandleTypeDef structure that contains
+ *                the configuration information for the specified UART module.
+ * @retval None
+ */
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
-    ENTER_CRITICAL_SECTION();  //¹ØÈ«¾ÖÖĞ¶Ï
-    //Òç³ö´íÎó
-    if (USART_GetFlagStatus(UART_TDS, USART_FLAG_ORE) == SET)
+    /* Prevent unused argument(s) compilation warning */
+    UNUSED(huart);
+    /* NOTE: This function should not be modified, when the callback is needed,
+             the HAL_UART_RxCpltCallback could be implemented in the user file
+     */
+    if (huart == &huart1)
     {
-        ;
+        g_sVariable.status.Com_error = 0;
+        prvvUARTRxISR();
+        HAL_UART_Receive_IT(&huart1, (uint8_t *)&uart1RXBuff, 1);
     }
-    //½ÓÊÕÖĞ¶Ï
-    if (USART_GetITStatus(UART_TDS, USART_IT_RXNE) == SET)
+    if (huart == &huart2)
     {
         PortSerialReceiveFSM();
-        USART_ClearITPendingBit(UART_TDS, USART_IT_RXNE);
+        HAL_UART_Receive_IT(&huart2, (uint8_t *)&uart2RXBuff, 1);
     }
-    //·¢ËÍÖĞ¶Ï
-    if (USART_GetITStatus(UART_TDS, USART_IT_TXE) == SET)
-    {
-        ;
-    }
-    EXIT_CRITICAL_SECTION();  //¿ªÈ«¾ÖÖĞ¶Ï
 }
-///**************************************TDSÍ¨ĞÅEND*********************************************/
+/**
+ * @brief  Tx Transfer completed callbacks.
+ * @param  huart  Pointer to a UART_HandleTypeDef structure that contains
+ *                the configuration information for the specified UART module.
+ * @retval None
+ */
+void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
+{
+    /* Prevent unused argument(s) compilation warning */
+    UNUSED(huart);
+    /* NOTE: This function should not be modified, when the callback is needed,
+             the HAL_UART_TxCpltCallback could be implemented in the user file
+     */
+    if (huart == &huart1)
+    {
+        prvvUARTTxReadyISR();
+    }
+}
+
+//**************************************TDSé€šä¿¡END*********************************************/

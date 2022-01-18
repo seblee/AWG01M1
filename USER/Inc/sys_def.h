@@ -3,7 +3,7 @@
 
 #include "stdint.h"
 #include "macro.h"
-// #include "Hal_Measure.h"
+#include "Hal_Measure.h"
 
 //暂放在此处
 //空指令

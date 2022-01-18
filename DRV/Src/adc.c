@@ -13,7 +13,7 @@
 volatile uint16_t ADC1ConvertedValue[AI_MAX_CNT];
 
 // uint16_t Filter[ADC1_PER][NUM_2];
-
+extern ADC_HandleTypeDef hadc1;
 void drv_adc_dma_init(void)
 {
 #ifdef STM32F030_CHIP
@@ -161,6 +161,9 @@ void drv_adc_dma_init(void)
     DMA_ClearFlag(DMA1_FLAG_TC1);
 
 #endif
+
+    HAL_ADCEx_Calibration_Start(&hadc1);
+    HAL_ADC_Start_DMA(&hadc1, (uint32_t*)&ADC1ConvertedValue, AI_MAX_CNT);
 }
 
 // void ADCValProcess(uint16_t *ptrADCval, uint16_t *ptrADCbuf, uint8_t index)

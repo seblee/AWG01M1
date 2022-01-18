@@ -9,22 +9,22 @@
 /*************************************IIC_AM2311 Temperature&Humidity**********************************/
 /******************************************************************************************************/
 /******************************************************************************************************/
-#define AM2301B 1  // AM2301B双线IIC
+#define AM2301B 1  // AM2301B鍙岀嚎IIC
 
 #define II_AM_SDA_00_Pin GPIO_PIN_11
-#define II_AM_SDA_00_GPIO GPIOB
+#define II_AM_SDA_00_GPIO GPIOA
 
 #define II_AM_SDA_01_Pin GPIO_PIN_10
-#define II_AM_SDA_01_GPIO GPIOB
+#define II_AM_SDA_01_GPIO GPIOA
 
-#define II_AM_SDA_Pin GPIO_PIN_11
-#define II_AM_SDA_GPIO GPIOB
-#define II_AM_SCL_Pin GPIO_PIN_10
-#define II_AM_SCL_GPIO GPIOB
+#define II_AM_SDA_Pin GPIO_PIN_10
+#define II_AM_SDA_GPIO GPIOA
+#define II_AM_SCL_Pin GPIO_PIN_11
+#define II_AM_SCL_GPIO GPIOA
 
-#define IIC_SDA_READ() GPIO_ReadInputDataBit(II_AM_SDA_GPIO, II_AM_SDA_Pin)
+#define IIC_SDA_READ() HAL_GPIO_ReadPin(II_AM_SDA_GPIO, II_AM_SDA_Pin)
 
-#define ERROR_CNT_MAX 60  //异常次数
+#define ERROR_CNT_MAX 60  //寮傚父娆℃暟
 
 enum
 {
@@ -44,5 +44,5 @@ extern void AM_Init(void);
 extern uint8_t Read_Sensor(uint16_t *u16TH_Buff, uint8_t u8SN);
 extern void AM_Sensor_update(void);
 extern uint8_t Get_TH(void);
-extern void AHT20_Init(void);  //初始化AHT20
+extern void AHT20_Init(void);  //鍒濆鍖朅HT20
 #endif

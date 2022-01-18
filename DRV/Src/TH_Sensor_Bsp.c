@@ -7,620 +7,591 @@
 
 void AM_BUS_Config(void)
 {
-    GPIO_InitTypeDef GPIO_InitStructure ;
-    RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOB,ENABLE);
-	
-	 //Configure BUS pins: SDA_00 
-		GPIO_InitStructure.GPIO_Pin =  II_AM_SDA_00_Pin;
-    GPIO_InitStructure.GPIO_Mode=GPIO_Mode_OUT ;
-    GPIO_InitStructure.GPIO_OType=GPIO_OType_PP ;
-//    GPIO_InitStructure.GPIO_PuPd=GPIO_PuPd_NOPULL ;
-		GPIO_InitStructure.GPIO_Speed =GPIO_Speed_10MHz;
-		GPIO_Init(II_AM_SDA_00_GPIO, &GPIO_InitStructure);
-		
-		GPIO_SetBits(II_AM_SDA_00_GPIO,II_AM_SDA_00_Pin); 
-
-		GPIO_InitStructure.GPIO_Pin =  II_AM_SDA_01_Pin;
-    GPIO_InitStructure.GPIO_Mode=GPIO_Mode_OUT ;
-    GPIO_InitStructure.GPIO_OType=GPIO_OType_PP ;
-//    GPIO_InitStructure.GPIO_PuPd=GPIO_PuPd_NOPULL ;
-		GPIO_InitStructure.GPIO_Speed =GPIO_Speed_10MHz;
-		GPIO_Init(II_AM_SDA_01_GPIO, &GPIO_InitStructure);
-		
-		GPIO_SetBits(II_AM_SDA_01_GPIO,II_AM_SDA_01_Pin); 
+    HAL_GPIO_WritePin(II_AM_SDA_00_GPIO, II_AM_SDA_00_Pin, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(II_AM_SDA_01_GPIO, II_AM_SDA_01_Pin, GPIO_PIN_SET);
 }
 
 void AM_Init(void)
 {
-		{
-			AM_BUS_Config();
-			AHT20_Init();   //³õÊ¼»¯AHT20
-		}
-		return ;
+    AM_BUS_Config();
+    AHT20_Init();  //åˆå§‹åŒ–AHT20
+
+    return;
 }
 
-#define NUM_1 6       //ÂË²¨´ÎÊı
-#define T_MAX 2       //ÂË²¨ÊıÁ¿
-unsigned short AVGfilter_1(int8_t i8Type,int16_t i16Value)
+#define NUM_1 6  //æ»¤æ³¢æ¬¡æ•°
+#define T_MAX 2  //æ»¤æ³¢æ•°é‡
+unsigned short AVGfilter_1(int8_t i8Type, int16_t i16Value)
 {
-		static int8_t i8Num[T_MAX]={0};
-		static int16_t i16Value_buf[T_MAX][NUM_1];
+    static int8_t i8Num[T_MAX] = {0};
+    static int16_t i16Value_buf[T_MAX][NUM_1];
 
-		int16_t i16CvtValue;		
-		if(i8Num[i8Type]<NUM_1)
-		{
-			i8Num[i8Type]++;
-		}
-		else
-		{
-			i8Num[i8Type]=0;		
-		}		
-		i16Value_buf[i8Type][i8Num[i8Type]] = i16Value;	
-		i16CvtValue=MedianFilter((uint16_t *)i16Value_buf[i8Type],NUM_1);	
-		
+    int16_t i16CvtValue;
+    if (i8Num[i8Type] < NUM_1)
+    {
+        i8Num[i8Type]++;
+    }
+    else
+    {
+        i8Num[i8Type] = 0;
+    }
+    i16Value_buf[i8Type][i8Num[i8Type]] = i16Value;
+    i16CvtValue                         = MedianFilter((uint16_t *)i16Value_buf[i8Type], NUM_1);
+
     return i16CvtValue;
 }
 
-void SDA_Pin_Output_High(void)   //½«PB15ÅäÖÃÎªÊä³ö £¬ ²¢ÉèÖÃÎª¸ßµçÆ½£¬ PB15×÷ÎªI2CµÄSDA
+void SDA_Pin_Output_High(void)  //å°†PB15é…ç½®ä¸ºè¾“å‡º ï¼Œ å¹¶è®¾ç½®ä¸ºé«˜ç”µå¹³ï¼Œ PB15ä½œä¸ºI2Cçš„SDA
 {
-	GPIO_InitTypeDef  GPIO_InitStructure;
-	GPIO_InitStructure.GPIO_Pin = II_AM_SDA_Pin;
-	GPIO_InitStructure.GPIO_Mode=GPIO_Mode_OUT ;
-	GPIO_InitStructure.GPIO_OType=GPIO_OType_PP ;
-//	GPIO_InitStructure.GPIO_PuPd=GPIO_PuPd_NOPULL ;
-	GPIO_InitStructure.GPIO_Speed =GPIO_Speed_10MHz;
-	GPIO_Init(II_AM_SDA_GPIO,& GPIO_InitStructure);
-	GPIO_SetBits(II_AM_SDA_GPIO,II_AM_SDA_Pin);
+    GPIO_InitTypeDef GPIO_InitStruct = {0};
+    /*Configure GPIO pins*/
+    GPIO_InitStruct.Pin   = II_AM_SDA_Pin;
+    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull  = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_MEDIUM;
+    HAL_GPIO_Init(II_AM_SDA_GPIO, &GPIO_InitStruct);
+    HAL_GPIO_WritePin(II_AM_SDA_GPIO, II_AM_SDA_Pin, GPIO_PIN_SET);
 }
 
-void SDA_Pin_Output_Low(void)  //½«P15ÅäÖÃÎªÊä³ö  ²¢ÉèÖÃÎªµÍµçÆ½
+void SDA_Pin_Output_Low(void)  //å°†P15é…ç½®ä¸ºè¾“å‡º  å¹¶è®¾ç½®ä¸ºä½ç”µå¹³
 {
-
-	GPIO_InitTypeDef  GPIO_InitStructure;
-	GPIO_InitStructure.GPIO_Pin = II_AM_SDA_Pin;
-	GPIO_InitStructure.GPIO_Mode=GPIO_Mode_OUT ;
-	GPIO_InitStructure.GPIO_OType=GPIO_OType_PP ;
-//	GPIO_InitStructure.GPIO_PuPd=GPIO_PuPd_NOPULL ;
-	GPIO_InitStructure.GPIO_Speed =GPIO_Speed_10MHz;
-	GPIO_Init(II_AM_SDA_GPIO,& GPIO_InitStructure);
-	GPIO_ResetBits(II_AM_SDA_GPIO,II_AM_SDA_Pin);
+    GPIO_InitTypeDef GPIO_InitStruct = {0};
+    /*Configure GPIO pins*/
+    GPIO_InitStruct.Pin   = II_AM_SDA_Pin;
+    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull  = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_MEDIUM;
+    HAL_GPIO_Init(II_AM_SDA_GPIO, &GPIO_InitStruct);
+    HAL_GPIO_WritePin(II_AM_SDA_GPIO, II_AM_SDA_Pin, GPIO_PIN_RESET);
 }
 
-void SDA_Pin_IN_FLOATING(void)  //SDAÅäÖÃÎª¸¡¿ÕÊäÈë
+void SDA_Pin_IN_FLOATING(void)  // SDAé…ç½®ä¸ºæµ®ç©ºè¾“å…¥
 {
-
-	GPIO_InitTypeDef  GPIO_InitStructure;
-	
-	GPIO_InitStructure.GPIO_Pin = II_AM_SDA_Pin;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN; 
-//	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-//	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_10MHz; //10M
-	GPIO_Init( II_AM_SDA_GPIO,&GPIO_InitStructure);
+    GPIO_InitTypeDef GPIO_InitStruct = {0};
+    /*Configure GPIO pins*/
+    GPIO_InitStruct.Pin  = II_AM_SDA_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(II_AM_SDA_GPIO, &GPIO_InitStruct);
 }
 
-void SCL_Pin_Output_High(void) //SCLÊä³ö¸ßµçÆ½£¬P14×÷ÎªI2CµÄSCL
+void SCL_Pin_Output_High(void)  // SCLè¾“å‡ºé«˜ç”µå¹³ï¼ŒP14ä½œä¸ºI2Cçš„SCL
 {
-	GPIO_SetBits(II_AM_SCL_GPIO,II_AM_SCL_Pin);
+    HAL_GPIO_WritePin(II_AM_SCL_GPIO, II_AM_SCL_Pin, GPIO_PIN_SET);
 }
 
-void SCL_Pin_Output_Low(void) //SCLÊä³öµÍµçÆ½
+void SCL_Pin_Output_Low(void)  // SCLè¾“å‡ºä½ç”µå¹³
 {
-	GPIO_ResetBits(II_AM_SCL_GPIO,II_AM_SCL_Pin);
+    HAL_GPIO_WritePin(II_AM_SCL_GPIO, II_AM_SCL_Pin, GPIO_PIN_RESET);
 }
 
-void I2C_Start(void)		 //I2CÖ÷»ú·¢ËÍSTARTĞÅºÅ
+void I2C_Start(void)  // I2Cä¸»æœºå‘é€STARTä¿¡å·
 {
-	SDA_Pin_Output_High();
-	Delay_us(8);
-	SCL_Pin_Output_High();
-	Delay_us(8);
-	SDA_Pin_Output_Low();
-	Delay_us(8);
-	SCL_Pin_Output_Low();
-	Delay_us(8);   
-}
-
-
-void AHT20_WR_Byte(uint8_t Byte) //ÍùAHT20Ğ´Ò»¸ö×Ö½Ú
-{
-	uint8_t Data,N,i;	
-	Data=Byte;
-	i = 0x80;
-	for(N=0;N<8;N++)
-	{
-		SCL_Pin_Output_Low(); 
-		Delay_us(4);	
-		if(i&Data)
-		{
-			SDA_Pin_Output_High();
-		}
-		else
-		{
-			SDA_Pin_Output_Low();
-		}	
-			
+    SDA_Pin_Output_High();
+    Delay_us(8);
     SCL_Pin_Output_High();
-		Delay_us(4);
-		Data <<= 1;
-		 
-	}
-	SCL_Pin_Output_Low();
-	Delay_us(8);   
-	SDA_Pin_IN_FLOATING();
-	Delay_us(8);	
-}	
-
-
-uint8_t AHT20_RD_Byte(void)//´ÓAHT20¶ÁÈ¡Ò»¸ö×Ö½Ú
-{
-	uint8_t Byte,i,a;
-	Byte = 0;
-	SCL_Pin_Output_Low();
-	SDA_Pin_IN_FLOATING();
-	Delay_us(8);	
-	for(i=0;i<8;i++)
-	{
-    SCL_Pin_Output_High();		
-		Delay_us(5);
-		a=0;
-		if(IIC_SDA_READ()) 
-		{
-			a=1;
-		}
-		Byte = (Byte<<1)|a;
-		SCL_Pin_Output_Low();
-		Delay_us(5);
-	}
-  SDA_Pin_IN_FLOATING();
-	Delay_us(8);	
-	return Byte;
-}
-
-
-uint8_t Receive_ACK(void)   //¿´AHT20ÊÇ·ñÓĞ»Ø¸´ACK
-{
-	uint16_t CNT;
-	CNT = 0;
-	SCL_Pin_Output_Low();	
-	SDA_Pin_IN_FLOATING();
-	Delay_us(8);	
-	SCL_Pin_Output_High();	
-	Delay_us(8);	
-	while((IIC_SDA_READ())  && CNT < 100) 
-	CNT++;
-	if(CNT == 100)
-	{
-		return 0;
-	}
- 	SCL_Pin_Output_Low();	
-	Delay_us(8);	
-	return 1;
-}
-
-void Send_ACK(void)		  //Ö÷»ú»Ø¸´ACKĞÅºÅ
-{
-	SCL_Pin_Output_Low();	
-	Delay_us(8);	
-	SDA_Pin_Output_Low();
-	Delay_us(8);	
-	SCL_Pin_Output_High();	
-	Delay_us(8);
-	SCL_Pin_Output_Low();	
-	Delay_us(8);
-	SDA_Pin_IN_FLOATING();
-	Delay_us(8);
-}
-
-void Send_NOT_ACK(void)	//Ö÷»ú²»»Ø¸´ACK
-{
-	SCL_Pin_Output_Low();	
-	Delay_us(8);
-	SDA_Pin_Output_High();
-	Delay_us(8);
-	SCL_Pin_Output_High();	
-	Delay_us(8);		
-	SCL_Pin_Output_Low();	
-	Delay_us(8);
+    Delay_us(8);
     SDA_Pin_Output_Low();
-	Delay_us(8);
+    Delay_us(8);
+    SCL_Pin_Output_Low();
+    Delay_us(8);
 }
 
-void Stop_I2C(void)	  //Ò»ÌõĞ­Òé½áÊø
+void AHT20_WR_Byte(uint8_t Byte)  //å¾€AHT20å†™ä¸€ä¸ªå­—èŠ‚
 {
-	SDA_Pin_Output_Low();
-	Delay_us(8);
-	SCL_Pin_Output_High();	
-	Delay_us(8);
-	SDA_Pin_Output_High();
-	Delay_us(8);
-}
-
-uint8_t AHT20_Read_Status(void)//¶ÁÈ¡AHT20µÄ×´Ì¬¼Ä´æÆ÷
-{
-	uint8_t Byte_first;	
-	I2C_Start();
-	AHT20_WR_Byte(0x71);
-	Receive_ACK();
-	Byte_first = AHT20_RD_Byte();
-	Send_NOT_ACK();
-	Stop_I2C();
-	return Byte_first;
-}
-
-uint8_t AHT20_Read_Cal_Enable(void)  //²éÑ¯cal enableÎ»ÓĞÃ»ÓĞÊ¹ÄÜ
-{
-	uint8_t val = 0;//ret = 0,
-  val = AHT20_Read_Status();
-	 if((val & 0x68)==0x08)
-		 return 1;
-   else  return 0;
- }
-
-void AHT20_SendAC(void) //ÏòAHT20·¢ËÍACÃüÁî
-{
-	I2C_Start();
-	AHT20_WR_Byte(0x70);
-	Receive_ACK();
-	AHT20_WR_Byte(0xac);//0xAC²É¼¯ÃüÁî
-	Receive_ACK();
-	AHT20_WR_Byte(0x33);
-	Receive_ACK();
-	AHT20_WR_Byte(0x00);
-	Receive_ACK();
-	Stop_I2C();
-
-}
-
-//CRCĞ£ÑéÀàĞÍ£ºCRC8/MAXIM
-//¶àÏîÊ½£ºX8+X5+X4+1
-//Poly£º0011 0001  0x31
-//¸ßÎ»·Åµ½ºóÃæ¾Í±ä³É 1000 1100 0x8c
-//CÏÖÊµ´úÂë£º
-uint8_t Calc_CRC8(uint8_t *message,uint8_t Num)
-{
-        uint8_t i;
-        uint8_t byte;
-        uint8_t crc=0xFF;
-  for(byte=0; byte<Num; byte++)
-  {
-    crc^=(message[byte]);
-    for(i=8;i>0;--i)
+    uint8_t Data, N, i;
+    Data = Byte;
+    i    = 0x80;
+    for (N = 0; N < 8; N++)
     {
-      if(crc&0x80) crc=(crc<<1)^0x31;
-      else crc=(crc<<1);
+        SCL_Pin_Output_Low();
+        Delay_us(4);
+        if (i & Data)
+        {
+            SDA_Pin_Output_High();
+        }
+        else
+        {
+            SDA_Pin_Output_Low();
+        }
+
+        SCL_Pin_Output_High();
+        Delay_us(4);
+        Data <<= 1;
     }
-  }
-        return crc;
+    SCL_Pin_Output_Low();
+    Delay_us(8);
+    SDA_Pin_IN_FLOATING();
+    Delay_us(8);
 }
 
-uint8_t AHT20_Read_CTdata(uint32_t *ct) //Ã»ÓĞCRCĞ£Ñé£¬Ö±½Ó¶ÁÈ¡AHT20µÄÎÂ¶ÈºÍÊª¶ÈÊı¾İ
+uint8_t AHT20_RD_Byte(void)  //ä»AHT20è¯»å–ä¸€ä¸ªå­—èŠ‚
 {
-	volatile uint8_t  Byte_1th=0;
-	volatile uint8_t  Byte_2th=0;
-	volatile uint8_t  Byte_3th=0;
-	volatile uint8_t  Byte_4th=0;
-	volatile uint8_t  Byte_5th=0;
-	volatile uint8_t  Byte_6th=0;
-	 uint32_t RetuData = 0;
-	uint16_t cnt = 0;
-	AHT20_SendAC();//ÏòAHT10·¢ËÍACÃüÁî
-	Delay_us(80000);//ÑÓÊ±80ms×óÓÒ	
-    cnt = 0;
-	while(((AHT20_Read_Status()&0x80)==0x80))//Ö±µ½×´Ì¬bit[7]Îª0£¬±íÊ¾Îª¿ÕÏĞ×´Ì¬£¬ÈôÎª1£¬±íÊ¾Ã¦×´Ì¬
-	{
-		Delay_us(1508);
-		if(cnt++>=100)
-		{
-//			return FALSE;
-		 break;
-		 }
-	}
-	I2C_Start();
-	AHT20_WR_Byte(0x71);
-	Receive_ACK();
-	Byte_1th = AHT20_RD_Byte();//×´Ì¬×Ö£¬²éÑ¯µ½×´Ì¬Îª0x98,±íÊ¾ÎªÃ¦×´Ì¬£¬bit[7]Îª1£»×´Ì¬Îª0x1C£¬»òÕß0x0C£¬»òÕß0x08±íÊ¾Îª¿ÕÏĞ×´Ì¬£¬bit[7]Îª0
-	Send_ACK();
-	Byte_2th = AHT20_RD_Byte();//Êª¶È
-	Send_ACK();
-	Byte_3th = AHT20_RD_Byte();//Êª¶È
-	Send_ACK();
-	Byte_4th = AHT20_RD_Byte();//Êª¶È/ÎÂ¶È
-	Send_ACK();
-	Byte_5th = AHT20_RD_Byte();//ÎÂ¶È
-	Send_ACK();
-	Byte_6th = AHT20_RD_Byte();//ÎÂ¶È
-	Send_NOT_ACK();
-	Stop_I2C();
-
-	RetuData = (RetuData|Byte_2th)<<8;
-	RetuData = (RetuData|Byte_3th)<<8;
-	RetuData = (RetuData|Byte_4th);
-	RetuData =RetuData >>4;
-	ct[0] = RetuData;//Êª¶È
-	RetuData = 0;
-	RetuData = (RetuData|Byte_4th)<<8;
-	RetuData = (RetuData|Byte_5th)<<8;
-	RetuData = (RetuData|Byte_6th);
-	RetuData = RetuData&0xfffff;
-	ct[1] =RetuData; //ÎÂ¶È
-	return TRUE;
+    uint8_t Byte, i, a;
+    Byte = 0;
+    SCL_Pin_Output_Low();
+    SDA_Pin_IN_FLOATING();
+    Delay_us(8);
+    for (i = 0; i < 8; i++)
+    {
+        SCL_Pin_Output_High();
+        Delay_us(5);
+        a = 0;
+        if (IIC_SDA_READ())
+        {
+            a = 1;
+        }
+        Byte = (Byte << 1) | a;
+        SCL_Pin_Output_Low();
+        Delay_us(5);
+    }
+    SDA_Pin_IN_FLOATING();
+    Delay_us(8);
+    return Byte;
 }
 
-
-uint8_t AHT20_Read_CTdata_crc(uint32_t *ct) //CRCĞ£Ñéºó£¬¶ÁÈ¡AHT20µÄÎÂ¶ÈºÍÊª¶ÈÊı¾İ
+uint8_t Receive_ACK(void)  //çœ‹AHT20æ˜¯å¦æœ‰å›å¤ACK
 {
-	volatile uint8_t  Byte_1th=0;
-	volatile uint8_t  Byte_2th=0;
-	volatile uint8_t  Byte_3th=0;
-	volatile uint8_t  Byte_4th=0;
-	volatile uint8_t  Byte_5th=0;
-	volatile uint8_t  Byte_6th=0;
-	volatile uint8_t  Byte_7th=0;
-	 uint32_t RetuData = 0;
-	 uint16_t cnt = 0;
-	// uint8_t  CRCDATA=0;
-	 uint8_t  CTDATA[6]={0};//ÓÃÓÚCRC´«µİÊı×é
-	uint8_t Sensor_AnswerFlag;  //ÊÕµ½ÆğÊ¼±êÖ¾Î»
-	 
-//	ENTER_CRITICAL_SECTION(); //¹ØÈ«¾ÖÖĞ¶Ï		
-	AHT20_SendAC();//ÏòAHT10·¢ËÍACÃüÁî
-	Delay_us(80000);//ÑÓÊ±80ms×óÓÒ	
-    cnt = 0;
-	while(((AHT20_Read_Status()&0x80)==0x80))//Ö±µ½×´Ì¬bit[7]Îª0£¬±íÊ¾Îª¿ÕÏĞ×´Ì¬£¬ÈôÎª1£¬±íÊ¾Ã¦×´Ì¬
-	{
-		Delay_us(1508);
-		if(cnt++>=100)
-		{
-		 break;
-		}
-	}
-	
-	I2C_Start();
-
-	AHT20_WR_Byte(0x71);
-	Receive_ACK();
-	CTDATA[0]=Byte_1th = AHT20_RD_Byte();//×´Ì¬×Ö£¬²éÑ¯µ½×´Ì¬Îª0x98,±íÊ¾ÎªÃ¦×´Ì¬£¬bit[7]Îª1£»×´Ì¬Îª0x1C£¬»òÕß0x0C£¬»òÕß0x08±íÊ¾Îª¿ÕÏĞ×´Ì¬£¬bit[7]Îª0
-	Send_ACK();
-	CTDATA[1]=Byte_2th = AHT20_RD_Byte();//Êª¶È
-	Send_ACK();
-	CTDATA[2]=Byte_3th = AHT20_RD_Byte();//Êª¶È
-	Send_ACK();
-	CTDATA[3]=Byte_4th = AHT20_RD_Byte();//Êª¶È/ÎÂ¶È
-	Send_ACK();
-	CTDATA[4]=Byte_5th = AHT20_RD_Byte();//ÎÂ¶È
-	Send_ACK();
-	CTDATA[5]=Byte_6th = AHT20_RD_Byte();//ÎÂ¶È
-	Send_ACK();
-	Byte_7th = AHT20_RD_Byte();//CRCÊı¾İ
-	Send_NOT_ACK();                           //×¢Òâ: ×îºóÊÇ·¢ËÍNAK
-	Stop_I2C();
-
-	if(Calc_CRC8(CTDATA,6)==Byte_7th)
-	{
-	RetuData = (RetuData|Byte_2th)<<8;
-	RetuData = (RetuData|Byte_3th)<<8;
-	RetuData = (RetuData|Byte_4th);
-	RetuData =RetuData >>4;
-	ct[0] = RetuData;//Êª¶È
-	RetuData = 0;
-	RetuData = (RetuData|Byte_4th)<<8;
-	RetuData = (RetuData|Byte_5th)<<8;
-	RetuData = (RetuData|Byte_6th);
-	RetuData = RetuData&0xfffff;
-	ct[1] =RetuData; //ÎÂ¶È
-	Sensor_AnswerFlag= TRUE;		
-	}
-	else
-	{
-		ct[0]=0x00;
-		ct[1]=0x00;//Ğ£Ñé´íÎó·µ»ØÖµ£¬¿Í»§¿ÉÒÔ¸ù¾İ×Ô¼ºĞèÒª¸ü¸Ä
-	Sensor_AnswerFlag= FALSE;
-	}//CRCÊı¾İ
-
-//	EXIT_CRITICAL_SECTION(); //¿ªÈ«¾ÖÖĞ¶Ï	
-	return Sensor_AnswerFlag;
+    uint16_t CNT;
+    CNT = 0;
+    SCL_Pin_Output_Low();
+    SDA_Pin_IN_FLOATING();
+    Delay_us(8);
+    SCL_Pin_Output_High();
+    Delay_us(8);
+    while ((IIC_SDA_READ()) && CNT < 100)
+        CNT++;
+    if (CNT == 100)
+    {
+        return 0;
+    }
+    SCL_Pin_Output_Low();
+    Delay_us(8);
+    return 1;
 }
 
+void Send_ACK(void)  //ä¸»æœºå›å¤ACKä¿¡å·
+{
+    SCL_Pin_Output_Low();
+    Delay_us(8);
+    SDA_Pin_Output_Low();
+    Delay_us(8);
+    SCL_Pin_Output_High();
+    Delay_us(8);
+    SCL_Pin_Output_Low();
+    Delay_us(8);
+    SDA_Pin_IN_FLOATING();
+    Delay_us(8);
+}
 
-void AHT20_Init(void)   //³õÊ¼»¯AHT20
-{	
-//	Init_I2C_Sensor_Port();
-	
-	I2C_Start();
-	AHT20_WR_Byte(0x70);
-	Receive_ACK();
-	AHT20_WR_Byte(0xa8);//0xA8½øÈëNOR¹¤×÷Ä£Ê½
-	Receive_ACK();
-	AHT20_WR_Byte(0x00);
-	Receive_ACK();
-	AHT20_WR_Byte(0x00);
-	Receive_ACK();
-	Stop_I2C();
+void Send_NOT_ACK(void)  //ä¸»æœºä¸å›å¤ACK
+{
+    SCL_Pin_Output_Low();
+    Delay_us(8);
+    SDA_Pin_Output_High();
+    Delay_us(8);
+    SCL_Pin_Output_High();
+    Delay_us(8);
+    SCL_Pin_Output_Low();
+    Delay_us(8);
+    SDA_Pin_Output_Low();
+    Delay_us(8);
+}
 
-	Delay_us(10000);//ÑÓÊ±10ms×óÓÒ
+void Stop_I2C(void)  //ä¸€æ¡åè®®ç»“æŸ
+{
+    SDA_Pin_Output_Low();
+    Delay_us(8);
+    SCL_Pin_Output_High();
+    Delay_us(8);
+    SDA_Pin_Output_High();
+    Delay_us(8);
+}
 
-	I2C_Start();
-	AHT20_WR_Byte(0x70);
-	Receive_ACK();
-	AHT20_WR_Byte(0xbe);//0xBE³õÊ¼»¯ÃüÁî£¬AHT20µÄ³õÊ¼»¯ÃüÁîÊÇ0xBE,   AHT10µÄ³õÊ¼»¯ÃüÁîÊÇ0xE1
-	Receive_ACK();
-	AHT20_WR_Byte(0x08);//Ïà¹Ø¼Ä´æÆ÷bit[3]ÖÃ1£¬ÎªĞ£×¼Êä³ö
-	Receive_ACK();
-	AHT20_WR_Byte(0x00);
-	Receive_ACK();
-	Stop_I2C();
-	Delay_us(10000);//ÑÓÊ±10ms×óÓÒ
+uint8_t AHT20_Read_Status(void)  //è¯»å–AHT20çš„çŠ¶æ€å¯„å­˜å™¨
+{
+    uint8_t Byte_first;
+    I2C_Start();
+    AHT20_WR_Byte(0x71);
+    Receive_ACK();
+    Byte_first = AHT20_RD_Byte();
+    Send_NOT_ACK();
+    Stop_I2C();
+    return Byte_first;
+}
+
+uint8_t AHT20_Read_Cal_Enable(void)  //æŸ¥è¯¢cal enableä½æœ‰æ²¡æœ‰ä½¿èƒ½
+{
+    uint8_t val = 0;  // ret = 0,
+    val         = AHT20_Read_Status();
+    if ((val & 0x68) == 0x08)
+        return 1;
+    else
+        return 0;
+}
+
+void AHT20_SendAC(void)  //å‘AHT20å‘é€ACå‘½ä»¤
+{
+    I2C_Start();
+    AHT20_WR_Byte(0x70);
+    Receive_ACK();
+    AHT20_WR_Byte(0xac);  // 0xACé‡‡é›†å‘½ä»¤
+    Receive_ACK();
+    AHT20_WR_Byte(0x33);
+    Receive_ACK();
+    AHT20_WR_Byte(0x00);
+    Receive_ACK();
+    Stop_I2C();
+}
+
+// CRCæ ¡éªŒç±»å‹ï¼šCRC8/MAXIM
+//å¤šé¡¹å¼ï¼šX8+X5+X4+1
+// Polyï¼š0011 0001  0x31
+//é«˜ä½æ”¾åˆ°åé¢å°±å˜æˆ 1000 1100 0x8c
+// Cç°å®ä»£ç ï¼š
+uint8_t Calc_CRC8(uint8_t *message, uint8_t Num)
+{
+    uint8_t i;
+    uint8_t byte;
+    uint8_t crc = 0xFF;
+    for (byte = 0; byte < Num; byte++)
+    {
+        crc ^= (message[byte]);
+        for (i = 8; i > 0; --i)
+        {
+            if (crc & 0x80)
+                crc = (crc << 1) ^ 0x31;
+            else
+                crc = (crc << 1);
+        }
+    }
+    return crc;
+}
+
+uint8_t AHT20_Read_CTdata(uint32_t *ct)  //æ²¡æœ‰CRCæ ¡éªŒï¼Œç›´æ¥è¯»å–AHT20çš„æ¸©åº¦å’Œæ¹¿åº¦æ•°æ®
+{
+    volatile uint8_t Byte_1th = 0;
+    volatile uint8_t Byte_2th = 0;
+    volatile uint8_t Byte_3th = 0;
+    volatile uint8_t Byte_4th = 0;
+    volatile uint8_t Byte_5th = 0;
+    volatile uint8_t Byte_6th = 0;
+    uint32_t RetuData         = 0;
+    uint16_t cnt              = 0;
+    AHT20_SendAC();   //å‘AHT10å‘é€ACå‘½ä»¤
+    Delay_us(80000);  //å»¶æ—¶80mså·¦å³
+    cnt = 0;
+    while (((AHT20_Read_Status() & 0x80) == 0x80))  //ç›´åˆ°çŠ¶æ€bit[7]ä¸º0ï¼Œè¡¨ç¤ºä¸ºç©ºé—²çŠ¶æ€ï¼Œè‹¥ä¸º1ï¼Œè¡¨ç¤ºå¿™çŠ¶æ€
+    {
+        Delay_us(1508);
+        if (cnt++ >= 100)
+        {
+            //			return FALSE;
+            break;
+        }
+    }
+    I2C_Start();
+    AHT20_WR_Byte(0x71);
+    Receive_ACK();
+    Byte_1th =
+        AHT20_RD_Byte();  //çŠ¶æ€å­—ï¼ŒæŸ¥è¯¢åˆ°çŠ¶æ€ä¸º0x98,è¡¨ç¤ºä¸ºå¿™çŠ¶æ€ï¼Œbit[7]ä¸º1ï¼›çŠ¶æ€ä¸º0x1Cï¼Œæˆ–è€…0x0Cï¼Œæˆ–è€…0x08è¡¨ç¤ºä¸ºç©ºé—²çŠ¶æ€ï¼Œbit[7]ä¸º0
+    Send_ACK();
+    Byte_2th = AHT20_RD_Byte();  //æ¹¿åº¦
+    Send_ACK();
+    Byte_3th = AHT20_RD_Byte();  //æ¹¿åº¦
+    Send_ACK();
+    Byte_4th = AHT20_RD_Byte();  //æ¹¿åº¦/æ¸©åº¦
+    Send_ACK();
+    Byte_5th = AHT20_RD_Byte();  //æ¸©åº¦
+    Send_ACK();
+    Byte_6th = AHT20_RD_Byte();  //æ¸©åº¦
+    Send_NOT_ACK();
+    Stop_I2C();
+
+    RetuData = (RetuData | Byte_2th) << 8;
+    RetuData = (RetuData | Byte_3th) << 8;
+    RetuData = (RetuData | Byte_4th);
+    RetuData = RetuData >> 4;
+    ct[0]    = RetuData;  //æ¹¿åº¦
+    RetuData = 0;
+    RetuData = (RetuData | Byte_4th) << 8;
+    RetuData = (RetuData | Byte_5th) << 8;
+    RetuData = (RetuData | Byte_6th);
+    RetuData = RetuData & 0xfffff;
+    ct[1]    = RetuData;  //æ¸©åº¦
+    return TRUE;
+}
+
+uint8_t AHT20_Read_CTdata_crc(uint32_t *ct)  // CRCæ ¡éªŒåï¼Œè¯»å–AHT20çš„æ¸©åº¦å’Œæ¹¿åº¦æ•°æ®
+{
+    volatile uint8_t Byte_1th = 0;
+    volatile uint8_t Byte_2th = 0;
+    volatile uint8_t Byte_3th = 0;
+    volatile uint8_t Byte_4th = 0;
+    volatile uint8_t Byte_5th = 0;
+    volatile uint8_t Byte_6th = 0;
+    volatile uint8_t Byte_7th = 0;
+    uint32_t RetuData         = 0;
+    uint16_t cnt              = 0;
+    // uint8_t  CRCDATA=0;
+    uint8_t CTDATA[6] = {0};    //ç”¨äºCRCä¼ é€’æ•°ç»„
+    uint8_t Sensor_AnswerFlag;  //æ”¶åˆ°èµ·å§‹æ ‡å¿—ä½
+
+    //	ENTER_CRITICAL_SECTION(); //å…³å…¨å±€ä¸­æ–­
+    AHT20_SendAC();   //å‘AHT10å‘é€ACå‘½ä»¤
+    Delay_us(80000);  //å»¶æ—¶80mså·¦å³
+    cnt = 0;
+    while (((AHT20_Read_Status() & 0x80) == 0x80))  //ç›´åˆ°çŠ¶æ€bit[7]ä¸º0ï¼Œè¡¨ç¤ºä¸ºç©ºé—²çŠ¶æ€ï¼Œè‹¥ä¸º1ï¼Œè¡¨ç¤ºå¿™çŠ¶æ€
+    {
+        Delay_us(1508);
+        if (cnt++ >= 100)
+        {
+            break;
+        }
+    }
+
+    I2C_Start();
+
+    AHT20_WR_Byte(0x71);
+    Receive_ACK();
+    CTDATA[0] = Byte_1th =
+        AHT20_RD_Byte();  //çŠ¶æ€å­—ï¼ŒæŸ¥è¯¢åˆ°çŠ¶æ€ä¸º0x98,è¡¨ç¤ºä¸ºå¿™çŠ¶æ€ï¼Œbit[7]ä¸º1ï¼›çŠ¶æ€ä¸º0x1Cï¼Œæˆ–è€…0x0Cï¼Œæˆ–è€…0x08è¡¨ç¤ºä¸ºç©ºé—²çŠ¶æ€ï¼Œbit[7]ä¸º0
+    Send_ACK();
+    CTDATA[1] = Byte_2th = AHT20_RD_Byte();  //æ¹¿åº¦
+    Send_ACK();
+    CTDATA[2] = Byte_3th = AHT20_RD_Byte();  //æ¹¿åº¦
+    Send_ACK();
+    CTDATA[3] = Byte_4th = AHT20_RD_Byte();  //æ¹¿åº¦/æ¸©åº¦
+    Send_ACK();
+    CTDATA[4] = Byte_5th = AHT20_RD_Byte();  //æ¸©åº¦
+    Send_ACK();
+    CTDATA[5] = Byte_6th = AHT20_RD_Byte();  //æ¸©åº¦
+    Send_ACK();
+    Byte_7th = AHT20_RD_Byte();  // CRCæ•°æ®
+    Send_NOT_ACK();              //æ³¨æ„: æœ€åæ˜¯å‘é€NAK
+    Stop_I2C();
+
+    if (Calc_CRC8(CTDATA, 6) == Byte_7th)
+    {
+        RetuData          = (RetuData | Byte_2th) << 8;
+        RetuData          = (RetuData | Byte_3th) << 8;
+        RetuData          = (RetuData | Byte_4th);
+        RetuData          = RetuData >> 4;
+        ct[0]             = RetuData;  //æ¹¿åº¦
+        RetuData          = 0;
+        RetuData          = (RetuData | Byte_4th) << 8;
+        RetuData          = (RetuData | Byte_5th) << 8;
+        RetuData          = (RetuData | Byte_6th);
+        RetuData          = RetuData & 0xfffff;
+        ct[1]             = RetuData;  //æ¸©åº¦
+        Sensor_AnswerFlag = TRUE;
+    }
+    else
+    {
+        ct[0]             = 0x00;
+        ct[1]             = 0x00;  //æ ¡éªŒé”™è¯¯è¿”å›å€¼ï¼Œå®¢æˆ·å¯ä»¥æ ¹æ®è‡ªå·±éœ€è¦æ›´æ”¹
+        Sensor_AnswerFlag = FALSE;
+    }  // CRCæ•°æ®
+
+    //	EXIT_CRITICAL_SECTION(); //å¼€å…¨å±€ä¸­æ–­
+    return Sensor_AnswerFlag;
+}
+
+void AHT20_Init(void)  //åˆå§‹åŒ–AHT20
+{
+    //	Init_I2C_Sensor_Port();
+
+    I2C_Start();
+    AHT20_WR_Byte(0x70);
+    Receive_ACK();
+    AHT20_WR_Byte(0xa8);  // 0xA8è¿›å…¥NORå·¥ä½œæ¨¡å¼
+    Receive_ACK();
+    AHT20_WR_Byte(0x00);
+    Receive_ACK();
+    AHT20_WR_Byte(0x00);
+    Receive_ACK();
+    Stop_I2C();
+
+    Delay_us(10000);  //å»¶æ—¶10mså·¦å³
+
+    I2C_Start();
+    AHT20_WR_Byte(0x70);
+    Receive_ACK();
+    AHT20_WR_Byte(0xbe);  // 0xBEåˆå§‹åŒ–å‘½ä»¤ï¼ŒAHT20çš„åˆå§‹åŒ–å‘½ä»¤æ˜¯0xBE,   AHT10çš„åˆå§‹åŒ–å‘½ä»¤æ˜¯0xE1
+    Receive_ACK();
+    AHT20_WR_Byte(0x08);  //ç›¸å…³å¯„å­˜å™¨bit[3]ç½®1ï¼Œä¸ºæ ¡å‡†è¾“å‡º
+    Receive_ACK();
+    AHT20_WR_Byte(0x00);
+    Receive_ACK();
+    Stop_I2C();
+    Delay_us(10000);  //å»¶æ—¶10mså·¦å³
 }
 void JH_Reset_REG(uint8_t addr)
 {
-	
-	uint8_t Byte_first,Byte_second,Byte_third;
-	I2C_Start();
-	AHT20_WR_Byte(0x70);//Ô­À´ÊÇ0x70
-	Receive_ACK();
-	AHT20_WR_Byte(addr);
-	Receive_ACK();
-	AHT20_WR_Byte(0x00);
-	Receive_ACK();
-	AHT20_WR_Byte(0x00);
-	Receive_ACK();
-	Stop_I2C();
+    uint8_t Byte_first, Byte_second, Byte_third;
+    Byte_first = Byte_first;
+    I2C_Start();
+    AHT20_WR_Byte(0x70);  //åŸæ¥æ˜¯0x70
+    Receive_ACK();
+    AHT20_WR_Byte(addr);
+    Receive_ACK();
+    AHT20_WR_Byte(0x00);
+    Receive_ACK();
+    AHT20_WR_Byte(0x00);
+    Receive_ACK();
+    Stop_I2C();
 
-	Delay_us(5000);//ÑÓÊ±5ms×óÓÒ
-	I2C_Start();
-	AHT20_WR_Byte(0x71);//
-	Receive_ACK();
-	Byte_first = AHT20_RD_Byte();
-	Send_ACK();
-	Byte_second = AHT20_RD_Byte();
-	Send_ACK();
-	Byte_third = AHT20_RD_Byte();
-	Send_NOT_ACK();
-	Stop_I2C();
-	
-    Delay_us(10000);//ÑÓÊ±10ms×óÓÒ
-	I2C_Start();
-	AHT20_WR_Byte(0x70);///
-	Receive_ACK();
-	AHT20_WR_Byte(0xB0|addr);////¼Ä´æÆ÷ÃüÁî
-	Receive_ACK();
-	AHT20_WR_Byte(Byte_second);
-	Receive_ACK();
-	AHT20_WR_Byte(Byte_third);
-	Receive_ACK();
-	Stop_I2C();
-	
-	Byte_second=0x00;
-	Byte_third =0x00;
+    Delay_us(5000);  //å»¶æ—¶5mså·¦å³
+    I2C_Start();
+    AHT20_WR_Byte(0x71);  //
+    Receive_ACK();
+    Byte_first = AHT20_RD_Byte();
+    Send_ACK();
+    Byte_second = AHT20_RD_Byte();
+    Send_ACK();
+    Byte_third = AHT20_RD_Byte();
+    Send_NOT_ACK();
+    Stop_I2C();
+
+    Delay_us(10000);  //å»¶æ—¶10mså·¦å³
+    I2C_Start();
+    AHT20_WR_Byte(0x70);  ///
+    Receive_ACK();
+    AHT20_WR_Byte(0xB0 | addr);  ////å¯„å­˜å™¨å‘½ä»¤
+    Receive_ACK();
+    AHT20_WR_Byte(Byte_second);
+    Receive_ACK();
+    AHT20_WR_Byte(Byte_third);
+    Receive_ACK();
+    Stop_I2C();
+
+    Byte_second = 0x00;
+    Byte_third  = 0x00;
 }
 
 void AHT20_Start_Init(void)
 {
-	JH_Reset_REG(0x1b);
-	JH_Reset_REG(0x1c);
-	JH_Reset_REG(0x1e);
+    JH_Reset_REG(0x1b);
+    JH_Reset_REG(0x1c);
+    JH_Reset_REG(0x1e);
 }
 
-#define AM_SENSOR_NUM  1
-#define TH_AVE_NUM  5
-//AM2301B ÎÂÊª¶È
+#define AM_SENSOR_NUM 1
+#define TH_AVE_NUM 5
+// AM2301B æ¸©æ¹¿åº¦
 uint8_t AM2301B_update(void)
 {
-		static 	uint8_t  u8CNT=0;
-		static 	uint8_t  u8Err_CNT[AM_SENSOR_NUM]={0};
-		
-		uint8_t i=0,j=0;  //ÊÕµ½ÆğÊ¼±êÖ¾Î»
-		uint8_t u8SenFlag[AM_SENSOR_NUM]={0};  //ÊÕµ½ÆğÊ¼±êÖ¾Î»
-		Com_tnh_st u16TH_Buff={0};
-		
-		uint32_t u32TH[2]={0};
-		static 	uint8_t  u8THInit=FALSE;
-		
-		if(u8THInit==FALSE)
-		{
-			u8THInit=TRUE;
-			AM_Init();
-			
-			Delay_us(10000);//10ms			
-			if((AHT20_Read_Status()&0x18)!=0x18)
-			{
-				AHT20_Start_Init(); //ÖØĞÂ³õÊ¼»¯¼Ä´æÆ÷
-				Delay_us(10000);
-			}   
-		}
-		u8CNT++;
-		if(u8CNT>=0xFF)
-		{
-			u8CNT=0x00;	
-		}
-		i=u8CNT%(2);
-//		//Á½´Î¶ÁÈ¡¼ä¸ôÖÁÉÙ2S
-		if(i!=0)
-		{
-				return 0;			
-		}
-    u8SenFlag[i]=AHT20_Read_CTdata_crc(u32TH);  //crcĞ£Ñéºó£¬¶ÁÈ¡AHT20µÄÎÂ¶ÈºÍÊª¶ÈÊı¾İ 
-		if(u8SenFlag[i])
-		{
-				if((u32TH[0]==0)&&(u32TH[1]==0))
-				{
-					u8Err_CNT[i]++;						
-				}
-				else
-				{
-					u8Err_CNT[i]=0;
-					u16TH_Buff.Hum = u32TH[0]*100*10/1024/1024;  //¼ÆËãµÃµ½Êª¶ÈÖµc1£¨·Å´óÁË10±¶£©
-					u16TH_Buff.Temp = u32TH[1]*200*10/1024/1024-500;//¼ÆËãµÃµ½ÎÂ¶ÈÖµt1£¨·Å´óÁË10±¶£©
-					//¸üĞÂ×´Ì¬MBM_COM_STS_REG_NO		
-          g_sVariable.status.u16Status_remap[COM_STS_REG_NO] |= (0x0001 << 0);		
-					u16TH_Buff.Temp+=(int16_t)(g_sVariable.gPara.TH.u16TH_Cali[0]);
-					u16TH_Buff.Hum+=(int16_t)(g_sVariable.gPara.TH.u16TH_Cali[1]);					
-				}					
-		}
-		else
-		{
-				u8Err_CNT[i]++;			
-		}
-		
-		if(u8Err_CNT[i]>ERROR_CNT_MAX)
-		{
-//			u8Err_CNT[i]=0;
-			g_sVariable.status.u16TH[0].Temp = 285;
-			g_sVariable.status.u16TH[0].Hum = 567;		
-			//¸üĞÂ×´Ì¬MBM_COM_STS_REG_NO
-			g_sVariable.status.u16Status_remap[COM_STS_REG_NO] &= ~(0x0001<<i);			
-				AM_Init();				//AM Sensor init	
-				i=0;			
-		}
-		else if(u8Err_CNT[i]==0)
-		{		
-			g_sVariable.status.u16TH[0].Temp=u16TH_Buff.Temp;
-			g_sVariable.status.u16TH[0].Hum=u16TH_Buff.Hum;	
-			
-			if(g_sVariable.gPara.u16Manual_Test_En==TEST_MODE_ENABLE)//²âÊÔÄ£Ê½
-			{
-				return u8SenFlag[i];
-			}
-			//È¡Æ½¾ùÖµ
-			for(j=0;j<T_MAX;j++)
-			{
-					g_sVariable.status.u16TH[0].Temp=AVGfilter_1(j,g_sVariable.status.u16TH[0].Temp);
-			}
-		}	
-		//È¥µôĞ¡ÊıÎ»
-		g_sVariable.status.u16TH[1].Temp=g_sVariable.status.u16TH[0].Temp/10;
-		if(g_sVariable.status.u16TH[0].Temp%10>=5)//ËÄÉáÎåÈë
-		{
-			g_sVariable.status.u16TH[1].Temp += 1;
-		}
-		//
-		g_sVariable.status.u16TH[1].Hum=g_sVariable.status.u16TH[0].Hum/10;
-		if(g_sVariable.status.u16TH[0].Hum%10>=5)//ËÄÉáÎåÈë
-		{
-			g_sVariable.status.u16TH[1].Hum += 1;
-		}		
-		return u8SenFlag[i];
+    static uint8_t u8CNT                    = 0;
+    static uint8_t u8Err_CNT[AM_SENSOR_NUM] = {0};
+
+    uint8_t i = 0, j = 0;                    //æ”¶åˆ°èµ·å§‹æ ‡å¿—ä½
+    uint8_t u8SenFlag[AM_SENSOR_NUM] = {0};  //æ”¶åˆ°èµ·å§‹æ ‡å¿—ä½
+    Com_tnh_st u16TH_Buff            = {0};
+
+    uint32_t u32TH[2]       = {0};
+    static uint8_t u8THInit = FALSE;
+
+    if (u8THInit == FALSE)
+    {
+        u8THInit = TRUE;
+        AM_Init();
+
+        Delay_us(10000);  // 10ms
+        if ((AHT20_Read_Status() & 0x18) != 0x18)
+        {
+            AHT20_Start_Init();  //é‡æ–°åˆå§‹åŒ–å¯„å­˜å™¨
+            Delay_us(10000);
+        }
+    }
+    u8CNT++;
+    if (u8CNT >= 0xFF)
+    {
+        u8CNT = 0x00;
+    }
+    i = u8CNT % (2);
+    //		//ä¸¤æ¬¡è¯»å–é—´éš”è‡³å°‘2S
+    if (i != 0)
+    {
+        return 0;
+    }
+    u8SenFlag[i] = AHT20_Read_CTdata_crc(u32TH);  // crcæ ¡éªŒåï¼Œè¯»å–AHT20çš„æ¸©åº¦å’Œæ¹¿åº¦æ•°æ®
+    if (u8SenFlag[i])
+    {
+        if ((u32TH[0] == 0) && (u32TH[1] == 0))
+        {
+            u8Err_CNT[i]++;
+        }
+        else
+        {
+            u8Err_CNT[i]    = 0;
+            u16TH_Buff.Hum  = u32TH[0] * 100 * 10 / 1024 / 1024;        //è®¡ç®—å¾—åˆ°æ¹¿åº¦å€¼c1ï¼ˆæ”¾å¤§äº†10å€ï¼‰
+            u16TH_Buff.Temp = u32TH[1] * 200 * 10 / 1024 / 1024 - 500;  //è®¡ç®—å¾—åˆ°æ¸©åº¦å€¼t1ï¼ˆæ”¾å¤§äº†10å€ï¼‰
+                                                                        //æ›´æ–°çŠ¶æ€MBM_COM_STS_REG_NO
+            g_sVariable.status.u16Status_remap[COM_STS_REG_NO] |= (0x0001 << 0);
+            u16TH_Buff.Temp += (int16_t)(g_sVariable.gPara.TH.u16TH_Cali[0]);
+            u16TH_Buff.Hum += (int16_t)(g_sVariable.gPara.TH.u16TH_Cali[1]);
+        }
+    }
+    else
+    {
+        u8Err_CNT[i]++;
+    }
+
+    if (u8Err_CNT[i] > ERROR_CNT_MAX)
+    {
+        //			u8Err_CNT[i]=0;
+        g_sVariable.status.u16TH[0].Temp = 285;
+        g_sVariable.status.u16TH[0].Hum  = 567;
+        //æ›´æ–°çŠ¶æ€MBM_COM_STS_REG_NO
+        g_sVariable.status.u16Status_remap[COM_STS_REG_NO] &= ~(0x0001 << i);
+        AM_Init();  // AM Sensor init
+        i = 0;
+    }
+    else if (u8Err_CNT[i] == 0)
+    {
+        g_sVariable.status.u16TH[0].Temp = u16TH_Buff.Temp;
+        g_sVariable.status.u16TH[0].Hum  = u16TH_Buff.Hum;
+
+        if (g_sVariable.gPara.u16Manual_Test_En == TEST_MODE_ENABLE)  //æµ‹è¯•æ¨¡å¼
+        {
+            return u8SenFlag[i];
+        }
+        //å–å¹³å‡å€¼
+        for (j = 0; j < T_MAX; j++)
+        {
+            g_sVariable.status.u16TH[0].Temp = AVGfilter_1(j, g_sVariable.status.u16TH[0].Temp);
+        }
+    }
+    //å»æ‰å°æ•°ä½
+    g_sVariable.status.u16TH[1].Temp = g_sVariable.status.u16TH[0].Temp / 10;
+    if (g_sVariable.status.u16TH[0].Temp % 10 >= 5)  //å››èˆäº”å…¥
+    {
+        g_sVariable.status.u16TH[1].Temp += 1;
+    }
+    //
+    g_sVariable.status.u16TH[1].Hum = g_sVariable.status.u16TH[0].Hum / 10;
+    if (g_sVariable.status.u16TH[0].Hum % 10 >= 5)  //å››èˆäº”å…¥
+    {
+        g_sVariable.status.u16TH[1].Hum += 1;
+    }
+    return u8SenFlag[i];
 }
 /********************************************\
-|* ¹¦ÄÜ£º ÎÂÊª¶È¸üĞÂ             	        *|
+|* åŠŸèƒ½ï¼š æ¸©æ¹¿åº¦æ›´æ–°             	        *|
 \********************************************/
 void AM_Sensor_update(void)
 {
-		AM2301B_update();
+    AM2301B_update();
 
-//	SDA_Pin_Output_High();	
-//	Delay_us(10000);//10ms	
-//	SDA_Pin_Output_Low();		
-//	Delay_us(10000);//10ms	
-//	SDA_Pin_Output_High();	
-//	Delay_us(10000);//10ms	
-//	SDA_Pin_Output_Low();	
-//		g_sys.status.ComSta.u16TH[0].Temp=285;
-//		g_sys.status.ComSta.u16TH[0].Temp=567;
-//		rt_kprintf("u8CNT=%x,i=%x,u8SenFlag[0]= %x,u16TH_Sensor[0]= %x,[1] = %x,u8Err_CNT[0]=%x,Temp=%d,Hum=%d\n",u8CNT,i,u8SenFlag[0],u16TH_Sensor[0],u16TH_Sensor[1],u8Err_CNT[0],gds_ptr->status.mbm.tnh[0].temp,gds_ptr->status.mbm.tnh[0].hum);			
+    //	SDA_Pin_Output_High();
+    //	Delay_us(10000);//10ms
+    //	SDA_Pin_Output_Low();
+    //	Delay_us(10000);//10ms
+    //	SDA_Pin_Output_High();
+    //	Delay_us(10000);//10ms
+    //	SDA_Pin_Output_Low();
+    //		g_sys.status.ComSta.u16TH[0].Temp=285;
+    //		g_sys.status.ComSta.u16TH[0].Temp=567;
+    //		rt_kprintf("u8CNT=%x,i=%x,u8SenFlag[0]= %x,u16TH_Sensor[0]= %x,[1] =
+    //%x,u8Err_CNT[0]=%x,Temp=%d,Hum=%d\n",u8CNT,i,u8SenFlag[0],u16TH_Sensor[0],u16TH_Sensor[1],u8Err_CNT[0],gds_ptr->status.mbm.tnh[0].temp,gds_ptr->status.mbm.tnh[0].hum);
 }
-
-
-
-

@@ -18,7 +18,6 @@
 #include <math.h>
 #include "global.h"
 #include "Drv_DIO.h"
-#include "Drv_PWM.h"
 #include "sys_conf.h"
 // local variable definition
 static dio_dev_st dio_dev_inst;
