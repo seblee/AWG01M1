@@ -19,8 +19,7 @@
 #include "cmsis_os.h"  // CMSIS RTOS header file
 
 #define COM_OSDELAY 200
-#define CORE_OSDELAY 100
-#define DI_OSDELAY 300
+#define CORE_OSDELAY 100 
 #define BKG_OSDELAY 500
 
 #define CORE_PROC_DLY 500u

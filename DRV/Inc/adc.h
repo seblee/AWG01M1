@@ -21,6 +21,8 @@ enum
     AI_SENSOR2,
     AI_SENSOR3,
     AI_SENSOR4,
+    AI_SENSOR5,
+    AI_SENSOR6,
     AI_MAX_CNT
 };
 #define AI_NTC_MAX_CNT AI_SENSOR1  // NTCÊýÁ¿

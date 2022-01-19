@@ -1,5 +1,4 @@
 #include "cmsis_os.h"  // ARM::CMSIS:RTOS:Keil RTX
-#include "threads.h"
 #include "global.h"
 #include "calc.h"
 #include "sys_conf.h"
@@ -105,12 +104,11 @@ typedef struct
     alarm_acl_status_st alarm_sts[ACL_TOTAL_NUM];
 
 } alarm_st;
- 
 
 static alarm_st alarm_inst;
 
 extern local_reg_st l_sys;
-  uint16_t io_calc(uint8_t data, uint8_t refer);
+uint16_t io_calc(uint8_t data, uint8_t refer);
 static uint16_t compare_calc(int16_t meter, int16_t min, int16_t max, Compare_type_st type);
 
 // static uint16_t alarm_lock(uint16_t alarm_id);
@@ -135,8 +133,8 @@ static uint16_t acl13(alarm_acl_status_st *acl_ptr);
 
 //告警输出仲裁
 static void alarm_arbiration(void);
-  void alarm_bitmap_op(uint8_t component_bpos, uint8_t action);
-  void alarm_bitmap_mask_op(uint8_t component_bpos, uint8_t action);
+void alarm_bitmap_op(uint8_t component_bpos, uint8_t action);
+void alarm_bitmap_mask_op(uint8_t component_bpos, uint8_t action);
 
 enum
 {
@@ -261,12 +259,12 @@ static void init_alarm(alarm_st *alarm_spr)
     alarm_spr->compressor1_timer = 0;
     alarm_spr->compressor2_timer = 0;
 }
- 
+
 void alarm_acl_init(void)
 {
     uint8_t i;
     // 初始化静态内存分配空间
-    
+
     init_alarm(&alarm_inst);
     //初始化手动解除报警
     for (i = 0; i < ALARM_TOTAL_WORD; i++)
@@ -563,8 +561,6 @@ uint8_t Get_alarm_arbiration(void)
 //告警处理
 static void alarm_arbiration(void)
 {
-  
- 
 }
 
 //关机告警处理
@@ -632,7 +628,7 @@ uint8_t get_alarm_bitmap_mask(uint8_t component_bpos)
 // DO_FAN_BPOS//offset
 //报警位操作
 
-  void alarm_bitmap_op(uint8_t component_bpos, uint8_t action)
+void alarm_bitmap_op(uint8_t component_bpos, uint8_t action)
 {
     extern local_reg_st l_sys;
     uint8_t byte_offset, bit_offset;
@@ -658,7 +654,7 @@ uint8_t get_alarm_bitmap_mask(uint8_t component_bpos)
     //		}
 }
 
-  void alarm_bitmap_mask_op(uint8_t component_bpos, uint8_t action)
+void alarm_bitmap_mask_op(uint8_t component_bpos, uint8_t action)
 {
     extern local_reg_st l_sys;
     uint8_t byte_offset, bit_offset;
@@ -706,7 +702,7 @@ static void alarm_status_bitmap_op(uint8_t alarm_id, uint8_t option)
  * @retval none
  */
 
-  uint16_t io_calc(uint8_t data, uint8_t refer)
+uint16_t io_calc(uint8_t data, uint8_t refer)
 {
     if (data == refer)
     {
@@ -779,7 +775,7 @@ static uint16_t compare_calc(int16_t meter, int16_t min, int16_t max, Compare_ty
  * @retval none
  */
 //锁死类报警
-  uint16_t alarm_lock(uint16_t alarm_id)
+uint16_t alarm_lock(uint16_t alarm_id)
 {
     uint8_t index              = 0xff;
     uint64_t u64Over_lock_time = 0;
@@ -895,7 +891,7 @@ static uint16_t acl01(alarm_acl_status_st *acl_ptr)
 // ACL_E2 源水箱水位>上浮球，漏水
 static uint16_t acl02(alarm_acl_status_st *acl_ptr)
 {
-    uint8_t data; 
+    uint8_t data;
     if (acl_clear(acl_ptr))
     {
         return (ALARM_ACL_CLEARED);

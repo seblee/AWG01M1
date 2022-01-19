@@ -12,8 +12,6 @@
     2014-12-05      Alair         file create
 *********************************************************/
 #include "cmsis_os.h"
-#include "threads.h"
-#include "Drv_flash.h"
 #include "global.h"
 #include <math.h>
 #include <Lib_Delay.h>
@@ -23,9 +21,11 @@
 #include "DRV_TIME.h"
 #include "i2c_bsp.h"
 #include "daq.h"
+#define osObjectsPublic  // define objects in main module
+#include "osObjects.h"   // RTOS object definitions
 /*************************************************
   Function:       // Core_Proc
-  Description:    // ¿ØÖÆÈÎÎñ
+  Description:    // æŽ§åˆ¶ä»»åŠ¡
   Calls:          //
 
   Called By:      // main
@@ -40,19 +40,20 @@ void Core_Proc(void const *argument)
 {
     static uint16_t u16Num[2] = {0};
 
-    osDelay(CORE_OSDELAY);  //ÉÏµçÑÓÊ±
-    Drv_DIO_Init();         // DI³õÊ¼»¯
+    osDelay(CORE_OSDELAY);  //ä¸Šç”µå»¶æ—¶
+    Drv_DIO_Init();         // DIåˆå§‹åŒ–
     DIO_reg_init();
-    TimersInit_14(10000, ENABLE);  //¶¨Ê±10ms
+    TimersInit_14(99, ENABLE);  //å®šæ—¶10ms
     alarm_acl_init();
+    printf("Core_Proc\r\n");
     while (1)
     {
         if (++u16Num[0] >= 2)  // 1s
         {
             u16Num[0] = 0;
-            //ÐèÇóÖ´ÐÐ
+            //éœ€æ±‚æ‰§è¡Œ
             req_execution();
-            //Êä³ö
+            //è¾“å‡º
             oc_update();
         }
         if (++u16Num[1] >= 3)  // 1.5s

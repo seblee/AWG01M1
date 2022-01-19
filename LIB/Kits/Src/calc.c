@@ -1,190 +1,147 @@
 #include "stdint.h"
 #include "calc.h"
-//#include "global_var.h"
 #include "global.h"
 #include "sys_conf.h"
-//uint8_t checksum_u8(uint8_t* data_ptr, uint16_t data_num)
-//{
-//		uint16_t 	i;
-//		uint8_t 	checksum_res;
-//		checksum_res = *data_ptr;
-//		for(i=1;i<data_num;i++)
-//		{
-//				checksum_res ^= *(data_ptr+i);
-//		}
-//		return checksum_res;
-//}
-
-//uint16_t checksum_u16(uint16_t* data_ptr, uint16_t data_num)
-//{
-//		uint16_t 	i;
-//		uint16_t 	checksum_res;
-//		checksum_res = *data_ptr;
-//		for(i=1;i<data_num;i++)
-//		{
-//				checksum_res ^= *(data_ptr+i);
-//		}
-//		return checksum_res;
-//}
-
-//uint8_t xor_checksum(uint8_t* data_ptr, uint16_t data_num)
-//{
-//		uint16_t i;
-//		uint8_t 	checksum_res;
-//		checksum_res = 0;
-//		for(i=0;i<data_num;i++)
-//		{
-//				checksum_res ^= *(data_ptr+i);
-//		}
-//		return checksum_res;
-//}
 
 int16_t lim_min_max(int16_t min, int16_t max, int16_t data)
 {
-		if(data <= min)
-		{
-				return min;
-		}
-		else if(data >= max)
-		{
-				return max;
-		}
-		else
-		{
-				return data;
-		}
-}
-
-int16_t bin_search(uint16_t *a_ptr, uint16_t array_size, uint16_t key)  
-{     
-    int low = 0, high = array_size - 1, mid;  
-		
-		if((key < *(a_ptr))||(key > *(a_ptr+array_size)))
-		{
-				return -1;
-		}	
-      
-    while (low <= high)  
-    {         
-        mid = (low + high) / 2; 
-          
-        if ((*(a_ptr+mid) <= key)&&(*(a_ptr+mid+1) > key)&&((mid+1)<array_size))
-				{
-            return mid;   
-				}
-				else
-				{
-						if (*(a_ptr+mid) > key)      
-						{
-								high = mid - 1;
-						}
-						else
-						{
-								low = mid + 1;
-						}
-				}
+    if (data <= min)
+    {
+        return min;
     }
-    return -1;    
+    else if (data >= max)
+    {
+        return max;
+    }
+    else
+    {
+        return data;
+    }
 }
 
-void quick(uint16_t *a,int16_t i,int16_t j)        //¿ìËÙÅÅĞò
+int16_t bin_search(uint16_t *a_ptr, uint16_t array_size, uint16_t key)
 {
-    int16_t m,n,temp;
+    int low = 0, high = array_size - 1, mid;
+
+    if ((key < *(a_ptr)) || (key > *(a_ptr + array_size)))
+    {
+        return -1;
+    }
+
+    while (low <= high)
+    {
+        mid = (low + high) / 2;
+
+        if ((*(a_ptr + mid) <= key) && (*(a_ptr + mid + 1) > key) && ((mid + 1) < array_size))
+        {
+            return mid;
+        }
+        else
+        {
+            if (*(a_ptr + mid) > key)
+            {
+                high = mid - 1;
+            }
+            else
+            {
+                low = mid + 1;
+            }
+        }
+    }
+    return -1;
+}
+
+void quick(uint16_t *a, int16_t i, int16_t j)  //å¿«é€Ÿæ’åº
+{
+    int16_t m, n, temp;
     uint16_t k;
-    m=i;
-    n=j;
-    k=a[(i+j)/2]; /*Ñ¡È¡µÄ²ÎÕÕ*/
+    m = i;
+    n = j;
+    k = a[(i + j) / 2]; /*é€‰å–çš„å‚ç…§*/
     do
     {
-        while(a[m]<k&&m<j)
+        while (a[m] < k && m < j)
         {
-            m++;    /* ´Ó×óµ½ÓÒÕÒ±Èk´óµÄÔªËØ*/
+            m++; /* ä»å·¦åˆ°å³æ‰¾æ¯”kå¤§çš„å…ƒç´ */
         }
-        while(a[n]>k&&n>i)
+        while (a[n] > k && n > i)
         {
-            n--;    /* ´ÓÓÒµ½×óÕÒ±ÈkĞ¡µÄÔªËØ*/
+            n--; /* ä»å³åˆ°å·¦æ‰¾æ¯”kå°çš„å…ƒç´ */
         }
-        if(m<=n)   /*ÈôÕÒµ½ÇÒÂú×ãÌõ¼ş£¬Ôò½»»»*/
+        if (m <= n) /*è‹¥æ‰¾åˆ°ä¸”æ»¡è¶³æ¡ä»¶ï¼Œåˆ™äº¤æ¢*/
         {
-            temp=a[m];
-            a[m]=a[n];
-            a[n]=temp;
+            temp = a[m];
+            a[m] = a[n];
+            a[n] = temp;
             m++;
             n--;
         }
-    }
-    while(m<=n);
-    if(m<j)
+    } while (m <= n);
+    if (m < j)
     {
-        quick(a,m,j);    /*ÔËÓÃµİ¹é*/
+        quick(a, m, j); /*è¿ç”¨é€’å½’*/
     }
-    if(n>i)
+    if (n > i)
     {
-        quick(a,i,n);
+        quick(a, i, n);
     }
 }
 
-
 /**
-*  ÖĞÎ»ÖµÆ½¾ùÂË²¨
-* @param pData:Ã»ÓĞÂË²¨µÄÊı¾İ 
-* @param nSize:Êı¾İ´óĞ¡ 
-* @return:ÂË²¨ÊıÖµ
-*/
-unsigned short MedianFilter(unsigned short* pData,int nSize)
+ *  ä¸­ä½å€¼å¹³å‡æ»¤æ³¢
+ * @param pData:æ²¡æœ‰æ»¤æ³¢çš„æ•°æ®
+ * @param nSize:æ•°æ®å¤§å°
+ * @return:æ»¤æ³¢æ•°å€¼
+ */
+unsigned short MedianFilter(unsigned short *pData, int nSize)
 {
-    unsigned short max,min;
+    unsigned short max, min;
     int sum;
     int ave;
     int i;
-    if(nSize>2)
+    if (nSize > 2)
     {
         max = pData[0];
         min = max;
         sum = 0;
-        for(i=0;i<nSize;i++)
+        for (i = 0; i < nSize; i++)
         {
-            sum += pData[i];            
-            if(pData[i]>max)
+            sum += pData[i];
+            if (pData[i] > max)
             {
-                max = pData[i];   //Ò»¸öÑ­»·Ö®ºómax¾ÍÊÇ×î´óµÄÖµ
+                max = pData[i];  //ä¸€ä¸ªå¾ªç¯ä¹‹åmaxå°±æ˜¯æœ€å¤§çš„å€¼
             }
 
-            if(pData[i]<min)
+            if (pData[i] < min)
             {
-                min = pData[i];   //Ò»¸öÑ­»·Ö®ºómin¾ÍÊÇ×îĞ¡µÄÖµ
+                min = pData[i];  //ä¸€ä¸ªå¾ªç¯ä¹‹åminå°±æ˜¯æœ€å°çš„å€¼
             }
-//						rt_kprintf("pData[i] = %d\n", pData[i] );	
+            //						rt_kprintf("pData[i] = %d\n", pData[i] );
         }
 
-        sum = sum-max-min;       //È¥µô×î´óµÄÖµºÍ×îĞ¡µÄÖµ
-				ave=sum/(nSize-2);
-//				rt_kprintf("sum = %d,ave = %d,u16Ain[i] = %d\n", sum,ave );					
-        return ave; //¶ÔN-2¸öÊıÇóÆ½¾ùÖµ          
+        sum = sum - max - min;  //å»æ‰æœ€å¤§çš„å€¼å’Œæœ€å°çš„å€¼
+        ave = sum / (nSize - 2);
+        //				rt_kprintf("sum = %d,ave = %d,u16Ain[i] = %d\n", sum,ave );
+        return ave;  //å¯¹N-2ä¸ªæ•°æ±‚å¹³å‡å€¼
     }
 
     return 0;
 }
-//Ã°Åİ·¨
-void bubble_sort(int16_t *a,uint8_t n)
+//å†’æ³¡æ³•
+void bubble_sort(int16_t *a, uint8_t n)
 {
-	uint8_t i,j;
-	for(i = 0;i<n;i++)
-	{
-		for(j = i;j < n;j++)
-		{
-			if(*(a+i)>*(a+j))
-			{
-				int temp;
-				temp = *(a+i);
-				*(a+i) = *(a+j);
-				*(a+j) = temp;
-			}
-		}
-	}
+    uint8_t i, j;
+    for (i = 0; i < n; i++)
+    {
+        for (j = i; j < n; j++)
+        {
+            if (*(a + i) > *(a + j))
+            {
+                int temp;
+                temp     = *(a + i);
+                *(a + i) = *(a + j);
+                *(a + j) = temp;
+            }
+        }
+    }
 }
-
-
-
-
-

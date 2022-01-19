@@ -26,81 +26,43 @@
 #include "mb.h"
 #include "mbport.h"
 #include "global.h"
+#include "main.h"
 /* ----------------------- static functions ---------------------------------*/
-//static void prvvTIMERExpiredISR(void);
 
+extern TIM_HandleTypeDef htim6;
 /* ----------------------- Start implementation -----------------------------*/
 BOOL xMBPortTimersInit(USHORT usTim1Timerout50us)
 {
-    // uint16_t PrescalerValue = 0;
-    // TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;
-    // NVIC_InitTypeDef NVIC_InitStructure;
+    /* USER CODE BEGIN TIM6_Init 0 */
+    uint16_t PrescalerValue = 0;
+    /* USER CODE END TIM6_Init 0 */
 
-    // /* TIM3 clock enable */
-    // RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE);
-
-    // /* Enable the TIM3 gloabal Interrupt */
-    // NVIC_InitStructure.NVIC_IRQChannel         = TIM3_IRQn;
-    // NVIC_InitStructure.NVIC_IRQChannelPriority = 0;
-    // NVIC_InitStructure.NVIC_IRQChannelCmd      = ENABLE;
-    // NVIC_Init(&NVIC_InitStructure);
-
-    // /* Compute the prescaler value */
-    // PrescalerValue = (uint16_t)(SystemCoreClock / 20000) - 1;
-
-    // /* Time base configuration */
-    // TIM_TimeBaseStructure.TIM_Period        = usTim1Timerout50us;
-    // TIM_TimeBaseStructure.TIM_Prescaler     = PrescalerValue;
-    // TIM_TimeBaseStructure.TIM_ClockDivision = 0;
-    // TIM_TimeBaseStructure.TIM_CounterMode   = TIM_CounterMode_Up;
-
-    // TIM_TimeBaseInit(TIM3, &TIM_TimeBaseStructure);
-    // //		TIM_ARRPreloadConfig(TIM3, ENABLE);
-
-    // NVIC_InitStructure.NVIC_IRQChannel         = TIM3_IRQn;
-    // NVIC_InitStructure.NVIC_IRQChannelPriority = 1;
-    // NVIC_InitStructure.NVIC_IRQChannelCmd      = ENABLE;
-    // NVIC_Init(&NVIC_InitStructure);
-
-    // /* Prescaler configuration */
-    // TIM_ClearITPendingBit(TIM3, TIM_IT_Update);
-    // TIM_ITConfig(TIM3, TIM_IT_Update, DISABLE);
-    // TIM_Cmd(TIM3, DISABLE);
-
+    /* USER CODE BEGIN TIM6_Init 1 */
+    PrescalerValue = (uint16_t)(SystemCoreClock / 20000) - 1;
+    /* USER CODE END TIM6_Init 1 */
+    __HAL_TIM_SET_AUTORELOAD(&htim6, usTim1Timerout50us);
+    __HAL_TIM_SET_PRESCALER(&htim6, PrescalerValue);
+    __HAL_TIM_SET_COUNTER(&htim6, 0);
+    /* USER CODE BEGIN TIM6_Init 2 */
     return TRUE;
+    /* USER CODE END TIM6_Init 2 */
 }
 
 void vMBPortTimersEnable(void)
 {
-    // TIM_ClearITPendingBit(TIM3, TIM_IT_Update);
-    // TIM_ITConfig(TIM3, TIM_IT_Update, ENABLE);
-    // TIM_SetCounter(TIM3, 0);
-    // TIM_Cmd(TIM3, ENABLE);
+    // HAL_TIM_Base_Start_IT(&htim6);
 }
 
 void vMBPortTimersDisable(void)
 {
-    // TIM_ClearITPendingBit(TIM3, TIM_IT_Update);
-    // TIM_ITConfig(TIM3, TIM_IT_Update, DISABLE);
-    // TIM_SetCounter(TIM3, 0);
-    // TIM_Cmd(TIM3, DISABLE);
+    // HAL_TIM_Base_Stop_IT(&htim6);
 }
 
 /* Create an ISR which is called whenever the timer has expired. This function
  * must then call pxMBPortCBTimerExpired( ) to notify the protocol stack that
  * the timer has expired.
  */
-// static void prvvTIMERExpiredISR(void)
-// {
-//     (void)pxMBPortCBTimerExpired();
-// }
-
-// void TIM3_IRQHandler(void)
-// {
-//     if (TIM_GetITStatus(TIM3, TIM_IT_Update) != RESET)
-//     {
-//         TIM_ClearFlag(TIM3, TIM_FLAG_Update);        //清中断标记
-//         TIM_ClearITPendingBit(TIM3, TIM_IT_Update);  //清除定时器T3溢出中断标志位
-//         prvvTIMERExpiredISR();
-//     }
-// }
+void prvvTIMERExpiredISR(void)
+{
+    (void)pxMBPortCBTimerExpired();
+}

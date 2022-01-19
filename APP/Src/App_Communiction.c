@@ -18,10 +18,8 @@
 *********************************************************/
 
 #include "cmsis_os.h"
-#include "threads.h"
 #include "stm32g0xx_hal.h"
 #include "Drv_Uart.h"
-#include "Drv_flash.h"
 #include "fifo.h"
 #include "sys_def.h"
 #include "global.h"
@@ -31,6 +29,8 @@
 #include "App_Communiction.h"
 #include "mb.h"
 #include "i2c_bsp.h"
+#define osObjectsPublic  // define objects in main module
+#include "osObjects.h"   // RTOS object definitions
 
 typedef struct
 {
@@ -49,14 +49,14 @@ static void change_surv_baudrate(void)
     {
         u8MB = 1;
     }
-    //Í¨Ñ¶Òì³£
+    //é€šè®¯å¼‚å¸¸
     g_sVariable.status.Com_error++;
     if (g_sVariable.status.Com_error >= COMERR_3S)
     {
         u8MB                         = 1;
         g_sVariable.status.Com_error = 0;
     }
-    //ÖØÐÂ³õÊ¼»¯´®¿Ú
+    //é‡æ–°åˆå§‹åŒ–ä¸²å£
     if (u8MB)
     {
         com_change_inst.baudrate = g_sVariable.gPara.Bardrate;
@@ -83,7 +83,7 @@ static void change_surv_baudrate(void)
 void Communiction_proc(void const *argument)
 {
     static uint8_t num[2] = {0};
-    osDelay(COM_OSDELAY);  //ÉÏµçÑÓÊ±
+    osDelay(COM_OSDELAY);  //ä¸Šç”µå»¶æ—¶
 #ifdef E2PROM
     drv_i2c_init();
 #else
@@ -92,22 +92,22 @@ void Communiction_proc(void const *argument)
     MBRegsiterInit();
     eMBInit(MB_RTU, MBGetAddrsee(), USART0_CH, MBGetBaudrate(), MB_PAR_NONE);
     eMBEnable();
-
+    printf("Communiction_proc\r\n");
     while (1)
     {
-        eMBPoll();  // MB×´Ì¬´¦Àí
+        eMBPoll();  // MBçŠ¶æ€å¤„ç†
 #ifdef E2PROM
         change_surv_baudrate();
 #else
-        MBResolve();          // MB´¦Àí
-        MBRegsiterUpdate(1);  // MBÊý¾Ý¸üÐÂ
+        MBResolve();          // MBå¤„ç†
+        MBRegsiterUpdate(1);  // MBæ•°æ®æ›´æ–°
 #endif
         if (++num[0] >= 50)
         {
             num[0] = 0;
-            //»Øµ÷º¯Êý£¬Ð´EEPROM
+            //å›žè°ƒå‡½æ•°ï¼Œå†™EEPROM
             CallBack_map_write();
-            // TDS½ÓÊÕÊý¾Ý´¦Àí
+            // TDSæŽ¥æ”¶æ•°æ®å¤„ç†
             Comm_Service();
         }
         if (++num[1] >= 100)

@@ -163,9 +163,27 @@ void drv_adc_dma_init(void)
 #endif
 
     HAL_ADCEx_Calibration_Start(&hadc1);
-    HAL_ADC_Start_DMA(&hadc1, (uint32_t*)&ADC1ConvertedValue, AI_MAX_CNT);
+    HAL_ADC_Start_DMA(&hadc1, (uint32_t *)&ADC1ConvertedValue, AI_MAX_CNT);
 }
 
+/**
+ * @brief  Conversion complete callback in non-blocking mode.
+ * @param hadc ADC handle
+ * @retval None
+ */
+void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
+{
+    /* Prevent unused argument(s) compilation warning */
+    UNUSED(hadc);
+
+    /* NOTE : This function should not be modified. When the callback is needed,
+              function HAL_ADC_ConvCpltCallback must be implemented in the user file.
+     */
+    if (hadc == &hadc1)
+    {
+        HAL_ADC_Start_DMA(&hadc1, (uint32_t *)&ADC1ConvertedValue, AI_MAX_CNT);
+    }
+}
 // void ADCValProcess(uint16_t *ptrADCval, uint16_t *ptrADCbuf, uint8_t index)
 //{
 //     uint8_t i                     = 0;

@@ -1,5 +1,4 @@
 #include "cmsis_os.h"  // ARM::CMSIS:RTOS:Keil RTX
-#include "threads.h"
 #include "global.h"
 #include "calc.h"
 #include "sys_conf.h"
@@ -203,8 +202,8 @@ static void fan_fsm_exe(uint8_t fan_signal)
                 {
                     u16BUFF |= 0x100;
                     l_sys.l_fsm_state[FAN_FSM_STATE] = FSM_FAN_IDLE;
-                    l_sys.Fan.Fan_Gear               = FAN_GEAR_NO;                     //																			//enable
-                                                                                        //fan output
+                    l_sys.Fan.Fan_Gear               = FAN_GEAR_NO;                     // enable
+                                                                                        //  fan output
                     l_sys.comp_timeout[DO_FAN_BPOS] = l_sys.comp_timeout[DO_FAN_BPOS];  // reset timeout counter
                 }
                 else  // wait until startup delay elapses
@@ -328,8 +327,6 @@ static void compressor_fsm(uint8_t compressor_id, uint8_t signal)
     do_bpos        = DO_COMP1_BPOS;
 
     compress_fsm_state = l_sys.l_fsm_state[l_fsm_state_id];
-
-    //		rt_kprintf("compressor_id=%d,signal=%d,,compress_fsm_state=%d,l_sys.Comp_Close=%d,l_sys.comp_startup_interval=%d\n",compressor_id,signal,compress_fsm_state,l_sys.Comp_Close,l_sys.comp_startup_interval);
 
     switch (compress_fsm_state)
     {
@@ -1150,7 +1147,7 @@ static uint8_t local_Mode_req_calc(void)
     g_sVariable.status.REQ_TEST[0]    = u16Buff;
 
     //		rt_kprintf("u8Mode_state=%d,u16Mode_req=%d,u32CompRunTime=%d,Fan_Close=%x\n", u8Mode_state,
-    //l_sys.Comp.u16Mode_req,l_sys.Comp.u32CompRunTime, l_sys.Fan.Fan_Close);
+    // l_sys.Comp.u16Mode_req,l_sys.Comp.u32CompRunTime, l_sys.Fan.Fan_Close);
     return TRUE;
 }
 

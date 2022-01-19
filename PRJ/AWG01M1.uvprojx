@@ -188,7 +188,7 @@
             <hadIRAM2>0</hadIRAM2>
             <hadIROM2>0</hadIROM2>
             <StupSel>8</StupSel>
-            <useUlib>0</useUlib>
+            <useUlib>1</useUlib>
             <EndSel>0</EndSel>
             <uLtcg>0</uLtcg>
             <nSecure>0</nSecure>
@@ -312,7 +312,7 @@
           </ArmAdsMisc>
           <Cads>
             <interw>1</interw>
-            <Optim>1</Optim>
+            <Optim>0</Optim>
             <oTime>0</oTime>
             <SplitLS>0</SplitLS>
             <OneElfS>1</OneElfS>
@@ -403,6 +403,11 @@
           <GroupName>app</GroupName>
           <Files>
             <File>
+              <FileName>Thread.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\APP\Src\Thread.c</FilePath>
+            </File>
+            <File>
               <FileName>App_Core.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\APP\Src\App_Core.c</FilePath>
@@ -422,11 +427,6 @@
         <Group>
           <GroupName>user</GroupName>
           <Files>
-            <File>
-              <FileName>Thread.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\Thread.c</FilePath>
-            </File>
             <File>
               <FileName>global.c</FileName>
               <FileType>1</FileType>
