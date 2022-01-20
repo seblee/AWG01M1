@@ -338,7 +338,7 @@
               <MiscControls></MiscControls>
               <Define></Define>
               <Undefine></Undefine>
-              <IncludePath>.\;..\DRV\Inc;..\APP\Inc;..\USER\Inc;..\SYS\Inc;..\LIB\Kits\Inc;..\LIB\freemodbus-v1.5.0\demo\BARE;..\LIB\freemodbus-v1.5.0\demo\BARE\port;..\LIB\freemodbus-v1.5.0\modbus\rtu;..\LIB\freemodbus-v1.5.0\modbus\functions;..\LIB\freemodbus-v1.5.0\modbus\include;..\HAL\Inc</IncludePath>
+              <IncludePath>.\;..\DRV\Inc;..\APP\Inc;..\USER\Inc;..\SYS\Inc;..\LIB\Kits\Inc;..\LIB\freemodbus-v1.5.0\demo\BARE;..\LIB\freemodbus-v1.5.0\demo\BARE\port;..\LIB\freemodbus-v1.5.0\modbus\rtu;..\LIB\freemodbus-v1.5.0\modbus\functions;..\LIB\freemodbus-v1.5.0\modbus\include;..\HAL\Inc;.\RTE\Device\STM32G070RBTx\STCubeGenerated\Inc</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -396,6 +396,41 @@
               <FileName>stm32g0xx_it.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\RTE\Device\STM32G070RBTx\STCubeGenerated\Src\stm32g0xx_it.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>CubeDRV</GroupName>
+          <Files>
+            <File>
+              <FileName>adc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\RTE\Device\STM32G070RBTx\STCubeGenerated\Src\adc.c</FilePath>
+            </File>
+            <File>
+              <FileName>dma.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\RTE\Device\STM32G070RBTx\STCubeGenerated\Src\dma.c</FilePath>
+            </File>
+            <File>
+              <FileName>gpio.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\RTE\Device\STM32G070RBTx\STCubeGenerated\Src\gpio.c</FilePath>
+            </File>
+            <File>
+              <FileName>iwdg.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\RTE\Device\STM32G070RBTx\STCubeGenerated\Src\iwdg.c</FilePath>
+            </File>
+            <File>
+              <FileName>tim.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\RTE\Device\STM32G070RBTx\STCubeGenerated\Src\tim.c</FilePath>
+            </File>
+            <File>
+              <FileName>usart.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\RTE\Device\STM32G070RBTx\STCubeGenerated\Src\usart.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -458,11 +493,6 @@
           <GroupName>drv</GroupName>
           <Files>
             <File>
-              <FileName>adc.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\DRV\Src\adc.c</FilePath>
-            </File>
-            <File>
               <FileName>Drv_Time.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\DRV\Src\Drv_Time.c</FilePath>
@@ -492,10 +522,12 @@
               <FileType>1</FileType>
               <FilePath>..\DRV\Src\TH_Sensor_Bsp.c</FilePath>
             </File>
+            <File>
+              <FileName>Drv_Adc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\DRV\Src\Drv_Adc.c</FilePath>
+            </File>
           </Files>
-        </Group>
-        <Group>
-          <GroupName>lib</GroupName>
         </Group>
         <Group>
           <GroupName>kit</GroupName>

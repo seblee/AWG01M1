@@ -6,7 +6,7 @@
 #include "App_Communiction.h"
 #include "App_Core.h"
 #include "i2c_bsp.h"
-#include "adc.h"
+#include "Drv_Adc.h"
 #include "TH_SENSOR_BSP.h"
 #include "sys_conf.h"
 #include "alarms.h"
