@@ -2,6 +2,7 @@
 #include "stm32g0xx_hal.h"
 #include "i2c_bsp.h"
 #include "cmsis_os.h"
+#include "stdio.h"
 /**
  * @brief  Initializes peripherals used by the I2C EEPROM driver.
  * @param  None
@@ -35,11 +36,11 @@ static void IIC_SDA(uint8_t n)
 {
     if (n == 1)
     {
-        HAL_GPIO_WritePin(II_SDA_GPIO, II_SCL_Pin, GPIO_PIN_SET);
+        HAL_GPIO_WritePin(II_SDA_GPIO, II_SDA_Pin, GPIO_PIN_SET);
     }
     else
     {
-        HAL_GPIO_WritePin(II_SDA_GPIO, II_SCL_Pin, GPIO_PIN_RESET);
+        HAL_GPIO_WritePin(II_SDA_GPIO, II_SDA_Pin, GPIO_PIN_RESET);
     }
 }
 
@@ -75,7 +76,6 @@ static void delay_us(uint32_t nus)
 {
     uint8_t i;
     uint32_t temp;
-    //    for(i=0;i<5;i++)
     for (i = 0; i < 4; i++)
     {
         for (temp = nus; temp != 0; temp--)
@@ -85,37 +85,30 @@ static void delay_us(uint32_t nus)
     }
 }
 
-/*
-void delay_us(uint32_t nus)		//延时函数有可能需要修改
-{
-    uint32_t tick,delayPeriod;
-    tick = osKernelSysTick();
-    delayPeriod = osKernelSysTickMicroSec(nus);
-    while(osKernelSysTick() - tick < delayPeriod);
-}
-*/
 static void IIC_Start(void)
 {
     SDA_OUT();
-    IIC_SDA(1);
-    IIC_SCL(1);
-
-    delay_us(4);
     IIC_SDA(0);
-    // START:when CLK is high,DATA change form high to low
-    delay_us(4);
+    IIC_SCL(1);
+    delay_us(2);
+    IIC_SDA(1);
+    delay_us(8);
+    IIC_SDA(0);
+    delay_us(8);
     IIC_SCL(0);
 }
 static void IIC_Stop(void)
 {
-    SDA_OUT();
     IIC_SCL(0);
+    SDA_OUT();
     IIC_SDA(0);
-    // STOP:when CLK is high DATA change form low to high
-    delay_us(4);
+    delay_us(2);
     IIC_SCL(1);
+    // STOP:when CLK is high DATA change form low to high
+    delay_us(8);
     IIC_SDA(1);
-    delay_us(4);
+    delay_us(8);
+    IIC_SDA(0);
 }
 static uint8_t IIC_Wait_Ack(void)
 {
@@ -217,18 +210,21 @@ static int8_t I2c_write_byte(uint8_t data)
 int8_t WriteEEROMPage(uint8_t* write_buffer, uint16_t write_addr, uint8_t num_byte_write)
 {
     uint16_t len;
+#ifdef AT24C08
+    uint8_t u8EE_Addr;
+#endif
     WP_Enable();
-    IIC_Start();
-    __nop();
+    delay_us(2);
     IIC_Start();
     // I2C Slave addr
+    // printf("IICBSP: %s:addr:%d,num:%d\r\n", __func__, write_addr, num_byte_write);
 #ifdef AT24C08
-    u8EE_Addr = (write_addr >> 8) << 1;
+    u8EE_Addr = ((write_addr & 0x0300) >> 7);
     if (I2c_write_byte(SLAVE_ADDR | u8EE_Addr) == 0)
     {
         IIC_Stop();
         WP_Diable();
-        // rt_kprintf("\n IICBSP: I2C_EE_BufWrite  ERR \n");
+        printf("IICBSP: I2C_EE_BufWrite  ERR \r\n");
         return (EEPROM_BUSSERRO);
     }
 #else
@@ -236,7 +232,7 @@ int8_t WriteEEROMPage(uint8_t* write_buffer, uint16_t write_addr, uint8_t num_by
     {
         IIC_Stop();
         WP_Diable();
-        // rt_kprintf("\n IICBSP: I2C_EE_BufWrite  ERR \n");
+        printf("IICBSP: I2C_EE_BufWrite  ERR \r\n");
         return (EEPROM_BUSSERRO);
     }
     // Data high 8 addr
@@ -244,7 +240,7 @@ int8_t WriteEEROMPage(uint8_t* write_buffer, uint16_t write_addr, uint8_t num_by
     {
         IIC_Stop();
         WP_Diable();
-        //        rt_kprintf("\n IICBSP: WriteEEROMPage high 8\n");
+        // printf("IICBSP: WriteEEROMPage high 8\r\n");
         return (EEPROM_BUSSERRO);
     }
 #endif
@@ -253,7 +249,7 @@ int8_t WriteEEROMPage(uint8_t* write_buffer, uint16_t write_addr, uint8_t num_by
     {
         IIC_Stop();
         WP_Diable();
-        //        rt_kprintf("\n IICBSP: WriteEEROMPage low 8 \n");
+        // printf("IICBSP: WriteEEROMPage low 8 \r\n");
         return (EEPROM_BUSSERRO);
     }
 
@@ -263,7 +259,7 @@ int8_t WriteEEROMPage(uint8_t* write_buffer, uint16_t write_addr, uint8_t num_by
         {
             IIC_Stop();
             WP_Diable();
-            //            rt_kprintf("\n IICBSP: WriteEEROMPage len=%d \n", len);
+            // printf("IICBSP: WriteEEROMPage len=%d \r\n", len);
             return (EEPROM_BUSSERRO);
         }
     }
@@ -360,17 +356,20 @@ int8_t I2C_EE_BufWrite(uint8_t* write_buffer, uint16_t write_addr, uint16_t num_
 int8_t I2C_EE_BufRead_bsp(uint8_t* read_buffer, uint16_t read_addr, uint16_t num_byte_Read)
 {
     uint16_t len;
+#ifdef AT24C08
+    uint8_t u8EE_Addr;
+#endif
     //获取互斥量
     WP_Enable();
     IIC_Start();
     // I2C Slave addr
 #ifdef AT24C08
-    u8EE_Addr = (read_addr >> 8) << 1;
+    u8EE_Addr = (read_addr & 0x0300) >> 7;
     if (I2c_write_byte(SLAVE_ADDR | u8EE_Addr) == 0)
     {
         IIC_Stop();
         WP_Diable();
-        // rt_kprintf("\n IICBSP: I2C_EE_BufWrite  ERR \n");
+        printf("IICBSP:%s EE write SLAVE_ADDR  ERR \r\n", __func__);
         return (EEPROM_BUSSERRO);
     }
 #else
@@ -379,7 +378,7 @@ int8_t I2C_EE_BufRead_bsp(uint8_t* read_buffer, uint16_t read_addr, uint16_t num
         WP_Diable();
         IIC_Stop();
 
-        //        rt_kprintf("\n IICBSP: I2C_EE_BufRead SLAVE_ADDR\n");
+        printf("IICBSP: I2C_EE_BufRead SLAVE_ADDR\r\n");
         return (EEPROM_BUSSERRO);
     }
     // Data high 8 addr
@@ -387,7 +386,7 @@ int8_t I2C_EE_BufRead_bsp(uint8_t* read_buffer, uint16_t read_addr, uint16_t num
     {
         WP_Diable();
         IIC_Stop();
-        //        rt_kprintf("\n IICBSP: I2C_EE_BufRead ADDR high 8\n");
+        // printf("IICBSP: I2C_EE_BufRead ADDR high 8\r\n");
         return (EEPROM_BUSSERRO);
     }
 #endif
@@ -397,7 +396,7 @@ int8_t I2C_EE_BufRead_bsp(uint8_t* read_buffer, uint16_t read_addr, uint16_t num
     {
         WP_Diable();
         IIC_Stop();
-        //        rt_kprintf("\n IICBSP: I2C_EE_BufRead ADDR LOW  8\n");
+        // printf("IICBSP: I2C_EE_BufRead ADDR LOW  8\r\n");
         return (EEPROM_BUSSERRO);
     }
 
@@ -408,7 +407,7 @@ int8_t I2C_EE_BufRead_bsp(uint8_t* read_buffer, uint16_t read_addr, uint16_t num
         WP_Diable();
         IIC_Stop();
 
-        //        rt_kprintf("\n IICBSP: I2C_EE_BufRead SLAVE_ADDR  123\n");
+        // printf("IICBSP: I2C_EE_BufRead SLAVE_ADDR  123\r\n");
         return (EEPROM_BUSSERRO);
     }
 

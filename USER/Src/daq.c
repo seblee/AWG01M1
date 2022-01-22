@@ -186,11 +186,15 @@ void ai_sts_update(void)
     }
 
     // UV电压
-    for (i = AI_LEDUV1_V; i <= AI_LEDUV3_V; i++)
-    {
-        g_sVariable.status.u16AI[i] =
-            (((ain_mask_bitmap >> (i)) & 0x0001) != 0) ? Calc_UV_ai(ADC1ConvertedValue[i], 0, 0) : 0;
-    }
+
+    g_sVariable.status.u16AI[AI_LEDUV1_V] =
+        (((ain_mask_bitmap >> (AI_LEDUV1_V)) & 0x0001) != 0) ? Calc_UV_ai(ADC1ConvertedValue[AI_LEDUV1_V], 0, 0) : 0;
+
+    g_sVariable.status.u16AI[AI_LEDUV2_V] =
+        (((ain_mask_bitmap >> (AI_LEDUV2_V)) & 0x0001) != 0) ? Calc_UV_ai(ADC1ConvertedValue[AI_LEDUV2_V], 0, 0) : 0;
+
+    g_sVariable.status.u16AI[AI_LEDUV3_V] =
+        (((ain_mask_bitmap >> (AI_LEDUV3_V)) & 0x0001) != 0) ? Calc_UV_ai(ADC1ConvertedValue[AI_LEDUV3_V], 0, 0) : 0;
 
     return;
 }

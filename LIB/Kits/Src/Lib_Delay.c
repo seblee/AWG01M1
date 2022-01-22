@@ -1,7 +1,6 @@
 #include "Lib_Delay.h"
-#include "macro.h"
 
-void Delay(U16 DelayValue)  // us
+void Delay(uint16_t DelayValue)  // us
 {
     DelayValue *= 4;
     while (DelayValue--)
@@ -9,13 +8,12 @@ void Delay(U16 DelayValue)  // us
     return;
 }
 
-void Delay_us(unsigned long u32us)
+void delay_us(uint16_t nus)
 {
-    unsigned char i;
-
-    while (u32us--)
+    __HAL_TIM_SET_COUNTER(&htim3, 0);
+    __HAL_TIM_ENABLE(&htim3);
+    while (__HAL_TIM_GET_COUNTER(&htim3) < nus)
     {
-        for (i = 0; i < 2; i++)
-            ;
     }
+    __HAL_TIM_DISABLE(&htim3);
 }

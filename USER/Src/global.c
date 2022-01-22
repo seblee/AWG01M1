@@ -39,11 +39,8 @@ typedef enum
 #define EE_FLAG_LOAD_DEBUT 0xff
 
 const conf_reg_map_st conf_reg_map_inst[REG_MAP_NUM] = {
-    // id			 						mapped registers									                min			max					default
-    // permission
-    // r/w
-    // chk_ptr
-    {0, &g_sVariable.gPara.Num, 0, 0xFFFF, REG_HOLDING_NREGS, 0, NULL},
+    // id mapped registers min max default permission r/w chk_ptr
+    {0, &g_sVariable.gPara.Num, 0, 0xFFFF, REG_MAP_NUM, 0, NULL},
     {1, &g_sVariable.gPara.Software, 0, 0xFFFF, MB_SOFTWARE_VER, 0, NULL},
     {2, &g_sVariable.gPara.Hardware, 0, 0xFFFF, MB_HARDWARE_VER, 0, NULL},
     {3, NULL, 0, 0xFFFF, 0, 0, NULL},
@@ -57,8 +54,8 @@ const conf_reg_map_st conf_reg_map_inst[REG_MAP_NUM] = {
     {11, &g_sVariable.gPara.dev_mask.din_bitmap_polarity, 0, 0xFFFF, 0x0F, 1, NULL},
     {12, &g_sVariable.gPara.dev_mask.din, 0, 0xFFFF, 0x0F, 1, NULL},
     {13, &g_sVariable.gPara.dev_mask.dout[0], 0, 0xFFFF, 0xFFFF, 1, NULL},
-    {14, &g_sVariable.gPara.dev_mask.dout[1], 0, 0xFFFF, 0x007F, 1, NULL},
-    {15, &g_sVariable.gPara.dev_mask.ain, 0, 0xFFFF, 0x01B6, 1, NULL},
+    {14, &g_sVariable.gPara.dev_mask.dout[1], 0, 0xFFFF, 0x00FF, 1, NULL},
+    {15, &g_sVariable.gPara.dev_mask.ain, 0, 0xFFFF, 0x0536, 1, NULL},
     {16, NULL, 0, 0xFFFF, 0, 0, NULL},
     {MANUAL_TSET, &g_sVariable.gPara.u16Manual_Test_En, 0, 3, 0, 1, NULL},
     {18, &g_sVariable.gPara.diagnose_mode_en, 0, 1, 0, 1, NULL},
@@ -112,10 +109,6 @@ const conf_reg_map_st conf_reg_map_inst[REG_MAP_NUM] = {
     {66, &g_sVariable.gPara.Water.u16FILTER_ELEMENT_Type, 0, 1, 0, 1, NULL},
     {67, NULL, 0, 0xFFFF, 0, 0, NULL},
     {68, &g_sVariable.gPara.Water.u16TDS_Cail, 0, 0xFFFF, 0, 1, NULL},
-    //		{	69,			 					&g_sVariable.gPara.Water.u16TDS_Cail[1],					0,
-    //0xFFFF,
-    // 0,
-    // 1,      NULL},
     {69, NULL, 0, 0xFFFF, 0, 0, NULL},
     {70, &g_sVariable.gPara.alarm[ACL_FILLTER].alarm_param, 1, 65535, 4320, 1, NULL},
     {71, &g_sVariable.gPara.alarm[ACL_FILLTER_ELEMENT_0].alarm_param, 1, 65535, 4320, 1, NULL},
@@ -159,14 +152,16 @@ const conf_reg_map_st conf_reg_map_inst[REG_MAP_NUM] = {
     {109, &g_sVariable.status.Water.u16FliterElement[3], 0, 0xFFFF, 0, 0, NULL},
     {110, &g_sVariable.status.Water.u16TDS[0], 0, 0xFFFF, 0, 0, NULL},
     {111, &g_sVariable.status.Water.u16TDS[1], 0, 0xFFFF, 0, 0, NULL},
-    {112, &g_sVariable.status.REQ_TEST[0], 0, 0xFFFF, 0, 0, NULL},
-    {113, &g_sVariable.status.REQ_TEST[1], 0, 0xFFFF, 0, 0, NULL},
-    {114, &g_sVariable.status.REQ_TEST[2], 0, 0xFFFF, 0, 0, NULL},
-    {115, &g_sVariable.status.REQ_TEST[3], 0, 0xFFFF, 0, 0, NULL},
-    {116, &g_sVariable.status.REQ_TEST[4], 0, 0xFFFF, 0, 0, NULL},
-    {117, &g_sVariable.status.REQ_TEST[5], 0, 0xFFFF, 0, 0, NULL},
-    {118, &g_sVariable.status.REQ_TEST[6], 0, 0xFFFF, 0, 0, NULL},
-    {119, &g_sVariable.status.REQ_TEST[7], 0, 0xFFFF, 0, 0, NULL},
+    {112, &g_sVariable.status.u16AI[10], 0, 0xFFFF, 0, 0, NULL},
+    {113, &g_sVariable.status.u16AI[11], 0, 0xFFFF, 0, 0, NULL},
+    {114, &g_sVariable.status.REQ_TEST[0], 0, 0xFFFF, 0, 0, NULL},
+    {115, &g_sVariable.status.REQ_TEST[1], 0, 0xFFFF, 0, 0, NULL},
+    {116, &g_sVariable.status.REQ_TEST[2], 0, 0xFFFF, 0, 0, NULL},
+    {117, &g_sVariable.status.REQ_TEST[3], 0, 0xFFFF, 0, 0, NULL},
+    {118, &g_sVariable.status.REQ_TEST[4], 0, 0xFFFF, 0, 0, NULL},
+    {119, &g_sVariable.status.REQ_TEST[5], 0, 0xFFFF, 0, 0, NULL},
+    {120, &g_sVariable.status.REQ_TEST[6], 0, 0xFFFF, 0, 0, NULL},
+    {121, &g_sVariable.status.REQ_TEST[7], 0, 0xFFFF, 0, 0, NULL},
 };
 /* ----------------------- Static variables ---------------------------------*/
 
@@ -741,16 +736,10 @@ uint16_t reg_map_write(uint16_t reg_addr, uint16_t *wr_data, uint8_t wr_cnt)
 
     for (i = 0; i < wr_cnt; i++)  // data write
     {
-        //				ee_rd_data = *(conf_reg_map_inst[reg_addr+i].reg_ptr);				//buffer legacy reg data
-        //				ee_wr_data = *(wr_data+i);															//buffer
-        //current write data
-
         *(conf_reg_map_inst[reg_addr + i].reg_ptr) = *(wr_data + i);  // write data to designated register
         if (conf_reg_map_inst[reg_addr + i].rw == 1)                  //写EEPROM
         {
-            g_sVariable.u8ReturnCall[reg_addr] =
-                TRUE;  //回调标志
-                       //			    eeprom_tripple_write(reg_addr+i,ee_wr_data,ee_rd_data);
+            g_sVariable.u8ReturnCall[reg_addr] = TRUE;  //回调标志
         }
     }
     return err_code;

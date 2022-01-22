@@ -11,16 +11,24 @@
 #include "global.h"
 // #include "Drv_PWM.h"
 /*********************************************************
-  * @name   led_init
-	* @brief  led gpio and port bank clock initilization
-	* @calls  gpio dirvers
-  * @called BackGround_proc()
-  * @param  None
-  * @retval None
-*********************************************************/
+ * @name   led_init
+ * @brief  led gpio and port bank clock initilization
+ * @calls  gpio dirvers
+ * @called BackGround_proc()
+ * @param  None
+ * @retval None
+ *********************************************************/
 void led_init(void)
 {
-HAL_GPIO_WritePin(LED1_PORT, LED1_PIN, GPIO_PIN_SET);	
+    GPIO_InitTypeDef GPIO_InitStruct = {0};
+    /*Configure GPIO pins*/
+    GPIO_InitStruct.Pin   = LED1_PIN;
+    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull  = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_MEDIUM;
+    HAL_GPIO_Init(LED1_PORT, &GPIO_InitStruct);
+
+    HAL_GPIO_WritePin(LED1_PORT, LED1_PIN, GPIO_PIN_SET);
 }
 
 /*********************************************************
@@ -75,11 +83,11 @@ void LEDCtrlStatus(void)
     //			led_open();
     //	}
     //	else
-   // if (g_sVariable.status.alarm_bitmap[0])  //有输出,闪烁5次
-//    {
-//        led_toggle();
-//    }
-//    else  //闪烁1次
+    // if (g_sVariable.status.alarm_bitmap[0])  //有输出,闪烁5次
+    //    {
+    //        led_toggle();
+    //    }
+    //    else  //闪烁1次
     {
         if (++su8Flash[0] >= 5)
         {

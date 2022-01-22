@@ -1,8 +1,9 @@
 #ifndef _DELAY_H_
 #define _DELAY_H_
 
-#include "Macro.h"
+#include "stm32g0xx_hal.h"
+#include "tim.h"
 
-extern void Delay(U16 DelayValue);
-extern void Delay_us(unsigned long u32us);
+extern void Delay(uint16_t DelayValue);
+extern void delay_us(uint16_t nus);
 #endif

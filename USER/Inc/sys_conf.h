@@ -11,39 +11,39 @@
 //数字输出映射
 enum
 {
-    DO_ZYB_BPOS = 0,  //增压泵
-    DO_RSB_BPOS,      //热水泵
-    DO_LSB_BPOS,      //冷水泵
-    DO_LSF_BPOS,      //冷水阀
-    DO_ZLF_BPOS,      //制冷阀
-    DO_JSF_BPOS,      //进水阀
-    DO_RS2_BPOS,      // RS2
-    DO_CSF_BPOS,      //除霜阀
-    DO_RS1_BPOS,      // RS1
+    DO_COMP_BPOS = 0,  //压缩机
+    DO_HEAT_BPOS,      //加热2
+    DO_FN1_BPOS,       //风机1
+    DO_FN2_BPOS,       //风机2
+    DO_UV1_BPOS,       // UV1
+    DO_UV2_BPOS,       // UV2
+    DO_UV3_BPOS,       // UV3
+    DO_ZYB_BPOS,       //增压泵
+    DO_RSB_BPOS,       //热水泵
+    DO_LSB_BPOS,       //冷水泵
+    DO_LSF_BPOS,       //冷水阀
+    DO_ZLF_BPOS,       //制冷阀
+    DO_JSF_BPOS,       //进水阀
+    DO_RS2_BPOS,       // RS2
+    DO_CSF_BPOS,       //除霜阀
+    DO_RS1_BPOS,       // RS1
+
     DO_JSB_BPOS,      //进水泵
-    DO_RS3_BPOS,      // RS3
-    DO_RS4_BPOS,      // RS4
-    DO_RS5_BPOS,      // RS5
+    DO_RS3_BPOS,      // EEV1_A
+    DO_RS4_BPOS,      // EEV1_B
+    DO_RS5_BPOS,      // EEV1_-A
+    DO_RS6_BPOS,      // EEV1_-B
     DO_LED_UV1_BPOS,  // LED_UV1
     DO_LED_UV2_BPOS,  // LED_UV2
     DO_LED_UV3_BPOS,  // LED_UV3
-
-    DO_COMP_BPOS,   //压缩机
-    DO_HEAT_BPOS,   //加热
-    DO_FN1_BPOS,    //风机1
-    DO_FN2_BPOS,    //风机2
-    DO_UV1_BPOS,    // UV1
-    DO_UV2_BPOS,    // UV2
-    DO_UV3_BPOS,    // UV3
-    DO_RSV_BPOS_1,  //预留
-    DO_RSV_BPOS_2,  //预留
-    DO_RSV_BPOS_3,  //预留
-    DO_RSV_BPOS_4,  //预留
-    DO_RSV_BPOS_5,  //预留
-    DO_RSV_BPOS_6,  //预留
-    DO_RSV_BPOS_7,  //预留
-    DO_RSV_BPOS_8,  //预留
-    DO_RSV_BPOS_9,  //预留
+    DO_RSV_BPOS_1,    //预留
+    DO_RSV_BPOS_2,    //预留
+    DO_RSV_BPOS_3,    //预留
+    DO_RSV_BPOS_4,    //预留
+    DO_RSV_BPOS_5,    //预留
+    DO_RSV_BPOS_6,    //预留
+    DO_RSV_BPOS_7,    //预留
+    DO_RSV_BPOS_8,    //预留
 
     DO_FILLTER_BPOS,            //滤网
     DO_FILLTER_ELEMENT_BPOS_0,  //滤芯  0

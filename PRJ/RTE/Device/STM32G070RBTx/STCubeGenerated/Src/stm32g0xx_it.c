@@ -47,7 +47,7 @@
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN PFP */
-
+extern void prvvUARTTxReadyISR(void);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -189,7 +189,12 @@ void USART1_IRQHandler(void)
   /* USER CODE END USART1_IRQn 0 */
   HAL_UART_IRQHandler(&huart1);
   /* USER CODE BEGIN USART1_IRQn 1 */
-
+  if(__HAL_UART_GET_IT_SOURCE(&huart1,UART_IT_TXE)!=RESET)
+  {
+    prvvUARTTxReadyISR();
+  }
+  HAL_NVIC_ClearPendingIRQ(USART1_IRQn);
+  HAL_UART_IRQHandler(&huart1);
   /* USER CODE END USART1_IRQn 1 */
 }
 

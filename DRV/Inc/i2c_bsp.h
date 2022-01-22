@@ -19,7 +19,7 @@
 
 #define STS_REG_EE2_ADDR (STS_REG_EE1_ADDR + 200)
 #define E2PROM 1  //ÓÐEEPROM
-//#define AT24C08			1
+#define AT24C08 1
 
 //Çý¶¯µ×²ã
 #ifdef AT24C08

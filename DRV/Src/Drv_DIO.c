@@ -25,10 +25,10 @@ static dio_dev_st dio_dev_inst;
 #define Pin_Map_In DI_MAX_CNT
 //数字输入Pin_Map
 const pin_map_st in_pin_map_inst[Pin_Map_In] = {
-    {GPIO_PIN_6, GPIOF},   // DI1 PB2
-    {GPIO_PIN_13, GPIOA},  // DI2 PB10
-    {GPIO_PIN_11, GPIOA},  // DI3 PC3
-    {GPIO_PIN_2, GPIOB},   // DI4 PC12
+    {GPIO_PIN_2, GPIOB},   // DI1 PB2
+    {GPIO_PIN_10, GPIOB},  // DI2 PB10
+    {GPIO_PIN_3, GPIOC},   // DI3 PC3
+    {GPIO_PIN_12, GPIOC},  // DI4 PC12
 };
 
 #define Pin_Map_Out 24
@@ -83,9 +83,17 @@ void Drv_DIO_Init(void)
     }
 
 #ifdef RSTORE
-/**
- * PC13 init input
- */
+    /**
+     * PC13 init input
+     */
+    {
+        GPIO_InitTypeDef GPIO_InitStruct = {0};
+        /*Configure GPIO pins*/
+        GPIO_InitStruct.Pin  = RST_PIN;
+        GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+        GPIO_InitStruct.Pull = GPIO_PULLUP;
+        HAL_GPIO_Init(RST_GPIO, &GPIO_InitStruct);
+    }
 #endif
 }
 

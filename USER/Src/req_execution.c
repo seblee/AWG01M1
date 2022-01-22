@@ -70,20 +70,11 @@ void req_bitmap_op(uint8_t component_bpos, uint8_t action)
     {
         l_sys.bitmap[byte_offset][BITMAP_REQ] |= (0x0001 << bit_offset);
     }
-
-    //			if(action == 0)
-    //			{
-    //					l_sys.bitmap[BITMAP_REQ] &= ~(0x0001<<component_bpos);
-    //			}
-    //			else
-    //			{
-    //					l_sys.bitmap[BITMAP_REQ] |= (0x0001<<component_bpos);
-    //			}
 }
 
 void Close_DIS_PWR(void)
 {
-    //    req_bitmap_op(DO_PWR_CTRL_BPOS, 1); //关闭显示电源
+    // req_bitmap_op(DO_PWR_CTRL_BPOS, 1);  //关闭显示电源
 }
 
 //风机档位输出
@@ -298,14 +289,8 @@ static uint16_t compressor_signal_gen(uint8_t *comp1_sig)
     if ((sys_get_remap_status(WORK_MODE_STS_REG_NO, FAN_STS_BPOS) != 0))  //风机启动
     {
         {
-            //            if (get_alarm_bitmap(ACL_E1) || get_alarm_bitmap(ACL_E2)) //告警
-            //            {
-            //                *comp1_sig = COMPRESSOR_SIG_OFF;
-            //            }
-            //            else
-            //            {
             *comp1_sig = COMPRESSOR_SIG_ON;
-            //            }
+
             l_sys.l_fsm_state[COMPRESS_SIG_FSM_STATE] = 0;
         }
         return 1;
@@ -362,14 +347,8 @@ static void compressor_fsm(uint8_t compressor_id, uint8_t signal)
                     l_sys.l_fsm_state[l_fsm_state_id] = COMPRESSOR_FSM_STATE_STARTUP;
                     l_sys.comp_timeout[do_bpos]       = g_sVariable.gPara.CP.startup_lowpress_shield;
                     req_bitmap_op(do_bpos, 1);
-                    //                l_sys.comp_startup_interval = g_sys.config.ComPara.u16Comp_Interval;
                 }
-                //            else
-                //            {
-                //                l_sys.l_fsm_state[l_fsm_state_id] = COMPRESSOR_FSM_STATE_INIT;
-                //                l_sys.comp_timeout[do_bpos] = l_sys.comp_timeout[do_bpos];
-                //                req_bitmap_op(do_bpos, 0);
-                //            }
+
                 u16BUFF |= 0x04;
             }
             else
@@ -481,8 +460,6 @@ void Defrost_req_exe(void)
     extern local_reg_st l_sys;
     int16_t i16NTC1;
     uint16_t u16BUFF;
-    //    static uint16_t u16StartDefrost[2]={0};
-    //    static uint16_t u16StopDefrost[2]={0};
 
     i16NTC1 = (int16_t)g_sVariable.status.u16AI[AI_NTC_Defrost];
 
@@ -641,11 +618,6 @@ uint16_t PluseCalc_Water(uint16_t PluseCnt)
     uint16_t u16Water_Flow;
     float fWflow;
 
-    //		if(PluseCnt<L200)//小于0.15L
-    //		{
-    //			fWflow=	(float)PluseCnt*L200_FACTOR;
-    //		}
-    //		else
     if (PluseCnt < L300)  //小于0.3L
     {
         fWflow = (float)PluseCnt * L300_FACTOR;
@@ -692,72 +664,6 @@ void WaterOut_Key(void)
         l_sys.Water.OutWater_Key &= ~WATER_NORMAL_ICE;
         l_sys.Water.OutWater_Delay = 0;
     }
-
-    //    //冷水 2
-    //    if ((sys_get_di_sts(DI_Cold_2_BPOS) == 1) && (g_sys.config.ComPara.u16Water_Ctrl & TWO_COLD)) //双路出冷水
-    //    {
-    //        l_sys.OutWater_Key |= WATER_ICE;
-    //        l_sys.OutWater_Delay[2] = WATER_MAXTIME;
-    //    }
-    //    else
-    //    {
-    //        l_sys.OutWater_Key &= ~WATER_ICE;
-    //        l_sys.OutWater_Delay[2] = 0;
-    //    }
-
-    //    //		//童锁
-    //    //		if((sys_get_di_sts(DI_K3_BPOS)==1))
-    //    //		{
-    //    //				l_sys.ChildLock_Cnt[0]++;
-    //    //		}
-    //    //		else
-    //    //		{
-    //    //				l_sys.ChildLock_Cnt[0]=0;
-    //    //		}
-
-    //    if (l_sys.ChildLock_Cnt[0] >= ChildKey_Cnt)
-    //    {
-    //        l_sys.ChildLock_Cnt[0] = 0;
-    //        l_sys.ChildLock_Key = 1;
-    //        l_sys.ChildLock_Cnt[1] = ChildKey_Lose;
-    //    }
-    //    //童锁使能
-    //    if (l_sys.ChildLock_Key)
-    //    {
-    //        //热水
-    //        if ((sys_get_di_sts(DI_Heat_BPOS) == 1))
-    //        {
-    //            l_sys.OutWater_Key |= WATER_HEAT;
-    //            l_sys.OutWater_Delay[1] = WATER_MAXTIME;
-    //        }
-    //        else
-    //        {
-    //            l_sys.OutWater_Key &= ~WATER_HEAT;
-    //            l_sys.OutWater_Delay[1] = 0;
-    //        }
-    //    }
-    //    else
-    //    {
-    //        if ((sys_get_di_sts(DI_Heat_BPOS) == 1)) //无效
-    //        {
-    //        }
-    //        else
-    //        {
-    //            l_sys.OutWater_Key &= ~WATER_HEAT;
-    //            l_sys.OutWater_Delay[1] = 0;
-    //        }
-    //    }
-
-    //    //童锁指示
-    //    if (l_sys.ChildLock_Cnt[1])
-    //    {
-    //        req_bitmap_op(DO_LED_LOCK_BPOS, 1); //LED指示,反向
-    //    }
-    //    else
-    //    {
-    //        req_bitmap_op(DO_LED_LOCK_BPOS, 0); //LED指示
-    //        l_sys.ChildLock_Key = 0;
-    //    }
 
     return;
 }
@@ -834,8 +740,8 @@ void WaterOut_exe(void)
             g_sVariable.gPara.Water.u16Water_Mode = 0;
             g_sVariable.gPara.Water.u16Water_Flow = 0;
             WaterOut_Close(1, WATER_NORMAL_ICE);
-            //            WaterOut_Close(1, WATER_HEAT);
-            //            WaterOut_Close(1, WATER_ICE);
+            // WaterOut_Close(1, WATER_HEAT);
+            // WaterOut_Close(1, WATER_ICE);
             return;
         }
     }
@@ -852,8 +758,8 @@ void WaterOut_exe(void)
             }
 
             WaterOut_Close(1, WATER_NORMAL_ICE);
-            //            WaterOut_Close(1, WATER_HEAT);
-            //            WaterOut_Close(1, WATER_ICE);
+            // WaterOut_Close(1, WATER_HEAT);
+            // WaterOut_Close(1, WATER_ICE);
             return;
         }
     }
@@ -891,8 +797,8 @@ void WaterOut_exe(void)
     {
         g_sVariable.status.REQ_TEST[6] |= 0x10;
         WaterOut_Close(1, WATER_NORMAL_ICE);
-        //        WaterOut_Close(1, WATER_HEAT);
-        //        WaterOut_Close(1, WATER_ICE);
+        // WaterOut_Close(1, WATER_HEAT);
+        // WaterOut_Close(1, WATER_ICE);
     }
     //最大出水限制
 
@@ -921,7 +827,7 @@ void UV_exe(void)
     if (g_sVariable.gPara.Water.u16CloseUV)
     {
         req_bitmap_op(DO_LED_UV1_BPOS, 0);
-        //				req_bitmap_op(DO_LED_UV2_BPOS, 0);
+        // req_bitmap_op(DO_LED_UV2_BPOS, 0);
         req_bitmap_op(DO_LED_UV3_BPOS, 0);
         req_bitmap_op(DO_UV1_BPOS, 0);
         req_bitmap_op(DO_UV1_BPOS, 0);
@@ -930,7 +836,7 @@ void UV_exe(void)
     else
     {
         req_bitmap_op(DO_LED_UV1_BPOS, 1);  //默认常开紫外灯
-                                            //				req_bitmap_op(DO_LED_UV2_BPOS, 1);//默认常开紫外灯
+        // req_bitmap_op(DO_LED_UV2_BPOS, 1);  //默认常开紫外灯
         req_bitmap_op(DO_LED_UV3_BPOS, 1);  //默认常开紫外灯
         req_bitmap_op(DO_UV1_BPOS, 1);      //默认常开紫外灯
         req_bitmap_op(DO_UV2_BPOS, 1);      //默认常开紫外灯
@@ -938,12 +844,6 @@ void UV_exe(void)
     }
     return;
 }
-
-////LED输出指示
-// void LED_exe(void)
-//{
-//     return;
-// }
 
 //水路需求
 void Water_req_exe(void)
@@ -1082,22 +982,6 @@ static uint8_t local_Mode_req_calc(void)
             }
         }
     }
-    ///************************************************************/
-    ////外接水源
-    ///************************************************************/
-    //    if ((Exit_Water() != WATER_AIR)) //外接水源
-    //    {
-    //        u16Buff |= 0x800;
-    //        l_sys.Fan.Fan_Close |= FC_WS;
-    //        l_sys.Comp.Comp_Close |= FC_WS;
-    //    }
-    //    else
-    //    {
-    //        u16Buff |= 0x1000;
-    //        l_sys.Fan.Fan_Close &= ~FC_WS;
-    //        l_sys.Comp.Comp_Close &= ~FC_WS;
-    //    }
-    /************************************************************/
     //告警停机
 
     if (Get_alarm_arbiration())
@@ -1146,8 +1030,6 @@ static uint8_t local_Mode_req_calc(void)
     g_sVariable.status.Water.u16FC_ON = l_sys.Fan.Fan_Close;
     g_sVariable.status.REQ_TEST[0]    = u16Buff;
 
-    //		rt_kprintf("u8Mode_state=%d,u16Mode_req=%d,u32CompRunTime=%d,Fan_Close=%x\n", u8Mode_state,
-    // l_sys.Comp.u16Mode_req,l_sys.Comp.u32CompRunTime, l_sys.Fan.Fan_Close);
     return TRUE;
 }
 
@@ -1158,8 +1040,6 @@ void Power_OnOff_exe()
     //开机
     if (sys_get_pwr_sts() == TRUE)
     {
-        //				g_sys.config.ComPara.u16Manual_Test_En=MANUAL_TEST_UNABLE;
-        //				g_sys.config.ComPara.u16Test_Mode_Type=TEST_UNABLE;
     }
     else
     {

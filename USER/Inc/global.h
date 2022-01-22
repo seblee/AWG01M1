@@ -18,7 +18,7 @@
 
 #define ABNORMAL_VALUE 0x7FFF  //�쳣ֵ
 #define CONF_REG_MAP_NUM 80
-#define REG_MAP_NUM 120
+#define REG_MAP_NUM 122
 
 typedef struct
 {

@@ -4,7 +4,7 @@
 #include "string.h"
 #include "calc.h"
 #include "global.h"
-
+#include "stdio.h"
 void AM_BUS_Config(void)
 {
     HAL_GPIO_WritePin(II_AM_SDA_00_GPIO, II_AM_SDA_00_Pin, GPIO_PIN_SET);
@@ -88,13 +88,13 @@ void SCL_Pin_Output_Low(void)  // SCL输出低电平
 void I2C_Start(void)  // I2C主机发送START信号
 {
     SDA_Pin_Output_High();
-    Delay_us(8);
+    delay_us(8);
     SCL_Pin_Output_High();
-    Delay_us(8);
+    delay_us(8);
     SDA_Pin_Output_Low();
-    Delay_us(8);
+    delay_us(8);
     SCL_Pin_Output_Low();
-    Delay_us(8);
+    delay_us(8);
 }
 
 void AHT20_WR_Byte(uint8_t Byte)  //往AHT20写一个字节
@@ -105,7 +105,7 @@ void AHT20_WR_Byte(uint8_t Byte)  //往AHT20写一个字节
     for (N = 0; N < 8; N++)
     {
         SCL_Pin_Output_Low();
-        Delay_us(4);
+        delay_us(4);
         if (i & Data)
         {
             SDA_Pin_Output_High();
@@ -116,13 +116,13 @@ void AHT20_WR_Byte(uint8_t Byte)  //往AHT20写一个字节
         }
 
         SCL_Pin_Output_High();
-        Delay_us(4);
+        delay_us(4);
         Data <<= 1;
     }
     SCL_Pin_Output_Low();
-    Delay_us(8);
+    delay_us(8);
     SDA_Pin_IN_FLOATING();
-    Delay_us(8);
+    delay_us(8);
 }
 
 uint8_t AHT20_RD_Byte(void)  //从AHT20读取一个字节
@@ -131,11 +131,11 @@ uint8_t AHT20_RD_Byte(void)  //从AHT20读取一个字节
     Byte = 0;
     SCL_Pin_Output_Low();
     SDA_Pin_IN_FLOATING();
-    Delay_us(8);
+    delay_us(8);
     for (i = 0; i < 8; i++)
     {
         SCL_Pin_Output_High();
-        Delay_us(5);
+        delay_us(5);
         a = 0;
         if (IIC_SDA_READ())
         {
@@ -143,10 +143,10 @@ uint8_t AHT20_RD_Byte(void)  //从AHT20读取一个字节
         }
         Byte = (Byte << 1) | a;
         SCL_Pin_Output_Low();
-        Delay_us(5);
+        delay_us(5);
     }
     SDA_Pin_IN_FLOATING();
-    Delay_us(8);
+    delay_us(8);
     return Byte;
 }
 
@@ -156,9 +156,9 @@ uint8_t Receive_ACK(void)  //看AHT20是否有回复ACK
     CNT = 0;
     SCL_Pin_Output_Low();
     SDA_Pin_IN_FLOATING();
-    Delay_us(8);
+    delay_us(8);
     SCL_Pin_Output_High();
-    Delay_us(8);
+    delay_us(8);
     while ((IIC_SDA_READ()) && CNT < 100)
         CNT++;
     if (CNT == 100)
@@ -166,46 +166,46 @@ uint8_t Receive_ACK(void)  //看AHT20是否有回复ACK
         return 0;
     }
     SCL_Pin_Output_Low();
-    Delay_us(8);
+    delay_us(8);
     return 1;
 }
 
 void Send_ACK(void)  //主机回复ACK信号
 {
     SCL_Pin_Output_Low();
-    Delay_us(8);
+    delay_us(8);
     SDA_Pin_Output_Low();
-    Delay_us(8);
+    delay_us(8);
     SCL_Pin_Output_High();
-    Delay_us(8);
+    delay_us(8);
     SCL_Pin_Output_Low();
-    Delay_us(8);
+    delay_us(8);
     SDA_Pin_IN_FLOATING();
-    Delay_us(8);
+    delay_us(8);
 }
 
 void Send_NOT_ACK(void)  //主机不回复ACK
 {
     SCL_Pin_Output_Low();
-    Delay_us(8);
+    delay_us(8);
     SDA_Pin_Output_High();
-    Delay_us(8);
+    delay_us(8);
     SCL_Pin_Output_High();
-    Delay_us(8);
+    delay_us(8);
     SCL_Pin_Output_Low();
-    Delay_us(8);
+    delay_us(8);
     SDA_Pin_Output_Low();
-    Delay_us(8);
+    delay_us(8);
 }
 
 void Stop_I2C(void)  //一条协议结束
 {
     SDA_Pin_Output_Low();
-    Delay_us(8);
+    delay_us(8);
     SCL_Pin_Output_High();
-    Delay_us(8);
+    delay_us(8);
     SDA_Pin_Output_High();
-    Delay_us(8);
+    delay_us(8);
 }
 
 uint8_t AHT20_Read_Status(void)  //读取AHT20的状态寄存器
@@ -278,23 +278,24 @@ uint8_t AHT20_Read_CTdata(uint32_t *ct)  //没有CRC校验，直接读取AHT20�
     volatile uint8_t Byte_6th = 0;
     uint32_t RetuData         = 0;
     uint16_t cnt              = 0;
-    AHT20_SendAC();   //向AHT10发送AC命令
-    Delay_us(80000);  //延时80ms左右
+    AHT20_SendAC();  //向AHT10发送AC命令
+    osDelay(80);     //延时80ms左右
     cnt = 0;
-    while (((AHT20_Read_Status() & 0x80) == 0x80))  //直到状态bit[7]为0，表示为空闲状态，若为1，表示忙状态
+    //直到状态bit[7]为0，表示为空闲状态，若为1，表示忙状态
+    while (((AHT20_Read_Status() & 0x80) == 0x80))
     {
-        Delay_us(1508);
+        delay_us(1508);
         if (cnt++ >= 100)
         {
-            //			return FALSE;
+            // return FALSE;
             break;
         }
     }
     I2C_Start();
     AHT20_WR_Byte(0x71);
     Receive_ACK();
-    Byte_1th =
-        AHT20_RD_Byte();  //状态字，查询到状态为0x98,表示为忙状态，bit[7]为1；状态为0x1C，或者0x0C，或者0x08表示为空闲状态，bit[7]为0
+    //状态字，查询到状态为0x98,表示为忙状态，bit[7]为1；状态为0x1C，或者0x0C，或者0x08表示为空闲状态，bit[7]为0
+    Byte_1th = AHT20_RD_Byte();
     Send_ACK();
     Byte_2th = AHT20_RD_Byte();  //湿度
     Send_ACK();
@@ -338,12 +339,12 @@ uint8_t AHT20_Read_CTdata_crc(uint32_t *ct)  // CRC校验后，读取AHT20的温
     uint8_t Sensor_AnswerFlag;  //收到起始标志位
 
     //	ENTER_CRITICAL_SECTION(); //关全局中断
-    AHT20_SendAC();   //向AHT10发送AC命令
-    Delay_us(80000);  //延时80ms左右
+    AHT20_SendAC();  //向AHT10发送AC命令
+    osDelay(80);     //延时80ms左右
     cnt = 0;
     while (((AHT20_Read_Status() & 0x80) == 0x80))  //直到状态bit[7]为0，表示为空闲状态，若为1，表示忙状态
     {
-        Delay_us(1508);
+        delay_us(1508);
         if (cnt++ >= 100)
         {
             break;
@@ -354,8 +355,8 @@ uint8_t AHT20_Read_CTdata_crc(uint32_t *ct)  // CRC校验后，读取AHT20的温
 
     AHT20_WR_Byte(0x71);
     Receive_ACK();
-    CTDATA[0] = Byte_1th =
-        AHT20_RD_Byte();  //状态字，查询到状态为0x98,表示为忙状态，bit[7]为1；状态为0x1C，或者0x0C，或者0x08表示为空闲状态，bit[7]为0
+    //状态字，查询到状态为0x98,表示为忙状态，bit[7]为1；状态为0x1C，或者0x0C，或者0x08表示为空闲状态，bit[7]为0
+    CTDATA[0] = Byte_1th = AHT20_RD_Byte();
     Send_ACK();
     CTDATA[1] = Byte_2th = AHT20_RD_Byte();  //湿度
     Send_ACK();
@@ -411,8 +412,7 @@ void AHT20_Init(void)  //初始化AHT20
     AHT20_WR_Byte(0x00);
     Receive_ACK();
     Stop_I2C();
-
-    Delay_us(10000);  //延时10ms左右
+    osDelay(10);  //延时10ms左右
 
     I2C_Start();
     AHT20_WR_Byte(0x70);
@@ -424,7 +424,7 @@ void AHT20_Init(void)  //初始化AHT20
     AHT20_WR_Byte(0x00);
     Receive_ACK();
     Stop_I2C();
-    Delay_us(10000);  //延时10ms左右
+    osDelay(10);  //延时10ms左右
 }
 void JH_Reset_REG(uint8_t addr)
 {
@@ -441,7 +441,7 @@ void JH_Reset_REG(uint8_t addr)
     Receive_ACK();
     Stop_I2C();
 
-    Delay_us(5000);  //延时5ms左右
+    delay_us(5000);  //延时5ms左右
     I2C_Start();
     AHT20_WR_Byte(0x71);  //
     Receive_ACK();
@@ -453,7 +453,7 @@ void JH_Reset_REG(uint8_t addr)
     Send_NOT_ACK();
     Stop_I2C();
 
-    Delay_us(10000);  //延时10ms左右
+    osDelay(10);  //延时10ms左右
     I2C_Start();
     AHT20_WR_Byte(0x70);  ///
     Receive_ACK();
@@ -496,11 +496,11 @@ uint8_t AM2301B_update(void)
         u8THInit = TRUE;
         AM_Init();
 
-        Delay_us(10000);  // 10ms
+        osDelay(10);  // 10ms
         if ((AHT20_Read_Status() & 0x18) != 0x18)
         {
             AHT20_Start_Init();  //重新初始化寄存器
-            Delay_us(10000);
+            osDelay(10);
         }
     }
     u8CNT++;
@@ -582,16 +582,4 @@ uint8_t AM2301B_update(void)
 void AM_Sensor_update(void)
 {
     AM2301B_update();
-
-    //	SDA_Pin_Output_High();
-    //	Delay_us(10000);//10ms
-    //	SDA_Pin_Output_Low();
-    //	Delay_us(10000);//10ms
-    //	SDA_Pin_Output_High();
-    //	Delay_us(10000);//10ms
-    //	SDA_Pin_Output_Low();
-    //		g_sys.status.ComSta.u16TH[0].Temp=285;
-    //		g_sys.status.ComSta.u16TH[0].Temp=567;
-    //		rt_kprintf("u8CNT=%x,i=%x,u8SenFlag[0]= %x,u16TH_Sensor[0]= %x,[1] =
-    //%x,u8Err_CNT[0]=%x,Temp=%d,Hum=%d\n",u8CNT,i,u8SenFlag[0],u16TH_Sensor[0],u16TH_Sensor[1],u8Err_CNT[0],gds_ptr->status.mbm.tnh[0].temp,gds_ptr->status.mbm.tnh[0].hum);
 }

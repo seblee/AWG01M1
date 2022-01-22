@@ -13,20 +13,20 @@
 #include "Lib_Memory.h"
 #include "Drv_Uart.h"
 
-#define REG_HOLDING_NREGS 120
+#define REG_HOLDING_NREGS 122
 
 #define REG_HOLDING_START 0
 #define CONFIG_REG_MAP_OFFSET 0
 #define STATUS_REG_MAP_OFFSET 110
 #define CPAD_REG_HOLDING_WRITE_NREGS (REG_HOLDING_NREGS)
 
-#define MB_SOFTWARE_VER 0x1006  //Èí¼ş°æ±¾
+#define MB_SOFTWARE_VER 0x1006  //è½¯ä»¶ç‰ˆæœ¬
 #define MB_HARDWARE_VER 0x1000
 
-#define MB_DEVICE_ADDR 0x01  //Ä¬ÈÏµØÖ·
+#define MB_DEVICE_ADDR 0x01  //é»˜è®¤åœ°å€
 #define MB_BAUDRATE 19200
 
-// MBÍ¨ĞÅµØÖ·
+// MBé€šä¿¡åœ°å€
 enum MB_CFG
 {
     MB_CFG_Num      = 0,
@@ -57,9 +57,9 @@ enum MB_CFG
 // modbus holding regs
 typedef struct
 {
-    uint16_t u8RegStart;  //¼Ä´æÆ÷ÆğÊ¼µØÖ·
+    uint16_t u8RegStart;  //å¯„å­˜å™¨èµ·å§‹åœ°å€
     uint16_t u16RegBuffer[REG_HOLDING_NREGS];
-    uint8_t u8RegProperty[REG_HOLDING_NREGS];  //¶ÁĞ´×´Ì¬
+    uint8_t u8RegProperty[REG_HOLDING_NREGS];  //è¯»å†™çŠ¶æ€
     uint8_t u8RegStatus[REG_HOLDING_NREGS];
     uint16_t u8PgFlag;
 } sModbus;
@@ -84,30 +84,30 @@ enum
 
 // typedef struct
 //{
-//		INT16U u16RS;	  		//±£Áô
-//		INT16U u16DI_Mask;	//ÑÚÂë
-//		INT16U u16DI_Polarity;	  //¼«ĞÔ
-//		INT16U u16Rev[2];	  //¼«ĞÔ
-//		INT16U u16FanStep;	//²½³¤
-//		INT16U u16FanOut;	  //Êä³ö
-//		INT16U u16AO;	//Êä³ö
+//		INT16U u16RS;	  		//ä¿ç•™
+//		INT16U u16DI_Mask;	//æ©ç 
+//		INT16U u16DI_Polarity;	  //ææ€§
+//		INT16U u16Rev[2];	  //ææ€§
+//		INT16U u16FanStep;	//æ­¥é•¿
+//		INT16U u16FanOut;	  //è¾“å‡º
+//		INT16U u16AO;	//è¾“å‡º
 //		INT16U u16DI_Bitmap;		//DI
-//		INT16U u16State;		//×´Ì¬
+//		INT16U u16State;		//çŠ¶æ€
 // }sFan_st;
 
 // typedef struct
 //{
-//		INT8U AddressRange[2];				//µØÖ··¶Î§
-//		INT8U DeviceType[4];					//Éè±¸ÀàĞÍ
-//		INT8U SoftwareVersion[2];			//Èí¼ş°æ±¾
-//		INT8U HardwareVersion[2];			//Ó²¼ş°æ±¾
-//		INT8U SN[8];									//ĞòÁĞºÅ
-//		INT8U ManufactureDate[4];			//³ö³§ÈÕÆÚ
-//		INT8U CommAddress[2];					//Í¨ĞÅµØÖ·
-//		INT8U Bardrate[2];						//²¨ÌØÂÊ
-//		INT8U NULLREG[5*2];						//¿ÕÏĞ
-//		INT8U Status[2];							//×´Ì¬
-//		INT8U ConfigREG[2];							//¿ØÖÆ¼Ä´æÆ÷
+//		INT8U AddressRange[2];				//åœ°å€èŒƒå›´
+//		INT8U DeviceType[4];					//è®¾å¤‡ç±»å‹
+//		INT8U SoftwareVersion[2];			//è½¯ä»¶ç‰ˆæœ¬
+//		INT8U HardwareVersion[2];			//ç¡¬ä»¶ç‰ˆæœ¬
+//		INT8U SN[8];									//åºåˆ—å·
+//		INT8U ManufactureDate[4];			//å‡ºå‚æ—¥æœŸ
+//		INT8U CommAddress[2];					//é€šä¿¡åœ°å€
+//		INT8U Bardrate[2];						//æ³¢ç‰¹ç‡
+//		INT8U NULLREG[5*2];						//ç©ºé—²
+//		INT8U Status[2];							//çŠ¶æ€
+//		INT8U ConfigREG[2];							//æ§åˆ¶å¯„å­˜å™¨
 // }sParameter;
 
 #define PARA_LEN sizeof(sParameter)

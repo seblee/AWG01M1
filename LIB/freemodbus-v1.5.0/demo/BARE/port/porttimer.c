@@ -50,12 +50,14 @@ BOOL xMBPortTimersInit(USHORT usTim1Timerout50us)
 
 void vMBPortTimersEnable(void)
 {
-    // HAL_TIM_Base_Start_IT(&htim6);
+    __HAL_TIM_SET_COUNTER(&htim6, 0);
+    HAL_TIM_Base_Start_IT(&htim6);
 }
 
 void vMBPortTimersDisable(void)
 {
-    // HAL_TIM_Base_Stop_IT(&htim6);
+    HAL_TIM_Base_Stop_IT(&htim6);
+    __HAL_TIM_SET_COUNTER(&htim6, 0);
 }
 
 /* Create an ISR which is called whenever the timer has expired. This function

@@ -40,7 +40,7 @@ extern "C"
 #endif  //__cplusplus
 /* Private functions ---------------------------------------------------------*/
 volatile uint8_t uart1TXBuff;
-volatile uint8_t uart1RXBuff; 
+volatile uint8_t uart1RXBuff;
 volatile uint8_t uart2RXBuff;
 /*********************************************************
  * @name   uart1_gpio_init
@@ -177,10 +177,12 @@ uint8_t UART_Send(uint8_t *u8Buf, uint8_t u8Len)
     {
         return u8Se;
     }
+    if (HAL_UART_Transmit(&huart2, u8Buf, u8Len, 0xffff) != HAL_OK)
+    {
+        return 0;
+    }
 
-    HAL_UART_Transmit(&huart2, u8Buf, u8Len, 0xffff);
-    u8Se = 1;
-    return u8Se;
+    return 1;
 }
 
 //串口发送数据
@@ -255,18 +257,6 @@ void Comm_Service(void)
             g_sVariable.status.Water.u16TDS[0] += (int16_t)(g_sVariable.gPara.Water.u16TDS_Cail);
         }
 
-        //			u8Sum=0;
-        //			for (i = 6; i < 11; i++)
-        //			{
-        //					u8Sum += g_ComBuff[i];
-        //			}
-        //			if(u8Sum==g_ComBuff[11])
-        //			{
-        //				g_sVariable.status.Water.u16TDS[1]=g_ComBuff[7]<<8|g_ComBuff[7];
-        //
-        ////				g_sVariable.status.Water.u16TDS[1]+=(int16_t)(g_sVariable.gPara.Water.u16TDS_Cail[1]);
-        //			}
-
         memset(&g_ComBuff[0], 0x00, PROTOCOL_FRAME_MaxLen);
         g_ComStat = SEND_Wait;
     }
@@ -277,8 +267,6 @@ void Comm_Service(void)
 uint8_t PortSerialReceiveFSM(void)
 {
     uint8_t RXDByte;
-    //    uint8_t u8CheckSum;
-
     /* Always read the character. */
     (void)xPortSerialGetByte((char *)&RXDByte, 0);
     //    g_ComGap[0] = 0;
@@ -302,14 +290,14 @@ uint8_t PortSerialReceiveFSM(void)
             // 累加校验和
             u8FrameCheckSum += RXDByte;
             g_ComBuff[(Protocol.DataCount)++] = RXDByte;
-            //				memcpy((u8*)&g_sVariable.status.TEST[1],(u8*)&g_ComBuff[port][1],8);	//
+            // memcpy((u8 *)&g_sVariable.status.TEST[1], (u8 *)&g_ComBuff[port][1], 8);  //
             u8FrameDataLength--;
             // 接收数据域的数据
             if (!u8FrameDataLength)
             {
                 // 接收校验和
-                //            u8FrameDataLength = 1;
-                //            Protocol[port].StatckStatus++;
+                // u8FrameDataLength = 1;
+                // Protocol[port].StatckStatus++;
                 Protocol.StatckStatus = PROTOCOL_STACK_IDLE;
                 g_ComStat             = RECV_Over;  //置"接收完成"状态
             }
@@ -357,24 +345,6 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
     {
         PortSerialReceiveFSM();
         HAL_UART_Receive_IT(&huart2, (uint8_t *)&uart2RXBuff, 1);
-    }
-}
-/**
- * @brief  Tx Transfer completed callbacks.
- * @param  huart  Pointer to a UART_HandleTypeDef structure that contains
- *                the configuration information for the specified UART module.
- * @retval None
- */
-void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
-{
-    /* Prevent unused argument(s) compilation warning */
-    UNUSED(huart);
-    /* NOTE: This function should not be modified, when the callback is needed,
-             the HAL_UART_TxCpltCallback could be implemented in the user file
-     */
-    if (huart == &huart1)
-    {
-        prvvUARTTxReadyISR();
     }
 }
 

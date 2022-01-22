@@ -37,10 +37,11 @@ enum
 #define AI_NTC_DTANK AI_NTC5  //饮水箱
 #define AI_NTC_STANK AI_NTC6  //源水箱
 
-#define AI_CT_I AI_SENSOR1      // CT
-#define AI_LEDUV1_V AI_SENSOR2  // LEDUV1
-#define AI_LEDUV3_V AI_SENSOR3  // LEDUV3
-#define AI_TDS AI_SENSOR4       // TDS
+#define AI_CT_I AI_SENSOR4      // CT
+#define AI_LEDUV1_V AI_SENSOR3  // LEDUV1
+#define AI_LEDUV3_V AI_SENSOR5  // LEDUV3
+#define AI_LEDUV2_V AI_SENSOR6  // LEDUV2
+#define AI_TDS AI_SENSOR1       // TDS
 
 #define OFFSET_V 6  //
 extern volatile uint16_t ADC1ConvertedValue[AI_MAX_CNT];

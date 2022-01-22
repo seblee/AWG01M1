@@ -58,90 +58,6 @@ uint16_t Reg_Map_Write(uint16_t reg_addr, uint16_t *wr_data)
     return err_code;
 }
 
-/*********************************************************
-  * @name   eMBRegHoldingCB
-    * @brief  modbus holding register operation call back function
-    * @calls  None
-  * @called modbus protocal stack
-  * @param  None
-  * @retval The return value can be:
-                        @arg MB_ENOERR:
-            @arg MB_ENORES:
-*********************************************************/
-// eMBErrorCode eMBRegHoldingCB( UCHAR * pucRegBuffer, USHORT usAddress, USHORT usNRegs, eMBRegisterMode eMode )
-//{
-////    extern g_var_st g_var_st_inst;
-//		eMBErrorCode    eStatus = MB_ENOERR;
-//    int             iRegIndex;
-//	  uint16_t u16RegAddr = 0;
-//	  uint16_t usValue = 0;
-//	  uint16_t u16Ret = 0;
-
-//    if( usAddress + usNRegs <= REG_HOLDING_START + REG_HOLDING_NUM )
-//    {
-//        iRegIndex = ( int )( usAddress - REG_HOLDING_START );
-//        switch ( eMode )
-//        {
-//        // Pass current register values to the protocol stack.
-//        case MB_REG_READ:
-//            while( usNRegs > 0 )
-//            {
-//                *pucRegBuffer++ = ( UCHAR ) ( lgsModbus_inst.u16RegBuffer[iRegIndex] >> 8 );
-//                *pucRegBuffer++ = ( UCHAR ) ( lgsModbus_inst.u16RegBuffer[iRegIndex] & 0xFF );
-//                iRegIndex++;
-//                usNRegs--;
-//            }
-//            break;
-
-//        // Update current register values with new values from the protocol stack.
-//        case MB_REG_WRITE:
-//            while( usNRegs > 0 )
-//            {
-//								if(lgsModbus_inst.u8RegProperty[iRegIndex] == 0)					//if reg is RO, quit
-//process
-//								{
-//										eStatus = MB_EIO;
-//										break;
-//								}
-////								lgsModbus_inst.u16RegBuffer[iRegIndex] = *pucRegBuffer++ << 8;
-////                lgsModbus_inst.u16RegBuffer[iRegIndex] |= *pucRegBuffer++;
-////								lgsModbus_inst.u8RegStatus[iRegIndex] = MB_REG_WRITE;								//content change measn new cmd
-///request
-////
-////                iRegIndex++;
-////                usNRegs--;
-//								u16RegAddr=iRegIndex;
-
-//								usValue = *pucRegBuffer++ << 8;
-//                usValue |= *pucRegBuffer++;
-//
-//								u16Ret=Reg_Map_Write(conf_reg_map_inst[u16RegAddr].id, &usValue);
-//								if(u16Ret == CPAD_ERR_NOERR)
-//								{
-//									lgsModbus_inst.u16RegBuffer[iRegIndex] = usValue;
-//									lgsModbus_inst.u8RegStatus[iRegIndex] = MB_REG_WRITE;								//content change measn new cmd
-//request
-//
-//									iRegIndex++;
-//									usNRegs--;
-//								}
-//								else
-//								{
-//										eStatus = u16Ret;
-//										break;
-//								}
-
-//            }
-//            break;
-//        }
-//    }
-//    else
-//    {
-//        eStatus = MB_ENOREG;
-//    }
-//    return eStatus;
-//}
-
 uint8_t COM_SINGLE_eMBRegHoldingCB(uint16_t usAddress, uint16_t usValue)
 {
     extern local_reg_st l_sys;
@@ -276,8 +192,8 @@ eMBErrorCode eMBRegHoldingCB(UCHAR *pucRegBuffer, USHORT usAddress, USHORT usNRe
 
     // uint16_t err_code;
     usAddress--;  // FreeModbus功能函数中已经加1，为保证与缓冲区首地址一致，故减1
-    // if((usAddress >= REG_HOLDING_START)&&(usAddress + usNRegs <= REG_HOLDING_START + REG_HOLDING_NREGS ))
-    if (usAddress + usNRegs <= REG_HOLDING_START + REG_HOLDING_NREGS)
+    // if((usAddress >= REG_HOLDING_START)&&(usAddress + usNRegs <= REG_HOLDING_START + REG_MAP_NUM ))
+    if (usAddress + usNRegs <= REG_HOLDING_START + REG_MAP_NUM)
     {
         iRegIndex = (USHORT)(usAddress - REG_HOLDING_START);
         switch (eMode)
@@ -340,21 +256,7 @@ eMBErrorCode eMBRegHoldingCB(UCHAR *pucRegBuffer, USHORT usAddress, USHORT usNRe
                         break;  //  while( usNRegs > 0 )
                     }
 #else
-                    //								if(lgsModbus_inst.u8RegProperty[iRegIndex] == 0)					//if reg is RO, quit
-                    //process
-                    //								{
-                    //										eStatus = MB_EIO;
-                    //										break;
-                    //								}
-                    //								lgsModbus_inst.u16RegBuffer[iRegIndex] = *pucRegBuffer++ << 8;
-                    //                lgsModbus_inst.u16RegBuffer[iRegIndex] |= *pucRegBuffer++;
-                    //								lgsModbus_inst.u8RegStatus[iRegIndex] = MB_REG_WRITE;								//content
-                    //change measn new cmd request
-                    //
-                    //                iRegIndex++;
-                    //                usNRegs--;
-
-                    cmd_value = *pucRegBuffer++ << 8;
+                    cmd_value       = *pucRegBuffer++ << 8;
                     cmd_value |= *pucRegBuffer++;
 
                     err_code = Reg_Map_Write(conf_reg_map_inst[iRegIndex].id, &cmd_value);
@@ -405,49 +307,11 @@ eMBErrorCode eMBRegDiscreteCB(UCHAR *pucRegBuffer, USHORT usAddress, USHORT usND
     return MB_ENOREG;
 }
 
-/*********************************************************
- * @name   SetWorkMode
- * @brief  switch to factory mode, in which all modbus regs could be accessed
- * @calls  ConfigRegister()
- * @called None
- * @param  None
- * @retval None
- *********************************************************/
-// static void SetWorkMode(uint8_t WorkMode)
-//{
-////    uint16_t i;
-//#ifdef  E2PROM
-
-//#else
-//		if(WorkMode)//用户模式
-//		{
-//				lgsModbus_inst.u16RegBuffer[MB_CFG_WorkMode] &= ~0x0001;				//reset status flag bit that indcates factory
-//mode 				for(i=0;i<REG_HOLDING_NREGS;i++)
-//				{
-//						lgsModbus_inst.u8RegProperty[i] = MB_REG_READ;
-//				}
-////				lgsModbus_inst.u8RegProperty[MB_CFG_ADDR] = MB_REG_WRITE;
-////				lgsModbus_inst.u8RegProperty[MB_CFG_BAUDRATE] = MB_REG_WRITE;
-////				lgsModbus_inst.u8RegProperty[MB_CFG_CMD] = MB_REG_WRITE;			//active device seting change
-///permission /				lgsModbus_inst.u8RegProperty[MB_CFG_FANSTEP] = MB_REG_WRITE; /
-///lgsModbus_inst.u8RegProperty[MB_CFG_FANOUT] = MB_REG_WRITE;
-//		}
-//		else//工厂模式
-//		{
-//				lgsModbus_inst.u16RegBuffer[MB_CFG_WorkMode] |= 0x0001;			//set status flag bit that indcates factory
-//mode 				for(i=0;i<REG_HOLDING_NREGS;i++)
-//				{
-//						lgsModbus_inst.u8RegProperty[i] = MB_REG_WRITE;
-//				}
-//		}
-//#endif
-
-//}
 static uint16_t init_load_default(void)
 {
     uint16_t i, ret;
     ret = 1;
-    for (i = 0; i < REG_HOLDING_NREGS; i++)  // initialize global variable with default values
+    for (i = 0; i < REG_MAP_NUM; i++)  // initialize global variable with default values
     {
         if (conf_reg_map_inst[i].reg_ptr != NULL)
         {
@@ -478,37 +342,6 @@ static void MBREGDeflaut(void)
     SetWorkMode(1);  //用户模式()
 #endif
 }
-
-/*********************************************************
-  * @name   cmd_mb_stack_restart
-    * @brief  restart modbus protocal stack, update device address or/and communication baudrate
-    * @calls  MBGetAddrsee(),
-            MBGetBaudrate(),
-            eMBDisable(),
-            eMBInit();
-                        eMBEnable();
-  * @called ();
-  * @param  None
-  * @retval None
-*********************************************************/
-// static eMBErrorCode MBStackRestart(void)
-//{
-//	  eMBErrorCode eStatus=MB_ENOERR;
-//
-//		osDelay(50);
-//		eStatus = eMBDisable();
-//		if(eStatus != MB_ENOERR)
-//		{
-//				return eStatus;
-//		}
-//		eStatus = eMBInit( MB_RTU, MBGetAddrsee(), USART0_CH, MBGetBaudrate(), MB_PAR_NONE );
-//		if(eStatus != MB_ENOERR)
-//		{
-//				return eStatus;
-//		}
-//		eStatus = eMBEnable();
-//		return eStatus;
-// }
 
 /*********************************************************
  * @name   SaveSettings
@@ -590,54 +423,6 @@ void SystemReset(void)
     eMBClose();
     NVIC_SystemReset();
 }
-
-/*********************************************************
-  * @name   ConfigRegister
-    * @brief  modbus configuration register command execution
-    * @calls
-  * @called ResetDefaultParameter(),
-                        SystemReset(),
-                        SetWorkMode;
-  * @param  None
-  * @retval None
-*********************************************************/
-// static void ConfigRegister(uint16_t u16CMD)
-//{
-//     switch(u16CMD)
-//		{
-//		    case (CMD_MB_SAVE_FLASH):
-//		    {
-//		        SaveSettings(1);//保存设置
-//				    break;
-//		    }
-//		    case (CMD_MB_SYS_RESET):
-//		    {
-//		        SystemReset();//系统复位
-//				    break;
-//		    }
-//		    case (CMD_MB_RESET_DEFAULT):
-//		    {
-//		        ResetDefaultParameter();//复位默认参数
-//						Delay(50);
-//						SaveSettings(1);
-//				    break;
-//		    }
-//		    case (CMD_MB_USER_MODE):
-//		    {
-//		        SetWorkMode(1);//用户模式
-//				    break;
-//		    }
-//		    case (CMD_MB_FACTORY_MODE):
-//		    {
-//		        SetWorkMode(0);//工厂模式
-//				    break;
-//		    }
-//				default:
-//				{
-//				    break;
-//				}
-//		}
-// }
 
 /*********************************************************
   * @name   MBGetBaudrate
@@ -745,120 +530,7 @@ INT8U MBRegsiterInit(void)
 *********************************************************/
 void MBResolve(void)
 {
-    ////		INT8U u8Register;
-    //		uint16_t i;
-    //
-    //		for(i=0;i<REG_HOLDING_NREGS;i++)
-    //		{
-    //				if(lgsModbus_inst.u8RegStatus[i] != MB_REG_READ)
-    //				{
-    //						switch(i)
-    //						{
-    //								case (MB_CFG_ADDR):	//address change//通信地址
-    //								{
-    //										if((lgsModbus_inst.u16RegBuffer[i]<1)||(lgsModbus_inst.u16RegBuffer[i]>247))
-    //										{
-    //												lgsModbus_inst.u16RegBuffer[i] =0x01;
-    //										}
-    //										g_sVariable.gPara.CommAddress=lgsModbus_inst.u16RegBuffer[MB_CFG_ADDR];
-    //										MBStackRestart();
-    //										ConfigRegister(CMD_MB_SAVE_FLASH);
-    //										break;
-    //								}
-    //								case (MB_CFG_BAUDRATE):	//baudrate change//通信速率
-    //								{
-    //										if((lgsModbus_inst.u16RegBuffer[i] !=9600)&&(lgsModbus_inst.u16RegBuffer[i] !=4800)
-    //\
-//											&&(lgsModbus_inst.u16RegBuffer[i] !=2400)&&(lgsModbus_inst.u16RegBuffer[i]
-    //!=1200))
-    //										{
-    //												lgsModbus_inst.u16RegBuffer[i] =9600;
-    //										}
-    //										g_sVariable.gPara.Bardrate=lgsModbus_inst.u16RegBuffer[MB_CFG_BAUDRATE];
-    //										MBStackRestart();
-    //										ConfigRegister(CMD_MB_SAVE_FLASH);
-    //										break;
-    //								}
-    //								default:
-    //								{
-    //										break;
-    //								}
-    //						}
-    //				}
-    //				lgsModbus_inst.u8RegStatus[i] = MB_REG_READ;
-    //		}
 }
-
-// eMBErrorCode
-// eMBRegInputCB( UCHAR * pucRegBuffer, USHORT usAddress, USHORT usNRegs )
-//{
-//     return MB_ENOREG;
-// }
-
-// eMBErrorCode eMBRegHoldingCB( UCHAR * pucRegBuffer, USHORT usAddress, USHORT usNRegs, eMBRegisterMode eMode )
-//{
-////    extern g_var_st g_var_st_inst;
-//
-//		eMBErrorCode    eStatus = MB_ENOERR;
-//    int             iRegIndex;
-
-//    if( usAddress + usNRegs <= REG_HOLDING_START + REG_HOLDING_NUM )
-//    {
-//
-//        iRegIndex = ( int )( usAddress - g_sVariable.sModbus_inst.u8RegStart );
-//        switch ( eMode )
-//        {
-//        // Pass current register values to the protocol stack.
-//        case MB_REG_READ:
-//            while( usNRegs > 0 )
-//            {
-//                *pucRegBuffer++ = ( UCHAR ) ( g_sVariable.sModbus_inst.u16RegBuffer[iRegIndex] >> 8 );
-//                *pucRegBuffer++ = ( UCHAR ) ( g_sVariable.sModbus_inst.u16RegBuffer[iRegIndex] & 0xFF );
-//                iRegIndex++;
-//                usNRegs--;
-//            }
-//            break;
-
-//        // Update current register values with new values from the protocol stack.
-//        case MB_REG_WRITE:
-//            while( usNRegs > 0 )
-//            {
-//								if(g_sVariable.sModbus_inst.u8RegProperty[iRegIndex] == 0)					//if reg is RO, quit
-//process
-//								{
-//										eStatus = MB_EIO;
-//										break;
-//								}
-//								g_sVariable.sModbus_inst.u16RegBuffer[iRegIndex] = *pucRegBuffer++ << 8;
-//                g_sVariable.sModbus_inst.u16RegBuffer[iRegIndex] |= *pucRegBuffer++;
-//								g_sVariable.sModbus_inst.u8RegStatus[iRegIndex] = MB_REG_WRITE;								//content change measn
-//new cmd request
-
-//                iRegIndex++;
-//                usNRegs--;
-//            }
-//            break;
-//        }
-//    }
-//    else
-//    {
-//        eStatus = MB_ENOREG;
-//    }
-//    return eStatus;
-//}
-
-// eMBErrorCode
-// eMBRegCoilsCB( UCHAR * pucRegBuffer, USHORT usAddress, USHORT usNCoils,
-//                eMBRegisterMode eMode )
-//{
-//     return MB_ENOREG;
-// }
-
-// eMBErrorCode
-// eMBRegDiscreteCB( UCHAR * pucRegBuffer, USHORT usAddress, USHORT usNDiscrete )
-//{
-//     return MB_ENOREG;
-// }
 
 /*********************************************************
   * @name   mb_get_baudrate
@@ -912,17 +584,10 @@ uint8_t mb_get_device_addr(void)
 static uint16_t mbs_read_reg(uint16_t read_addr)
 {
     extern conf_reg_map_st conf_reg_map_inst[];
-    //	extern  sts_reg_map_st status_reg_map_inst[];
-    // if((read_addr >= CONFIG_REG_MAP_OFFSET)&&(read_addr<CONF_REG_MAP_NUM + CONFIG_REG_MAP_OFFSET))
-    //	if(read_addr<CONF_REG_MAP_NUM + CONFIG_REG_MAP_OFFSET)
     if (read_addr < REG_MAP_NUM + CONFIG_REG_MAP_OFFSET)
     {
         return (*(conf_reg_map_inst[read_addr - CONFIG_REG_MAP_OFFSET].reg_ptr));
     }
-    //	else if((STATUS_REG_MAP_OFFSET <= read_addr)&&(read_addr<( STATUS_REG_MAP_OFFSET+STATUS_REG_MAP_NUM)))
-    //	{
-    //		 return(*(status_reg_map_inst[read_addr-STATUS_REG_MAP_OFFSET].reg_ptr));
-    //	}
     else
     {
         return (ABNORMAL_VALUE);

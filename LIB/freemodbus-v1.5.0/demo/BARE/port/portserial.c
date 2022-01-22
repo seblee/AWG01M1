@@ -73,7 +73,10 @@ BOOL xMBPortSerialInit(UCHAR ucPORT, ULONG ulBaudRate, UCHAR ucDataBits, eMBPari
 
 BOOL xMBPortSerialPutByte(CHAR ucByte)
 {
-    HAL_UART_Transmit_IT(&huart1, (uint8_t*)&uart1TXBuff, 1);
+    if (HAL_UART_Transmit(&huart1, (uint8_t*)&ucByte, 1, 1) != HAL_OK)
+    {
+        return FALSE;
+    }
     return TRUE;
 }
 
